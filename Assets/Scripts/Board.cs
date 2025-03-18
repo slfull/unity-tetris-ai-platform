@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -13,9 +14,10 @@ public class Board : MonoBehaviour
 
     public Vector2Int boardSize = new Vector2Int(10, 20);
     public Vector3Int spawnPosition = new Vector3Int(-1, 8, 0);
-    public Vector3Int previewPosition = new Vector3Int(-1, 12, 0);
-    public Vector3Int holdPosition = new Vector3Int(-1, 16, 0);
-
+    public Vector3Int previewPosition = new Vector3Int(10, 8, 0);
+    public Vector3Int holdPosition = new Vector3Int(-10, 8, 0);
+    public readonly List<int> bagConst = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
+    public List<int> bag = new List<int>();
     public RectInt Bounds
     {
         get
@@ -25,6 +27,25 @@ public class Board : MonoBehaviour
         }
     }
 
+    void CopyBag(List<int> source, List<int> target)
+    {
+        target.Clear(); 
+        target.AddRange(source);
+    }
+
+    public static void Shuffle<T>(List<T> list)
+    {
+        System.Random rng = new System.Random();
+        int n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = rng.Next(n + 1); // Get a random index
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
+        }
+    }
     private void Awake()
     {
         tilemap = GetComponentInChildren<Tilemap>();
@@ -40,6 +61,7 @@ public class Board : MonoBehaviour
         {
             tetrominoes[i].Initialize();
         }
+        CopyBag(bagConst, bag);
     }
 
     private void Start()
@@ -56,10 +78,17 @@ public class Board : MonoBehaviour
             Clear(nextPiece);
         }
 
-        // Pick a random tetromino to use
-        int random = Random.Range(0, tetrominoes.Length);
-        TetrominoData data = tetrominoes[random];
+        
 
+        // Pick a random tetromino to use
+        int random = bag[0];
+        TetrominoData data = tetrominoes[random];
+        bag.RemoveAt(0);
+        if (bag.Count == 0)
+        {
+            CopyBag(bagConst, bag);
+            Shuffle(bag);
+        }
         // Initialize the next piece with the random data
         // Draw it at the "preview" position on the board
         nextPiece.Initialize(this, previewPosition, data);
@@ -89,7 +118,7 @@ public class Board : MonoBehaviour
     {
         // Temporarily store the current saved data so we can swap
         TetrominoData savedData = savedPiece.data;
- 
+
         // Clear the existing saved piece from the board
         if (savedData.cells != null)
         {
@@ -98,19 +127,20 @@ public class Board : MonoBehaviour
 
         // Store the next piece as the new saved piece
         // Draw this piece at the "hold" position on the board
-        savedPiece.Initialize(this, holdPosition, nextPiece.data);
+        savedPiece.Initialize(this, holdPosition, activePiece.data);
+        
         Set(savedPiece);
 
         // Swap the saved piece to be the next piece
         if (savedData.cells != null)
         {
             // Clear the existing next piece before swapping
-            Clear(nextPiece);
+            Clear(activePiece);
 
             // Re-initialize the next piece with the saved data
             // Draw this piece at the "preview" position on the board
-            nextPiece.Initialize(this, previewPosition, savedData);
-            Set(nextPiece);
+            activePiece.Initialize(this, spawnPosition, savedData);
+            Set(activePiece);
         }
     }
 
