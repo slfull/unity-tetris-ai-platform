@@ -8,6 +8,10 @@ public class Board : MonoBehaviour
     public Tilemap tilemap { get; private set; }
     public Piece activePiece { get; private set; }
     public Piece nextPiece { get; private set; }
+    public Piece nextPiece2 { get; private set; }
+    public Piece nextPiece3 { get; private set; }
+    public Piece nextPiece4 { get; private set; }
+    public Piece nextPiece5 { get; private set; }
     public Piece savedPiece { get; private set; }
 
     public TetrominoData[] tetrominoes;
@@ -15,6 +19,10 @@ public class Board : MonoBehaviour
     public Vector2Int boardSize = new Vector2Int(10, 20);
     public Vector3Int spawnPosition = new Vector3Int(-1, 8, 0);
     public Vector3Int previewPosition = new Vector3Int(10, 8, 0);
+    public Vector3Int previewPosition2 = new Vector3Int(10, 5, 0);
+    public Vector3Int previewPosition3 = new Vector3Int(10, 2, 0);
+    public Vector3Int previewPosition4 = new Vector3Int(10, -1, 0);
+    public Vector3Int previewPosition5 = new Vector3Int(10, -3, 0);
     public Vector3Int holdPosition = new Vector3Int(-10, 8, 0);
     public readonly List<int> bagConst = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
     public List<int> bag = new List<int>();
@@ -46,6 +54,21 @@ public class Board : MonoBehaviour
             list[n] = value;
         }
     }
+    public static void ShuffleWithConstraints<T>(List<T> list)
+    {
+        Shuffle(list);
+
+        // Ensure that 5 or 7 is not at the 0th position
+        while (list[0].Equals(6) || list[0].Equals(4))
+        {
+            // If 5 or 7 is at the 0th position, swap it with a random position (other than 0)
+            System.Random rng = new System.Random();
+            int randomIndex = rng.Next(1, list.Count); // Ensure the index is not 0
+            T temp = list[0];
+            list[0] = list[randomIndex];
+            list[randomIndex] = temp;
+        }
+    }
     private void Awake()
     {
         tilemap = GetComponentInChildren<Tilemap>();
@@ -53,6 +76,18 @@ public class Board : MonoBehaviour
 
         nextPiece = gameObject.AddComponent<Piece>();
         nextPiece.enabled = false;
+
+        nextPiece2 = gameObject.AddComponent<Piece>();
+        nextPiece2.enabled = false;
+
+        nextPiece3 = gameObject.AddComponent<Piece>();
+        nextPiece3.enabled = false;
+
+        nextPiece4 = gameObject.AddComponent<Piece>();
+        nextPiece4.enabled = false;
+
+        nextPiece5 = gameObject.AddComponent<Piece>();
+        nextPiece5.enabled = false;
 
         savedPiece = gameObject.AddComponent<Piece>();
         savedPiece.enabled = false;
@@ -66,20 +101,82 @@ public class Board : MonoBehaviour
 
     private void Start()
     {
+        InitializeNextPiece();
         SetNextPiece();
         SpawnPiece();
     }
 
     private void SetNextPiece()
     {
-        // Clear the existing piece from the board
-        if (nextPiece.cells != null)
+
+        var nextPieces = new[] { nextPiece, nextPiece2, nextPiece3, nextPiece4, nextPiece5 };
+        var nextpreviewPositions = new[] { previewPosition, previewPosition2, previewPosition3, previewPosition4, previewPosition5 };
+        //Goes through all nextPieces, Display and Set Data
+        for (int i = 0; i < nextPieces.Length; i++)
         {
-            Clear(nextPiece);
+            var piece = nextPieces[i];
+            var piecenext = nextPieces[i+1];
+
+            // Clear the piece
+            if (piece.cells != null)
+            {
+                Clear(piece);
+            }
+
+            // Check if last loop, break and BagTakeNextPiece() for the last piece
+            if (piecenext == nextPiece5)
+            {
+                piece.Initialize(this, nextpreviewPositions[i], piecenext.data);
+                Set(piece);
+                Clear(piecenext);
+                nextPiece5.Initialize(this, previewPosition5, BagTakeNextPiece());
+                Set(nextPiece5);
+                break;
+            }
+
+            piece.Initialize(this, nextpreviewPositions[i], piecenext.data);
+            Set(piece);
+
+
+        }
+    }
+
+
+    private void InitializeNextPiece()
+    {
+        // Clear all next pieces if they exist
+        var nextPieces = new[] { nextPiece, nextPiece2, nextPiece3, nextPiece4, nextPiece5 };
+        foreach (var piece in nextPieces)
+        {
+            if (piece.cells != null)
+            {
+                Clear(piece);
+            }
         }
 
-        
+        //Initialize Bag
+        CopyBag(bagConst, bag);
+        //Ensure that Z and S is not the first piece
+        ShuffleWithConstraints(bag);
 
+        nextPieces[0].Initialize(this, previewPosition, BagTakeNextPiece());
+        Set(nextPieces[0]);
+
+        nextPieces[1].Initialize(this, previewPosition2, BagTakeNextPiece());
+        Set(nextPieces[1]);
+
+        nextPieces[2].Initialize(this, previewPosition3, BagTakeNextPiece());
+        Set(nextPieces[2]);
+
+        nextPieces[3].Initialize(this, previewPosition4, BagTakeNextPiece());
+        Set(nextPieces[3]);
+
+        nextPieces[4].Initialize(this, previewPosition5, BagTakeNextPiece());
+        Set(nextPieces[4]);
+    }
+
+    private TetrominoData BagTakeNextPiece()
+    {
         // Pick a random tetromino to use
         int random = bag[0];
         TetrominoData data = tetrominoes[random];
@@ -89,10 +186,7 @@ public class Board : MonoBehaviour
             CopyBag(bagConst, bag);
             Shuffle(bag);
         }
-        // Initialize the next piece with the random data
-        // Draw it at the "preview" position on the board
-        nextPiece.Initialize(this, previewPosition, data);
-        Set(nextPiece);
+        return data;
     }
 
     public void SpawnPiece()
@@ -155,7 +249,7 @@ public class Board : MonoBehaviour
     public void GameOver()
     {
         tilemap.ClearAllTiles();
-
+        
         // Do anything else you want on game over here..
     }
 
