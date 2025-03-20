@@ -26,6 +26,7 @@ public class Board : MonoBehaviour
     public Vector3Int holdPosition = new Vector3Int(-10, 8, 0);
     public readonly List<int> bagConst = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
     public List<int> bag = new List<int>();
+    public int score = 0;
     public RectInt Bounds
     {
         get
@@ -145,6 +146,7 @@ public class Board : MonoBehaviour
     {
         // Clear all next pieces if they exist
         var nextPieces = new[] { nextPiece, nextPiece2, nextPiece3, nextPiece4, nextPiece5 };
+        var nextpreviewPositions = new[] { previewPosition, previewPosition2, previewPosition3, previewPosition4, previewPosition5 };
         foreach (var piece in nextPieces)
         {
             if (piece.cells != null)
@@ -158,20 +160,13 @@ public class Board : MonoBehaviour
         //Ensure that Z and S is not the first piece
         ShuffleWithConstraints(bag);
 
-        nextPieces[0].Initialize(this, previewPosition, BagTakeNextPiece());
-        Set(nextPieces[0]);
-
-        nextPieces[1].Initialize(this, previewPosition2, BagTakeNextPiece());
-        Set(nextPieces[1]);
-
-        nextPieces[2].Initialize(this, previewPosition3, BagTakeNextPiece());
-        Set(nextPieces[2]);
-
-        nextPieces[3].Initialize(this, previewPosition4, BagTakeNextPiece());
-        Set(nextPieces[3]);
-
-        nextPieces[4].Initialize(this, previewPosition5, BagTakeNextPiece());
-        Set(nextPieces[4]);
+        //Set all next pieces on the board
+        for (int i = 0; i < nextPieces.Length; i++)
+        {
+            nextPieces[i].Initialize(this, nextpreviewPositions[i], BagTakeNextPiece());
+            Set(nextPieces[i]);
+        }
+        
     }
 
     private TetrominoData BagTakeNextPiece()
@@ -224,17 +219,24 @@ public class Board : MonoBehaviour
         
         Set(savedPiece);
 
-        // Swap the saved piece to be the next piece
+        // Swap the saved piece to be the active piece
         if (savedData.cells != null)
         {
-            // Clear the existing next piece before swapping
+            // Clear the existing active piece before swapping
             Clear(activePiece);
 
-            // Re-initialize the next piece with the saved data
+            // Re-initialize the active piece with the saved data
             // Draw this piece at the "preview" position on the board
             activePiece.Initialize(this, spawnPosition, savedData);
             Set(activePiece);
         }
+        if (savedData.cells == null)
+        {
+            Clear(activePiece);
+            SpawnPiece();
+        }
+        
+
     }
 
     private void Update()
@@ -299,7 +301,7 @@ public class Board : MonoBehaviour
     {
         RectInt bounds = Bounds;
         int row = bounds.yMin;
-
+        int linesCleared = 0;
         // Clear from bottom to top
         while (row < bounds.yMax)
         {
@@ -308,12 +310,32 @@ public class Board : MonoBehaviour
             if (IsLineFull(row))
             {
                 LineClear(row);
+                linesCleared++;
             }
             else
             {
                 row++;
             }
         }
+        //Score calculation
+        //Tetris
+        if (linesCleared == 4)
+        {
+            score += linesCleared;
+            score += linesCleared;
+        }
+        //T-Spin
+        else if (activePiece.data.tetromino == Tetromino.T && activePiece.isLastMoveRotation)
+        {
+            score += linesCleared;
+            score += linesCleared;
+        }
+        //Default
+        else
+        {
+            score += linesCleared;
+        }
+
     }
 
     public bool IsLineFull(int row)
