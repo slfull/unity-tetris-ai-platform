@@ -102,7 +102,6 @@ public class Board : MonoBehaviour
     private void Start()
     {
         InitializeNextPiece();
-        SetNextPiece();
         SpawnPiece();
     }
 
