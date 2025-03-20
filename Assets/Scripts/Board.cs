@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using TMPro;
 
 [DefaultExecutionOrder(-1)]
 public class Board : MonoBehaviour
@@ -27,6 +28,7 @@ public class Board : MonoBehaviour
     public readonly List<int> bagConst = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
     public List<int> bag = new List<int>();
     public int score = 0;
+    public TextMeshProUGUI scoreText;
     public RectInt Bounds
     {
         get
@@ -335,7 +337,7 @@ public class Board : MonoBehaviour
         {
             score += linesCleared;
         }
-
+        ScoreTextUpdate();
     }
 
     public bool IsLineFull(int row)
@@ -381,6 +383,11 @@ public class Board : MonoBehaviour
 
             row++;
         }
+    }
+
+    private void ScoreTextUpdate()
+    {
+        scoreText.text = "score:" + score;
     }
 
 }
