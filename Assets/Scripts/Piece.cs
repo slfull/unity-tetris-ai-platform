@@ -7,11 +7,12 @@ public class Piece : MonoBehaviour
     public Vector3Int[] cells { get; private set; }
     public Vector3Int position { get; private set; }
     public int rotationIndex { get; private set; }
+    public bool isLastMoveRotation { get; private set; }
 
     public float stepDelay = 1f;
     public float moveDelay = 0.1f;
     public float lockDelay = 0.5f;
-
+   
     private float stepTime;
     private float moveTime;
     private float lockTime;
@@ -45,10 +46,12 @@ public class Piece : MonoBehaviour
         lockTime += Time.deltaTime;
 
         // Handle rotation
-        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Z)) {
+        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Z ) || Input.GetKeyDown(KeyCode.UpArrow)) {
             Rotate(-1);
+            isLastMoveRotation = true;
         } else if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.X)) {
             Rotate(1);
+            isLastMoveRotation = true;
         }
 
         // Handle hard drop
@@ -73,19 +76,22 @@ public class Piece : MonoBehaviour
     private void HandleMoveInputs()
     {
         // Soft drop movement
-        if (Input.GetKey(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
         {
-            if (Move(Vector2Int.down) || Input.GetKeyDown(KeyCode.UpArrow)) {
+            if (Move(Vector2Int.down)) {
                 // Update the step time to prevent double movement
                 stepTime = Time.time + stepDelay;
             }
+            isLastMoveRotation = false;
         }
 
         // Left/right movement
-        if (Input.GetKey(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) {
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
             Move(Vector2Int.left);
-        } else if (Input.GetKey(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) {
+            isLastMoveRotation = false;
+        } else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
             Move(Vector2Int.right);
+            isLastMoveRotation = false;
         }
     }
 
