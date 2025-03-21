@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TMPro;
+using System;
 
 [DefaultExecutionOrder(-1)]
 public class Board : MonoBehaviour
@@ -14,6 +15,8 @@ public class Board : MonoBehaviour
     public Piece nextPiece4 { get; private set; }
     public Piece nextPiece5 { get; private set; }
     public Piece savedPiece { get; private set; }
+
+    public Tile tile;
 
     public TetrominoData[] tetrominoes;
 
@@ -104,8 +107,11 @@ public class Board : MonoBehaviour
 
     private void Start()
     {
+    
         InitializeNextPiece();
+        TempPrefabTSpinDouble();
         SpawnPiece();
+        
     }
 
     private void SetNextPiece()
@@ -252,8 +258,8 @@ public class Board : MonoBehaviour
     public void GameOver()
     {
         tilemap.ClearAllTiles();
-        
-        // Do anything else you want on game over here..
+        score = 0;
+        // TODO
     }
 
     public void Set(Piece piece)
@@ -383,6 +389,66 @@ public class Board : MonoBehaviour
 
             row++;
         }
+    }
+
+    public void LineAddTrash(int trashnum, List<int> trashPreset)
+    {
+        RectInt bounds = Bounds;
+        
+        int row = bounds.yMax;
+        for (int i = 0; i< trashnum ; i++)
+        {
+            // Shift every row up one
+            while (row > bounds.yMin)
+            {
+                for (int col = bounds.xMin; col < bounds.xMax; col++)
+                {
+                    Vector3Int position = new Vector3Int(col, row - 1, 0);
+                    TileBase below = tilemap.GetTile(position);
+
+                    position = new Vector3Int(col, row, 0);
+                    tilemap.SetTile(position, below);
+                }
+
+                row--;
+            }
+
+
+            //Fill trash
+            int cellnum = 0;
+            for (int col = bounds.xMin; col < bounds.xMax; col++)
+            {
+                Vector3Int positiont = new Vector3Int(col, bounds.yMin, 0);
+                tilemap.SetTile(positiont, tile);
+                //Prevent null reference
+                if (cellnum < trashPreset.Count)
+                {
+                    //Leave Empty
+                    if (trashPreset[cellnum] == 0)
+                    {
+                        tilemap.SetTile(positiont, null);
+                        cellnum++;
+                        continue;
+                    }
+                }
+                cellnum++;
+            }
+            
+            
+        }
+        
+
+    }
+
+    public void TempPrefabTSpinDouble()
+    {
+        //0是留空，剩下沒用到的會都是填入的
+        List<int> trashPreset = new List<int> { 1, 1, 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 0, 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 1, 0, 1 };
+        LineAddTrash(1, trashPreset);
     }
 
     private void ScoreTextUpdate()
