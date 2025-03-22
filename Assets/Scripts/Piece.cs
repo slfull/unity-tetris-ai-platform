@@ -6,7 +6,7 @@ public class Piece : MonoBehaviour
     public TetrominoData data { get; private set; }
     public Vector3Int[] cells { get; private set; }
     public Vector3Int position { get; private set; }
-    public int rotationIndex { get; private set; }
+    public int rotationIndex;
     public bool isLastMoveRotation { get; private set; }
 
     public float stepDelay = 1f;
@@ -196,12 +196,21 @@ public class Piece : MonoBehaviour
     private bool TestWallKicks(int rotationIndex, int rotationDirection)
     {
         int wallKickIndex = GetWallKickIndex(rotationIndex, rotationDirection);
+        if(wallKickIndex % 2 == 0)
+        {
+            wallKickIndex = Wrap(wallKickIndex - 2, 0, data.wallKicks.GetLength(0));
+        }
+        else
+        {
+            wallKickIndex = Wrap(wallKickIndex + 2, 0, data.wallKicks.GetLength(0));
+        }
 
         for (int i = 0; i < data.wallKicks.GetLength(1); i++)
         {
             Vector2Int translation = data.wallKicks[wallKickIndex, i];
 
             if (Move(translation)) {
+                //Debug.Log(wallKickIndex);
                 return true;
             }
         }

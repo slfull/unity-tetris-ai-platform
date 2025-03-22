@@ -113,7 +113,8 @@ public class Board : MonoBehaviour
     {
     
         InitializeNextPiece();
-        TempPrefabTSpinDouble();
+        //TempPrefabTSpinDouble();
+        TempPrefabTSpinTriple();
         SpawnPiece();
         
     }
@@ -459,7 +460,7 @@ public class Board : MonoBehaviour
         }
 
 
-        //0¬O¯dªÅ¡A³Ñ¤U¨S¥Î¨ìªº·|³£¬O¶ñ¤Jªº
+        //0æ˜¯ç•™ç©ºï¼Œå‰©ä¸‹æ²’ç”¨åˆ°çš„æœƒéƒ½æ˜¯å¡«å…¥çš„
         int index = UnityEngine.Random.Range(0, length); // Random index for 0
         trashPreset[index] = 0;
 
@@ -478,10 +479,10 @@ public class Board : MonoBehaviour
         }
     }
 
-    //¼È©wfunction¡A¤§«á²¾°£/§ó§ï¦ì¸m
+    //æš«å®šfunctionï¼Œä¹‹å¾Œç§»é™¤/æ›´æ”¹ä½ç½®
     public void TempPrefabTSpinDouble()
     {
-        //0¬O¯dªÅ¡A³Ñ¤U¨S¥Î¨ìªº·|³£¬O¶ñ¤Jªº
+        //0æ˜¯ç•™ç©ºï¼Œå‰©ä¸‹æ²’ç”¨åˆ°çš„æœƒéƒ½æ˜¯å¡«å…¥çš„
         List<int> trashPreset = new List<int> { 1, 1, 0, 0 };
         LineAddTrash(1, trashPreset);
         trashPreset = new List<int> { 1, 0, 0, 0 };
@@ -490,10 +491,24 @@ public class Board : MonoBehaviour
         LineAddTrash(1, trashPreset);
     }
 
-    //¼È©wfunction¡A¤§«á²¾°£/§ó§ï¦ì¸m
+    public void TempPrefabTSpinTriple()
+    {
+        List<int> trashPreset = new List<int> { 1, 1, 0, 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 0, 0, 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 0 };
+        LineAddTrash(1, trashPreset);
+    }
+
+    //æš«å®šfunctionï¼Œä¹‹å¾Œç§»é™¤/æ›´æ”¹ä½ç½®
     public void TempAddTrashFunction()
     {
-        //³o¸Ìªº1¬O©U§£¦æ¼Æ
+        //é€™è£¡çš„1æ˜¯åƒåœ¾è¡Œæ•¸
         trashBuffer.Add(1);
     }
 
