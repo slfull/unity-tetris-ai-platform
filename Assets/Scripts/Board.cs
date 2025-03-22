@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using TMPro;
 using System;
+using UnityEngine.UIElements;
+using static UnityEngine.Networking.UnityWebRequest;
+using System.Collections;
 
 [DefaultExecutionOrder(-1)]
 public class Board : MonoBehaviour
@@ -30,6 +33,7 @@ public class Board : MonoBehaviour
     public Vector3Int holdPosition = new Vector3Int(-10, 8, 0);
     public readonly List<int> bagConst = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
     public List<int> bag = new List<int>();
+    public List<int> trashBuffer = new List<int>();
     public int score = 0;
     public TextMeshProUGUI scoreText;
     public RectInt Bounds
@@ -193,6 +197,7 @@ public class Board : MonoBehaviour
 
     public void SpawnPiece()
     {
+        TrashSpawner();
         // Initialize the active piece with the next piece data
         activePiece.Initialize(this, spawnPosition, nextPiece.data);
 
@@ -252,6 +257,10 @@ public class Board : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.C))
         {
             SwapPiece();
+        }
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            TempAddTrashFunction();
         }
     }
 
@@ -391,13 +400,12 @@ public class Board : MonoBehaviour
         }
     }
 
-    public void LineAddTrash(int trashnum, List<int> trashPreset)
+    public void LineAddTrash(int trashNumberOfLines, List<int> trashPreset)
     {
         RectInt bounds = Bounds;
-        
-        int row = bounds.yMax;
-        for (int i = 0; i< trashnum ; i++)
+        for (int i = 0; i< trashNumberOfLines; i++)
         {
+            int row = bounds.yMax;
             // Shift every row up one
             while (row > bounds.yMin)
             {
@@ -439,7 +447,38 @@ public class Board : MonoBehaviour
         
 
     }
+    public List<int> TrashPresetGenerate()
+    {
+        RectInt bounds = Bounds;
+        int length = bounds.xMax - bounds.xMin;
+        List<int> trashPreset = new List<int>(new int[length]);
 
+        for (int i = 0; i < length; i++)
+        {
+            trashPreset[i] = 1;
+        }
+
+
+        //0是留空，剩下沒用到的會都是填入的
+        int index = UnityEngine.Random.Range(0, length); // Random index for 0
+        trashPreset[index] = 0;
+
+
+        return trashPreset;
+    }
+
+    public void TrashSpawner()
+    {
+        while (trashBuffer.Count > 0)
+        {
+            int trashAmount = trashBuffer[0];
+            LineAddTrash(trashAmount, TrashPresetGenerate());
+            trashBuffer.RemoveAt(0);
+            
+        }
+    }
+
+    //暫定function，之後移除/更改位置
     public void TempPrefabTSpinDouble()
     {
         //0是留空，剩下沒用到的會都是填入的
@@ -451,9 +490,27 @@ public class Board : MonoBehaviour
         LineAddTrash(1, trashPreset);
     }
 
+    //暫定function，之後移除/更改位置
+    public void TempAddTrashFunction()
+    {
+        //這裡的1是垃圾行數
+        trashBuffer.Add(1);
+    }
+
+    
     private void ScoreTextUpdate()
     {
         scoreText.text = "score:" + score;
     }
 
+
+    /**
+     * debug list print
+     *  string r = "list:";
+     for(int i = 0; i < list.Count; i++)
+        {
+            r += " " + list[i];
+        }
+        Debug.Log(r);
+     **/
 }
