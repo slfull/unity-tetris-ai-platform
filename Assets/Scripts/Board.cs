@@ -114,7 +114,10 @@ public class Board : MonoBehaviour
     
         InitializeNextPiece();
         //TempPrefabTSpinDouble();
-        TempPrefabTSpinTriple();
+        //TempPrefabTSpinTriple();
+        TempPrefabSSpinDouble();
+        //TempPrefabISpinSingle();
+        //TempPrefabISpinTetris();
         SpawnPiece();
         
     }
@@ -336,20 +339,15 @@ public class Board : MonoBehaviour
             }
         }
         //Score calculation
+        //Default
+        score += linesCleared;
         //Tetris
         if (linesCleared == 4)
         {
             score += linesCleared;
-            score += linesCleared;
         }
-        //T-Spin
-        else if (activePiece.data.tetromino == Tetromino.T && activePiece.isLastMoveRotation)
-        {
-            score += linesCleared;
-            score += linesCleared;
-        }
-        //Default
-        else
+        //All-Spin
+        if (activePiece.isLastMoveRotation)
         {
             score += linesCleared;
         }
@@ -500,6 +498,40 @@ public class Board : MonoBehaviour
         trashPreset = new List<int> { 1, 0 };
         LineAddTrash(1, trashPreset);
         trashPreset = new List<int> { 1, 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 0 };
+        LineAddTrash(1, trashPreset);
+    }
+
+    public void TempPrefabSSpinDouble()
+    {
+        List<int> trashPreset = new List<int> { 1, 1, 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 0, 0 };
+        LineAddTrash(1, trashPreset);
+    }
+
+    public void TempPrefabISpinSingle()
+    {
+        List<int> trashPreset = new List<int> { 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 0, 0, 0, 0 };
+        LineAddTrash(1, trashPreset);
+    }
+
+    public void TempPrefabISpinTetris()
+    {
+        List<int> trashPreset = new List<int> { 1, 1, 0, 0, 0, 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int>{ 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 0 };
+        LineAddTrash(1, trashPreset);
+        trashPreset = new List<int> { 1, 0 };
         LineAddTrash(1, trashPreset);
         trashPreset = new List<int> { 1, 0 };
         LineAddTrash(1, trashPreset);
