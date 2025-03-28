@@ -29,6 +29,7 @@ public class Piece : NetworkBehaviour
         stepTime = Time.time + stepDelay;
         moveTime = Time.time + moveDelay;
         lockTime = 0f;
+        holdmoveTime = Time.time + holdmoveDelay;
 
         if (cells == null) {
             cells = new Vector3Int[data.cells.Length];
