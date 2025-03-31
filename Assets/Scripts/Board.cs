@@ -115,7 +115,7 @@ public class Board : MonoBehaviour
         InitializeNextPiece();
         //TempPrefabTSpinDouble();
         //TempPrefabTSpinTriple();
-        TempPrefabSSpinDouble();
+        //TempPrefabSSpinDouble();
         //TempPrefabISpinSingle();
         //TempPrefabISpinTetris();
         SpawnPiece();

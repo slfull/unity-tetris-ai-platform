@@ -10,12 +10,14 @@ public class Piece : MonoBehaviour
     public bool isLastMoveRotation { get; private set; }
 
     public float stepDelay = 1f;
-    public float moveDelay = 0.1f;
+    public float moveDelay = 0.05f;
     public float lockDelay = 0.5f;
+    public float holdmoveDelay = 0.25f;
    
     private float stepTime;
     private float moveTime;
     private float lockTime;
+    private float holdmoveTime;
 
     public void Initialize(Board board, Vector3Int position, TetrominoData data)
     {
@@ -86,10 +88,21 @@ public class Piece : MonoBehaviour
         }
 
         // Left/right movement
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) {
+            holdmoveTime = Time.time + holdmoveDelay;
             Move(Vector2Int.left);
             isLastMoveRotation = false;
-        } else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
+        } else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) {
+            holdmoveTime = Time.time + holdmoveDelay;
+            Move(Vector2Int.right);
+            isLastMoveRotation = false;
+        }
+
+        // Left/right hold movement
+        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && (Time.time >= holdmoveTime)) {
+            Move(Vector2Int.left);
+            isLastMoveRotation = false;
+        } else if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && (Time.time >= holdmoveTime)) {
             Move(Vector2Int.right);
             isLastMoveRotation = false;
         }
