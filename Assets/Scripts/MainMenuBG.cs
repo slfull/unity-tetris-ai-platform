@@ -6,7 +6,7 @@ public class MainMenuBG : MonoBehaviour
 {
         public GameObject[] objectToSpawn;
         public Collider2D mouseCollider2D;
-        public float spawnInterval = 1f; //生成的時間
+        public float spawnInterval = 0.5f; //生成的時間
         public Vector2 spawnAreaMin;
         public Vector2 spawnAreaMax;
         private GameObject spawnedObject;
@@ -14,7 +14,6 @@ public class MainMenuBG : MonoBehaviour
         private void Start()
         {
         InvokeRepeating("SpawnObject", 0f, spawnInterval);
-        InvokeRepeating("SpawnObject", 0.2f, spawnInterval);
         
         }
 
