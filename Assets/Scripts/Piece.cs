@@ -1,6 +1,7 @@
 using UnityEngine;
+using Mirror;
 
-public class Piece : MonoBehaviour
+public class Piece : NetworkBehaviour
 {
     public Board board { get; private set; }
     public TetrominoData data { get; private set; }
