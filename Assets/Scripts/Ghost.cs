@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Mirror;
 
-public class Ghost : MonoBehaviour
+public class Ghost : NetworkBehaviour
 {
     public Tile tile;
     public Board mainBoard;

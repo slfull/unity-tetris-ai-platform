@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TMPro;
+using Mirror;
 using System;
 using UnityEngine.UIElements;
 using static UnityEngine.Networking.UnityWebRequest;
 using System.Collections;
 
 [DefaultExecutionOrder(-1)]
-public class Board : MonoBehaviour
+public class Board : NetworkBehaviour
 {
     public Tilemap tilemap { get; private set; }
     public Piece activePiece { get; private set; }
@@ -109,7 +110,7 @@ public class Board : MonoBehaviour
         CopyBag(bagConst, bag);
     }
 
-    private void Start()
+    public override void OnStartServer()
     {
     
         InitializeNextPiece();
@@ -258,13 +259,16 @@ public class Board : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.C))
+        if(isLocalPlayer)
         {
-            SwapPiece();
-        }
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            TempAddTrashFunction();
+            if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.C))
+            {
+                SwapPiece();
+            }
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                TempAddTrashFunction();
+            }
         }
     }
 
