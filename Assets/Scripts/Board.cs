@@ -11,6 +11,7 @@ using System.Collections;
 [DefaultExecutionOrder(-1)]
 public class Board : NetworkBehaviour
 {
+    
     public Tilemap tilemap { get; private set; }
     public Piece activePiece { get; private set; }
     public Piece nextPiece { get; private set; }
@@ -110,17 +111,10 @@ public class Board : NetworkBehaviour
         CopyBag(bagConst, bag);
     }
 
-    public override void OnStartServer()
+    private void Start()
     {
-    
         InitializeNextPiece();
-        //TempPrefabTSpinDouble();
-        //TempPrefabTSpinTriple();
-        //TempPrefabSSpinDouble();
-        //TempPrefabISpinSingle();
-        //TempPrefabISpinTetris();
-        SpawnPiece();
-        
+        SpawnPiece();   
     }
 
     private void SetNextPiece()
@@ -279,6 +273,7 @@ public class Board : NetworkBehaviour
         // TODO
     }
 
+    //[Command(requiresAuthority = false)]
     public void Set(Piece piece)
     {
         for (int i = 0; i < piece.cells.Length; i++)
@@ -286,8 +281,10 @@ public class Board : NetworkBehaviour
             Vector3Int tilePosition = piece.cells[i] + piece.position;
             tilemap.SetTile(tilePosition, piece.data.tile);
         }
+        //RpcSet(piece);
     }
 
+    //[Command(requiresAuthority = false)]
     public void Clear(Piece piece)
     {
         for (int i = 0; i < piece.cells.Length; i++)
@@ -295,6 +292,7 @@ public class Board : NetworkBehaviour
             Vector3Int tilePosition = piece.cells[i] + piece.position;
             tilemap.SetTile(tilePosition, null);
         }
+        //RpcClear(piece);
     }
 
     public bool IsValidPosition(Piece piece, Vector3Int position)
@@ -376,9 +374,11 @@ public class Board : NetworkBehaviour
         return true;
     }
 
+    //[Command(requiresAuthority = false)]
     public void LineClear(int row)
     {
         RectInt bounds = Bounds;
+        int orginalRow = row;
 
         // Clear all tiles in the row
         for (int col = bounds.xMin; col < bounds.xMax; col++)
@@ -401,6 +401,7 @@ public class Board : NetworkBehaviour
 
             row++;
         }
+        //RpcLineClear(orginalRow);
     }
 
     public void LineAddTrash(int trashNumberOfLines, List<int> trashPreset)
@@ -548,12 +549,57 @@ public class Board : NetworkBehaviour
         trashBuffer.Add(1);
     }
 
-    
     private void ScoreTextUpdate()
     {
         scoreText.text = "score:" + score;
     }
+/**
+    [ClientRpc]
+    public void RpcSet(Piece piece)
+    {
+        for(int i = 0; i < piece.cells.Length; i++)
+        {
+            Vector3Int tilePosition = piece.cells[i] + piece.position;
+            tilemap.SetTile(tilePosition, piece.data.tile);
+        }
+    }
+    [ClientRpc]
+    public void RpcClear(Piece piece)
+    {
+        for(int i = 0; i < piece.cells.Length; i++)
+        {
+            Vector3Int tilePosition = piece.cells[i] + piece.position;
+            tilemap.SetTile(tilePosition, null);
+        }
+    }
+    [ClientRpc]
+    public void RpcLineClear(int row)
+    {
+        RectInt bounds = Bounds;
 
+        // Clear all tiles in the row
+        for (int col = bounds.xMin; col < bounds.xMax; col++)
+        {
+            Vector3Int position = new Vector3Int(col, row, 0);
+            tilemap.SetTile(position, null);
+        }
+
+        // Shift every row above down one
+        while (row < bounds.yMax)
+        {
+            for (int col = bounds.xMin; col < bounds.xMax; col++)
+            {
+                Vector3Int position = new Vector3Int(col, row + 1, 0);
+                TileBase above = tilemap.GetTile(position);
+
+                position = new Vector3Int(col, row, 0);
+                tilemap.SetTile(position, above);
+            }
+
+            row++;
+        }
+    }
+**/
 
     /**
      * debug list print
