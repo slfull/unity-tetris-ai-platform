@@ -21,7 +21,7 @@ public class Ghost : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if(isLocalPlayer)
+        if(isOwned)
         {
             Clear();
             Copy();

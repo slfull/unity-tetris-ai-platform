@@ -43,41 +43,43 @@ public class Piece : NetworkBehaviour
     private void Update()
     {
         
-        if(isLocalPlayer)
+        if(!isOwned)
         {
-            board.Clear(this);
+            return;
+        }
+        board.Clear(this);
 
         // We use a timer to allow the player to make adjustments to the piece
         // before it locks in place
-            lockTime += Time.deltaTime;
+        lockTime += Time.deltaTime;
 
         // Handle rotation
-            if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Z ) || Input.GetKeyDown(KeyCode.UpArrow)) {
-                Rotate(-1);
-                isLastMoveRotation = true;
-            } else if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.X)) {
-                Rotate(1);
-                isLastMoveRotation = true;
-            }
+        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Z ) || Input.GetKeyDown(KeyCode.UpArrow)) {
+            Rotate(-1);
+            isLastMoveRotation = true;
+        } else if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.X)) {
+            Rotate(1);
+            isLastMoveRotation = true;
+        }
 
         // Handle hard drop
-            if (Input.GetKeyDown(KeyCode.Space)) {
-                HardDrop();
-            }
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            HardDrop();
+        }
 
         // Allow the player to hold movement keys but only after a move delay
         // so it does not move too fast
-            if (Time.time > moveTime) {
-                HandleMoveInputs();
-            }
+        if (Time.time > moveTime) {
+            HandleMoveInputs();
+        }
 
         // Advance the piece to the next row every x seconds
-            if (Time.time > stepTime) {
-                Step();
-            }
-
-            board.Set(this);
+        if (Time.time > stepTime) {
+            Step();
         }
+
+        board.Set(this);
+        
     }
 
     private void HandleMoveInputs()
