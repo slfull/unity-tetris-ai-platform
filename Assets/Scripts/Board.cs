@@ -113,8 +113,13 @@ public class Board : NetworkBehaviour
 
     private void Start()
     {
+        Debug.Log($"[Board] isServer: {isServer}, isClient: {isClient}, isOwned: {isOwned}");
+        if(!isOwned)
+        {
+            return;
+        }
         InitializeNextPiece();
-        SpawnPiece();   
+        SpawnPiece();
     }
 
     private void SetNextPiece()
@@ -253,7 +258,7 @@ public class Board : NetworkBehaviour
 
     private void Update()
     {
-        if(isLocalPlayer)
+        if(isOwned)
         {
             if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.C))
             {
@@ -273,26 +278,36 @@ public class Board : NetworkBehaviour
         // TODO
     }
 
-    //[Command(requiresAuthority = false)]
+    [ClientCallback]
     public void Set(Piece piece)
     {
+        List<Vector3Int> positions = new List<Vector3Int>();
         for (int i = 0; i < piece.cells.Length; i++)
         {
             Vector3Int tilePosition = piece.cells[i] + piece.position;
             tilemap.SetTile(tilePosition, piece.data.tile);
+            positions.Add(tilePosition);
         }
-        //RpcSet(piece);
+        if(isServer)
+        {
+            RpcSet(positions, piece.data.tile);
+        }
     }
 
-    //[Command(requiresAuthority = false)]
+    [ClientCallback]
     public void Clear(Piece piece)
     {
+        List<Vector3Int> positions = new List<Vector3Int>();
         for (int i = 0; i < piece.cells.Length; i++)
         {
             Vector3Int tilePosition = piece.cells[i] + piece.position;
             tilemap.SetTile(tilePosition, null);
+            positions.Add(tilePosition);
         }
-        //RpcClear(piece);
+        if(isServer)
+        {
+            RpcClear(positions);
+        }
     }
 
     public bool IsValidPosition(Piece piece, Vector3Int position)
@@ -553,25 +568,37 @@ public class Board : NetworkBehaviour
     {
         scoreText.text = "score:" + score;
     }
-/**
+
     [ClientRpc]
-    public void RpcSet(Piece piece)
+    public void RpcSet(List<Vector3Int> positions, Tile tile)
     {
-        for(int i = 0; i < piece.cells.Length; i++)
+        if(isOwned)
         {
-            Vector3Int tilePosition = piece.cells[i] + piece.position;
-            tilemap.SetTile(tilePosition, piece.data.tile);
+            return;
+        }
+        Debug.Log("RpcSet");
+        foreach(Vector3Int pos in positions)
+        {
+            Vector3Int remotePos = new Vector3Int(27, 0, 0) + pos;
+            tilemap.SetTile(remotePos, tile);
         }
     }
+    
     [ClientRpc]
-    public void RpcClear(Piece piece)
+    public void RpcClear(List<Vector3Int> positions)
     {
-        for(int i = 0; i < piece.cells.Length; i++)
+        if(isOwned)
         {
-            Vector3Int tilePosition = piece.cells[i] + piece.position;
-            tilemap.SetTile(tilePosition, null);
+            return;
+        }
+        Debug.Log("RpcClear");
+        foreach(Vector3Int pos in positions)
+        {
+            Vector3Int remotePos = new Vector3Int(27, 0, 0) + pos;
+            tilemap.SetTile(remotePos, null);
         }
     }
+    /**
     [ClientRpc]
     public void RpcLineClear(int row)
     {
