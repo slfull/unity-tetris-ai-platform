@@ -42,7 +42,6 @@ public class Piece : NetworkBehaviour
 
     private void Update()
     {
-        
         if(!isOwned)
         {
             return;
@@ -77,9 +76,7 @@ public class Piece : NetworkBehaviour
         if (Time.time > stepTime) {
             Step();
         }
-
         board.Set(this);
-        
     }
 
     private void HandleMoveInputs()

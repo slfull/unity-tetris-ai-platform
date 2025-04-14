@@ -21,13 +21,15 @@ public class Ghost : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if(isOwned)
+        if(!isOwned)
         {
-            Clear();
-            Copy();
-            Drop();
-            Set();
+            return;
         }
+        Clear();
+        Copy();
+        Drop();
+        Set();
+        
     }
 
     //[Command(requiresAuthority = false)]
@@ -59,18 +61,16 @@ public class Ghost : NetworkBehaviour
         int bottom = -mainBoard.boardSize.y / 2 - 1;
 
         mainBoard.Clear(trackingPiece);
-
         for (int row = current; row >= bottom; row--)
         {
             position.y = row;
-
+            
             if (mainBoard.IsValidPosition(trackingPiece, position)) {
                 this.position = position;
             } else {
                 break;
             }
         }
-
         mainBoard.Set(trackingPiece);
         //RpcDrop();
     }

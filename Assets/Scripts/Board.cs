@@ -83,6 +83,7 @@ public class Board : NetworkBehaviour
     }
     private void Awake()
     {
+
         tilemap = GetComponentInChildren<Tilemap>();
         activePiece = GetComponentInChildren<Piece>();
 
@@ -277,36 +278,31 @@ public class Board : NetworkBehaviour
         score = 0;
         // TODO
     }
-
-    [ClientCallback]
     public void Set(Piece piece)
     {
-        List<Vector3Int> positions = new List<Vector3Int>();
         for (int i = 0; i < piece.cells.Length; i++)
         {
             Vector3Int tilePosition = piece.cells[i] + piece.position;
             tilemap.SetTile(tilePosition, piece.data.tile);
-            positions.Add(tilePosition);
+            CmdSetTile(tilePosition, piece.data.tetromino);
         }
         if(isServer)
         {
-            RpcSet(positions, piece.data.tile);
+            //RpcSet(positions, piece.data.tile);
         }
     }
 
-    [ClientCallback]
     public void Clear(Piece piece)
     {
-        List<Vector3Int> positions = new List<Vector3Int>();
         for (int i = 0; i < piece.cells.Length; i++)
         {
             Vector3Int tilePosition = piece.cells[i] + piece.position;
             tilemap.SetTile(tilePosition, null);
-            positions.Add(tilePosition);
+            CmdClearTile(tilePosition);
         }
         if(isServer)
         {
-            RpcClear(positions);
+            //RpcClear(positions);
         }
     }
 
@@ -393,7 +389,7 @@ public class Board : NetworkBehaviour
     public void LineClear(int row)
     {
         RectInt bounds = Bounds;
-        int orginalRow = row;
+        CmdLineClear(row);
 
         // Clear all tiles in the row
         for (int col = bounds.xMin; col < bounds.xMax; col++)
@@ -409,11 +405,9 @@ public class Board : NetworkBehaviour
             {
                 Vector3Int position = new Vector3Int(col, row + 1, 0);
                 TileBase above = tilemap.GetTile(position);
-
                 position = new Vector3Int(col, row, 0);
                 tilemap.SetTile(position, above);
             }
-
             row++;
         }
         //RpcLineClear(orginalRow);
@@ -569,6 +563,54 @@ public class Board : NetworkBehaviour
         scoreText.text = "score:" + score;
     }
 
+    private Tile GetTileFromType(Tetromino type)
+    {
+        foreach(var data in tetrominoes)
+        {
+            if(data.tetromino == type)
+            {
+                return data.tile;
+            }
+        }
+        return null;
+    }
+
+    [Command]
+    private void CmdSetTile(Vector3Int position, Tetromino type)
+    {
+        tilemap.SetTile(position, GetTileFromType(type));
+    }
+    [Command]
+    private void CmdClearTile(Vector3Int position)
+    {
+        tilemap.SetTile(position, null);
+    }
+    [Command]
+    private void CmdLineClear(int row)
+    {
+        RectInt bounds = Bounds;
+
+        // Clear all tiles in the row
+        for (int col = bounds.xMin; col < bounds.xMax; col++)
+        {
+            Vector3Int position = new Vector3Int(col, row, 0);
+            tilemap.SetTile(position, null);
+        }
+
+        // Shift every row above down one
+        while (row < bounds.yMax)
+        {
+            for (int col = bounds.xMin; col < bounds.xMax; col++)
+            {
+                Vector3Int position = new Vector3Int(col, row + 1, 0);
+                TileBase above = tilemap.GetTile(position);
+                position = new Vector3Int(col, row, 0);
+                tilemap.SetTile(position, above);
+            }
+            row++;
+        }
+    }
+/**
     [ClientRpc]
     public void RpcSet(List<Vector3Int> positions, Tile tile)
     {
@@ -598,7 +640,7 @@ public class Board : NetworkBehaviour
             tilemap.SetTile(remotePos, null);
         }
     }
-    /**
+    
     [ClientRpc]
     public void RpcLineClear(int row)
     {
