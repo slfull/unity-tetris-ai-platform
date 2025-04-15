@@ -37,6 +37,7 @@ public class Board : NetworkBehaviour
     public List<int> bag = new List<int>();
     public List<int> trashBuffer = new List<int>();
     public int score = 0;
+    private int comboCount = 0;
     public TextMeshProUGUI scoreText;
     public RectInt Bounds
     {
@@ -284,7 +285,15 @@ public class Board : NetworkBehaviour
         {
             Vector3Int tilePosition = piece.cells[i] + piece.position;
             tilemap.SetTile(tilePosition, piece.data.tile);
-            CmdSetTile(tilePosition, piece.data.tetromino);
+            if(!isServer)
+            {
+                CmdSetTile(tilePosition, piece.data.tetromino);
+            }
+            else
+            {
+                RpcSet(tilePosition, piece.data.tetromino);
+            }
+            
         }
         if(isServer)
         {
@@ -298,7 +307,15 @@ public class Board : NetworkBehaviour
         {
             Vector3Int tilePosition = piece.cells[i] + piece.position;
             tilemap.SetTile(tilePosition, null);
-            CmdClearTile(tilePosition);
+            if(!isServer)
+            {
+                CmdClearTile(tilePosition);
+            }
+            else
+            {
+                RpcClear(tilePosition);
+            }
+            
         }
         if(isServer)
         {
@@ -351,6 +368,16 @@ public class Board : NetworkBehaviour
                 row++;
             }
         }
+        if(linesCleared == 0)
+        {
+            comboCount = 0;
+        }
+        else
+        {
+            comboCount++;
+            Debug.Log(comboCount);
+            score += (comboCount - 1 < 4) ? comboCount - 1: 4; //min(comboCount, 4)
+        }
         //Score calculation
         //Default
         score += linesCleared;
@@ -389,8 +416,14 @@ public class Board : NetworkBehaviour
     public void LineClear(int row)
     {
         RectInt bounds = Bounds;
-        CmdLineClear(row);
-
+        if(!isServer)
+        {
+            CmdLineClear(row);
+        }
+        else
+        {
+            RpcLineClear(row);
+        }
         // Clear all tiles in the row
         for (int col = bounds.xMin; col < bounds.xMax; col++)
         {
@@ -610,40 +643,35 @@ public class Board : NetworkBehaviour
             row++;
         }
     }
-/**
+
     [ClientRpc]
-    public void RpcSet(List<Vector3Int> positions, Tile tile)
+    public void RpcSet(Vector3Int position, Tetromino type)
     {
-        if(isOwned)
+        if(isServer)
         {
             return;
         }
-        Debug.Log("RpcSet");
-        foreach(Vector3Int pos in positions)
-        {
-            Vector3Int remotePos = new Vector3Int(27, 0, 0) + pos;
-            tilemap.SetTile(remotePos, tile);
-        }
+        tilemap.SetTile(position, GetTileFromType(type));
     }
     
     [ClientRpc]
-    public void RpcClear(List<Vector3Int> positions)
+    public void RpcClear(Vector3Int position)
     {
-        if(isOwned)
+        if(isServer)
         {
             return;
         }
-        Debug.Log("RpcClear");
-        foreach(Vector3Int pos in positions)
-        {
-            Vector3Int remotePos = new Vector3Int(27, 0, 0) + pos;
-            tilemap.SetTile(remotePos, null);
-        }
+        tilemap.SetTile(position, null);
     }
     
     [ClientRpc]
     public void RpcLineClear(int row)
     {
+        if(isServer)
+        {
+            return;
+        }
+        Debug.Log("RpcLineClear");
         RectInt bounds = Bounds;
 
         // Clear all tiles in the row
@@ -660,15 +688,12 @@ public class Board : NetworkBehaviour
             {
                 Vector3Int position = new Vector3Int(col, row + 1, 0);
                 TileBase above = tilemap.GetTile(position);
-
                 position = new Vector3Int(col, row, 0);
                 tilemap.SetTile(position, above);
             }
-
             row++;
         }
     }
-**/
 
     /**
      * debug list print
