@@ -38,6 +38,7 @@ public class Board : NetworkBehaviour
     public List<int> trashBuffer = new List<int>();
     public int score = 0;
     private int comboCount = 0;
+    private bool prevClearB2B = false;
     public TextMeshProUGUI scoreText;
     public RectInt Bounds
     {
@@ -84,6 +85,8 @@ public class Board : NetworkBehaviour
     }
     private void Awake()
     {
+        prevClearB2B = false;
+        comboCount = 0;
 
         tilemap = GetComponentInChildren<Tilemap>();
         activePiece = GetComponentInChildren<Piece>();
@@ -121,6 +124,7 @@ public class Board : NetworkBehaviour
             return;
         }
         InitializeNextPiece();
+        TempPrefabTetris();
         SpawnPiece();
     }
 
@@ -295,10 +299,6 @@ public class Board : NetworkBehaviour
             }
             
         }
-        if(isServer)
-        {
-            //RpcSet(positions, piece.data.tile);
-        }
     }
 
     public void Clear(Piece piece)
@@ -353,6 +353,7 @@ public class Board : NetworkBehaviour
         RectInt bounds = Bounds;
         int row = bounds.yMin;
         int linesCleared = 0;
+        
         // Clear from bottom to top
         while (row < bounds.yMax)
         {
@@ -368,16 +369,8 @@ public class Board : NetworkBehaviour
                 row++;
             }
         }
-        if(linesCleared == 0)
-        {
-            comboCount = 0;
-        }
-        else
-        {
-            comboCount++;
-            Debug.Log(comboCount);
-            score += (comboCount - 1 < 4) ? comboCount - 1: 4; //min(comboCount, 4)
-        }
+        SendTrashLine(linesCleared);
+
         //Score calculation
         //Default
         score += linesCleared;
@@ -412,10 +405,8 @@ public class Board : NetworkBehaviour
         return true;
     }
 
-    //[Command(requiresAuthority = false)]
     public void LineClear(int row)
     {
-        RectInt bounds = Bounds;
         if(!isServer)
         {
             CmdLineClear(row);
@@ -424,26 +415,7 @@ public class Board : NetworkBehaviour
         {
             RpcLineClear(row);
         }
-        // Clear all tiles in the row
-        for (int col = bounds.xMin; col < bounds.xMax; col++)
-        {
-            Vector3Int position = new Vector3Int(col, row, 0);
-            tilemap.SetTile(position, null);
-        }
-
-        // Shift every row above down one
-        while (row < bounds.yMax)
-        {
-            for (int col = bounds.xMin; col < bounds.xMax; col++)
-            {
-                Vector3Int position = new Vector3Int(col, row + 1, 0);
-                TileBase above = tilemap.GetTile(position);
-                position = new Vector3Int(col, row, 0);
-                tilemap.SetTile(position, above);
-            }
-            row++;
-        }
-        //RpcLineClear(orginalRow);
+        LocalLineClear(row);
     }
 
     public void LineAddTrash(int trashNumberOfLines, List<int> trashPreset)
@@ -583,6 +555,14 @@ public class Board : NetworkBehaviour
         trashPreset = new List<int> { 1, 0 };
         LineAddTrash(1, trashPreset);
     }
+    public void TempPrefabTetris()
+    {
+        List<int> trashPreset = new List<int> { 1, 0 };
+        for(int i = 0; i < 4; i++)
+        {
+            LineAddTrash(1, trashPreset);
+        }
+    }
 
     //暫定function，之後移除/更改位置
     public void TempAddTrashFunction()
@@ -594,6 +574,94 @@ public class Board : NetworkBehaviour
     private void ScoreTextUpdate()
     {
         scoreText.text = "score:" + score;
+    }
+    private int ComboToTrashLine(int totalLine)
+    {
+        if(totalLine > 0)
+        {
+            comboCount++;
+        }
+        else
+        {
+            comboCount = 0;
+        }
+        return (comboCount < 0) ? 0 : ((comboCount - 1 < 4) ? comboCount - 1 : 4); //if(comboCount < 0) 0 else min(comboCount - 1, 4);
+    }
+    private bool B2BCheck(int totalLine)
+    {
+        if(totalLine == 4 || (activePiece.isLastMoveRotation && activePiece.data.tetromino == Tetromino.T && totalLine > 0)) //tetris or T-spin
+        {
+            if(prevClearB2B) // check prev line clear B2B
+            {
+                return true;
+            }
+            prevClearB2B = true;
+        }
+        else if(totalLine > 0) // normal line clear
+        {
+            prevClearB2B = false;
+        }
+        return false;
+    }
+    private bool CheckAllClear()
+    {
+        RectInt bounds = Bounds;
+        int row = bounds.yMax;
+            // Shift every row up one
+        while (row > bounds.yMin)
+        {
+            for (int col = bounds.xMin; col < bounds.xMax; col++)
+            {
+                Vector3Int position = new Vector3Int(col, row, 0);
+                TileBase currTile = tilemap.GetTile(position);
+                if(currTile != null)
+                {
+                    return false;
+                }
+            }
+            row--;
+        }
+        return true;
+    }
+    private int SendTrashLine(int totalLine)
+    {
+        int totalTrash = 0;
+        int comboTrash = ComboToTrashLine(totalLine);
+        bool isB2B = B2BCheck(totalLine);
+        bool isAllClear = CheckAllClear();
+        if(activePiece.isLastMoveRotation)
+        {
+            totalTrash = totalLine * 2;
+            if(isB2B)
+            {
+                totalTrash += totalLine;
+            }
+        }
+        else if (totalLine > 0)
+        {
+            if(totalLine == 4)
+            {
+                totalTrash = 4;
+                if(isB2B)
+                {
+                    totalTrash += 2;
+                }
+            }
+            else
+            {
+                totalTrash = totalLine - 1;
+            }
+        }
+        if(comboTrash > 0)
+        {
+            totalTrash += comboTrash;
+        }
+        if(isAllClear)
+        {
+            totalTrash += 10;
+        }
+        Debug.Log("totalTrash: " + totalTrash + " comboTrash: " + comboTrash + " isB2B: " + isB2B + " isAllClear: " + isAllClear);
+        return totalTrash;
     }
 
     private Tile GetTileFromType(Tetromino type)
@@ -607,22 +675,9 @@ public class Board : NetworkBehaviour
         }
         return null;
     }
-
-    [Command]
-    private void CmdSetTile(Vector3Int position, Tetromino type)
-    {
-        tilemap.SetTile(position, GetTileFromType(type));
-    }
-    [Command]
-    private void CmdClearTile(Vector3Int position)
-    {
-        tilemap.SetTile(position, null);
-    }
-    [Command]
-    private void CmdLineClear(int row)
+    private void LocalLineClear(int row)
     {
         RectInt bounds = Bounds;
-
         // Clear all tiles in the row
         for (int col = bounds.xMin; col < bounds.xMax; col++)
         {
@@ -642,6 +697,23 @@ public class Board : NetworkBehaviour
             }
             row++;
         }
+
+    }
+
+    [Command]
+    private void CmdSetTile(Vector3Int position, Tetromino type)
+    {
+        tilemap.SetTile(position, GetTileFromType(type));
+    }
+    [Command]
+    private void CmdClearTile(Vector3Int position)
+    {
+        tilemap.SetTile(position, null);
+    }
+    [Command]
+    private void CmdLineClear(int row)
+    {
+        LocalLineClear(row);
     }
 
     [ClientRpc]
@@ -672,27 +744,7 @@ public class Board : NetworkBehaviour
             return;
         }
         Debug.Log("RpcLineClear");
-        RectInt bounds = Bounds;
-
-        // Clear all tiles in the row
-        for (int col = bounds.xMin; col < bounds.xMax; col++)
-        {
-            Vector3Int position = new Vector3Int(col, row, 0);
-            tilemap.SetTile(position, null);
-        }
-
-        // Shift every row above down one
-        while (row < bounds.yMax)
-        {
-            for (int col = bounds.xMin; col < bounds.xMax; col++)
-            {
-                Vector3Int position = new Vector3Int(col, row + 1, 0);
-                TileBase above = tilemap.GetTile(position);
-                position = new Vector3Int(col, row, 0);
-                tilemap.SetTile(position, above);
-            }
-            row++;
-        }
+        LocalLineClear(row);
     }
 
     /**
