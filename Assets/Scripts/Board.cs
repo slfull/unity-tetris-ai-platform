@@ -7,6 +7,9 @@ using System;
 using UnityEngine.UIElements;
 using static UnityEngine.Networking.UnityWebRequest;
 using System.Collections;
+using Unity.MLAgents;
+using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Actuators;
 
 [DefaultExecutionOrder(-1)]
 public class Board : NetworkBehaviour

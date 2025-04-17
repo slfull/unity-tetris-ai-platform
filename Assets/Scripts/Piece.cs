@@ -135,7 +135,7 @@ public class Piece : NetworkBehaviour
         }
     }
 
-    private void HardDrop()
+    public void HardDrop()
     {
         while (Move(Vector2Int.down)) {
             continue;
@@ -151,7 +151,7 @@ public class Piece : NetworkBehaviour
         board.SpawnPiece();
     }
 
-    private bool Move(Vector2Int translation)
+    public bool Move(Vector2Int translation)
     {
         Vector3Int newPosition = position;
         newPosition.x += translation.x;
@@ -170,7 +170,7 @@ public class Piece : NetworkBehaviour
         return valid;
     }
 
-    private void Rotate(int direction)
+    public void Rotate(int direction)
     {
         // Store the current rotation in case the rotation fails
         // and we need to revert
@@ -265,4 +265,5 @@ public class Piece : NetworkBehaviour
         }
     }
 
+   
 }
