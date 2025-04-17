@@ -495,6 +495,24 @@ public class Board : NetworkBehaviour
             
         }
     }
+    
+    private void SendTrashToOppoent(int trashAmount)
+    {
+        foreach(var board in FindObjectsOfType<Board>(false))
+        {
+            if(board != this)
+            {
+                if(isServer)
+                {
+                    board.RpcSendTrashLine(trashAmount); 
+                }
+                else
+                {
+                    board.CmdSendTrashLine(trashAmount); 
+                }
+            }
+        }
+    }
 
     //暫定function，之後移除/更改位置
     public void TempPrefabTSpinDouble()
@@ -608,7 +626,7 @@ public class Board : NetworkBehaviour
         RectInt bounds = Bounds;
         int row = bounds.yMax;
             // Shift every row up one
-        while (row > bounds.yMin)
+        while (row >= bounds.yMin)
         {
             for (int col = bounds.xMin; col < bounds.xMax; col++)
             {
@@ -623,7 +641,7 @@ public class Board : NetworkBehaviour
         }
         return true;
     }
-    private int SendTrashLine(int totalLine)
+    private void SendTrashLine(int totalLine)
     {
         int totalTrash = 0;
         int comboTrash = ComboToTrashLine(totalLine);
@@ -661,7 +679,7 @@ public class Board : NetworkBehaviour
             totalTrash += 10;
         }
         Debug.Log("totalTrash: " + totalTrash + " comboTrash: " + comboTrash + " isB2B: " + isB2B + " isAllClear: " + isAllClear);
-        return totalTrash;
+        SendTrashToOppoent(totalTrash);
     }
 
     private Tile GetTileFromType(Tetromino type)
@@ -715,6 +733,11 @@ public class Board : NetworkBehaviour
     {
         LocalLineClear(row);
     }
+    [Command]
+    public void CmdSendTrashLine(int lines)
+    {
+        RpcSendTrashLine(lines);
+    }
 
     [ClientRpc]
     public void RpcSet(Vector3Int position, Tetromino type)
@@ -729,7 +752,7 @@ public class Board : NetworkBehaviour
     [ClientRpc]
     public void RpcClear(Vector3Int position)
     {
-        if(isServer)
+        if(isOwned)
         {
             return;
         }
@@ -745,6 +768,15 @@ public class Board : NetworkBehaviour
         }
         Debug.Log("RpcLineClear");
         LocalLineClear(row);
+    }
+    [ClientRpc]
+    public void RpcSendTrashLine(int totalLine)
+    {
+        if(isOwned)
+        {
+            return;
+        }
+        Debug.Log("get trash: " + totalLine);
     }
 
     /**
