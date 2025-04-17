@@ -6,9 +6,12 @@ using System;
 using UnityEngine.UIElements;
 using static UnityEngine.Networking.UnityWebRequest;
 using System.Collections;
+using Unity.MLAgents;
+using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Actuators;
 
 [DefaultExecutionOrder(-1)]
-public class Board : MonoBehaviour
+public class Board : Agent
 {
     public Tilemap tilemap { get; private set; }
     public Piece activePiece { get; private set; }
@@ -550,6 +553,31 @@ public class Board : MonoBehaviour
         scoreText.text = "score:" + score;
     }
 
+    public override void CollectObservations(VectorSensor sensor)
+    {
+        // Piece data I = 0, J = 1, L = 2, O = 3, S = 4, T = 5, Z = 6
+        // Vector3Int position 
+        sensor.AddObservation(activePiece.position);
+        // Int Tetromino
+        sensor.AddObservation((int)activePiece.data.tetromino);
+        // Int rotationIndex
+        sensor.AddObservation((int)activePiece.rotationIndex);
+    }
+
+    public override void OnActionReceived(ActionBuffers actions)
+    {
+
+        int PieceMove = actions.DiscreteActions[0]; // Get the action (1-3)
+        switch (PieceMove)
+        {
+            case 1: activePiece.Move(Vector2Int.left); break; 
+            case 2: activePiece.Move(Vector2Int.down); break; 
+            case 3: activePiece.Move(Vector2Int.right); break; 
+            default: break; 
+        }
+
+
+    }
 
     /**
      * debug list print
