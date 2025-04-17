@@ -752,7 +752,7 @@ public class Board : NetworkBehaviour
     [ClientRpc]
     public void RpcClear(Vector3Int position)
     {
-        if(isOwned)
+        if(isServer)
         {
             return;
         }
