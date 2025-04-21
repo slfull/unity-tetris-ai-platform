@@ -495,10 +495,9 @@ public class Board : NetworkBehaviour
             
         }
     }
-    
     private void SendTrashToOppoent(int trashAmount)
     {
-        foreach(var board in FindObjectsOfType<Board>(false))
+        foreach(var board in FindObjectsByType<Board>(FindObjectsSortMode.None))
         {
             if(board != this)
             {
@@ -681,6 +680,10 @@ public class Board : NetworkBehaviour
         Debug.Log("totalTrash: " + totalTrash + " comboTrash: " + comboTrash + " isB2B: " + isB2B + " isAllClear: " + isAllClear);
         SendTrashToOppoent(totalTrash);
     }
+    private void GetAttack(int lines)
+    {
+        trashBuffer.Add(lines);
+    }
 
     private Tile GetTileFromType(Tetromino type)
     {
@@ -733,10 +736,14 @@ public class Board : NetworkBehaviour
     {
         LocalLineClear(row);
     }
-    [Command]
+    [Command(requiresAuthority = false)]
     public void CmdSendTrashLine(int lines)
     {
-        RpcSendTrashLine(lines);
+        if(lines > 0)
+        {
+            GetAttack(lines);
+        }
+        Debug.Log("get trash: " + lines);
     }
 
     [ClientRpc]
@@ -770,13 +777,17 @@ public class Board : NetworkBehaviour
         LocalLineClear(row);
     }
     [ClientRpc]
-    public void RpcSendTrashLine(int totalLine)
+    public void RpcSendTrashLine(int lines)
     {
-        if(isOwned)
+        if(isServer)
         {
             return;
         }
-        Debug.Log("get trash: " + totalLine);
+        if(lines > 0)
+        {
+            GetAttack(lines);
+        }
+        Debug.Log("get trash: " + lines);
     }
 
     /**
