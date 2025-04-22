@@ -36,9 +36,11 @@ public class Board : NetworkBehaviour
     public readonly List<int> bagConst = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
     public List<int> bag = new List<int>();
     public List<int> trashBuffer = new List<int>();
+    public List<float> trashBufferDelay = new List<float>();
     public int score = 0;
     private int comboCount = 0;
     private bool prevClearB2B = false;
+    private float trashBufferDelayOffset = 5.0f;
     public TextMeshProUGUI scoreText;
     public RectInt Bounds
     {
@@ -124,7 +126,7 @@ public class Board : NetworkBehaviour
             return;
         }
         InitializeNextPiece();
-        TempPrefabTetris();
+        //TempPrefabTetris();
         SpawnPiece();
     }
 
@@ -489,10 +491,14 @@ public class Board : NetworkBehaviour
     {
         while (trashBuffer.Count > 0)
         {
+            if(Time.time < trashBufferDelay[0])
+            {
+                break;
+            }
             int trashAmount = trashBuffer[0];
             LineAddTrash(trashAmount, TrashPresetGenerate());
             trashBuffer.RemoveAt(0);
-            
+            trashBufferDelay.RemoveAt(0);
         }
     }
     private void SendTrashToOppoent(int trashAmount)
@@ -683,6 +689,7 @@ public class Board : NetworkBehaviour
     private void GetAttack(int lines)
     {
         trashBuffer.Add(lines);
+        trashBufferDelay.Add(Time.time + trashBufferDelayOffset);
     }
 
     private Tile GetTileFromType(Tetromino type)
