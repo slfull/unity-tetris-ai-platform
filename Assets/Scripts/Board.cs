@@ -42,6 +42,7 @@ public class Board : NetworkBehaviour
     private bool prevClearB2B = false;
     private float trashBufferDelayOffset = 5.0f;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI trashBufferDelayText;
     public RectInt Bounds
     {
         get
@@ -276,6 +277,7 @@ public class Board : NetworkBehaviour
             {
                 TempAddTrashFunction();
             }
+            TrashLineCountDownTextUpdate();
         }
     }
 
@@ -422,50 +424,15 @@ public class Board : NetworkBehaviour
 
     public void LineAddTrash(int trashNumberOfLines, List<int> trashPreset)
     {
-        RectInt bounds = Bounds;
-        for (int i = 0; i< trashNumberOfLines; i++)
+        LocalLineAddTrash(trashNumberOfLines, trashPreset);
+        if(!isServer)
         {
-            int row = bounds.yMax;
-            // Shift every row up one
-            while (row > bounds.yMin)
-            {
-                for (int col = bounds.xMin; col < bounds.xMax; col++)
-                {
-                    Vector3Int position = new Vector3Int(col, row - 1, 0);
-                    TileBase below = tilemap.GetTile(position);
-
-                    position = new Vector3Int(col, row, 0);
-                    tilemap.SetTile(position, below);
-                }
-
-                row--;
-            }
-
-
-            //Fill trash
-            int cellnum = 0;
-            for (int col = bounds.xMin; col < bounds.xMax; col++)
-            {
-                Vector3Int positiont = new Vector3Int(col, bounds.yMin, 0);
-                tilemap.SetTile(positiont, tile);
-                //Prevent null reference
-                if (cellnum < trashPreset.Count)
-                {
-                    //Leave Empty
-                    if (trashPreset[cellnum] == 0)
-                    {
-                        tilemap.SetTile(positiont, null);
-                        cellnum++;
-                        continue;
-                    }
-                }
-                cellnum++;
-            }
-            
-            
+            CmdLineAddTrash(trashNumberOfLines, trashPreset);
         }
-        
-
+        else
+        {
+            RpcLineAddTrash(trashNumberOfLines, trashPreset);
+        }
     }
     public List<int> TrashPresetGenerate()
     {
@@ -518,6 +485,7 @@ public class Board : NetworkBehaviour
             }
         }
     }
+    
 
     //暫定function，之後移除/更改位置
     public void TempPrefabTSpinDouble()
@@ -597,6 +565,23 @@ public class Board : NetworkBehaviour
     private void ScoreTextUpdate()
     {
         scoreText.text = "score:" + score;
+    }
+    private void TrashLineCountDownTextUpdate()
+    {
+        if(trashBufferDelay.Count == 0)
+        {
+            trashBufferDelayText.text = "";
+            return;
+        }
+        int currCountDown = Mathf.RoundToInt(trashBufferDelay[0] - Time.time);
+        if(currCountDown <= 0)
+        {
+            trashBufferDelayText.text = "TrashLineCountDown: 0";
+        }
+        else
+        {
+            trashBufferDelayText.text = "TrashLineContDown: " + currCountDown;
+        }
     }
     private int ComboToTrashLine(int totalLine)
     {
@@ -685,11 +670,25 @@ public class Board : NetworkBehaviour
         }
         Debug.Log("totalTrash: " + totalTrash + " comboTrash: " + comboTrash + " isB2B: " + isB2B + " isAllClear: " + isAllClear);
         SendTrashToOppoent(totalTrash);
+        TrashLineOffset(totalTrash);
     }
     private void GetAttack(int lines)
     {
         trashBuffer.Add(lines);
         trashBufferDelay.Add(Time.time + trashBufferDelayOffset);
+    }
+    private void TrashLineOffset(int lines)
+    {
+        if(trashBuffer.Count == 0)
+        {
+            return;
+        }
+        trashBuffer[0] -= lines;
+        if(trashBuffer[0] <= 0)
+        {
+            trashBuffer.RemoveAt(0);
+            trashBufferDelay.RemoveAt(0);
+        }
     }
 
     private Tile GetTileFromType(Tetromino type)
@@ -727,6 +726,48 @@ public class Board : NetworkBehaviour
         }
 
     }
+    private void LocalLineAddTrash(int trashNumberOfLines, List<int> trashPreset)
+    {
+        RectInt bounds = Bounds;
+        for (int i = 0; i< trashNumberOfLines; i++)
+        {
+            int row = bounds.yMax;
+            // Shift every row up one
+            while (row > bounds.yMin)
+            {
+                for (int col = bounds.xMin; col < bounds.xMax; col++)
+                {
+                    Vector3Int position = new Vector3Int(col, row - 1, 0);
+                    TileBase below = tilemap.GetTile(position);
+
+                    position = new Vector3Int(col, row, 0);
+                    tilemap.SetTile(position, below);
+                }
+
+                row--;
+            }
+
+            //Fill trash
+            int cellnum = 0;
+            for (int col = bounds.xMin; col < bounds.xMax; col++)
+            {
+                Vector3Int positiont = new Vector3Int(col, bounds.yMin, 0);
+                tilemap.SetTile(positiont, tile);
+                //Prevent null reference
+                if (cellnum < trashPreset.Count)
+                {
+                    //Leave Empty
+                    if (trashPreset[cellnum] == 0)
+                    {
+                        tilemap.SetTile(positiont, null);
+                        cellnum++;
+                        continue;
+                    }
+                }
+                cellnum++;
+            }
+        }
+    }
 
     [Command]
     private void CmdSetTile(Vector3Int position, Tetromino type)
@@ -742,6 +783,11 @@ public class Board : NetworkBehaviour
     private void CmdLineClear(int row)
     {
         LocalLineClear(row);
+    }
+    [Command]
+    private void CmdLineAddTrash(int trashNumberOfLines, List<int> trashPreset)
+    {
+        LocalLineAddTrash(trashNumberOfLines, trashPreset);
     }
     [Command(requiresAuthority = false)]
     public void CmdSendTrashLine(int lines)
@@ -783,6 +829,17 @@ public class Board : NetworkBehaviour
         Debug.Log("RpcLineClear");
         LocalLineClear(row);
     }
+
+    [ClientRpc]
+    public void RpcLineAddTrash(int trashNumberOfLines, List<int> trashPreset)
+    {
+        if(isServer)
+        {
+            return;
+        }
+        LocalLineAddTrash(trashNumberOfLines, trashPreset);
+    }
+    
     [ClientRpc]
     public void RpcSendTrashLine(int lines)
     {
