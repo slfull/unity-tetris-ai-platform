@@ -4,12 +4,11 @@ using UnityEngine.Tilemaps;
 using TMPro;
 using Mirror;
 using System;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using static UnityEngine.Networking.UnityWebRequest;
 using System.Collections;
-using Unity.MLAgents;
-using Unity.MLAgents.Sensors;
-using Unity.MLAgents.Actuators;
+
 
 [DefaultExecutionOrder(-1)]
 public class Board : NetworkBehaviour
@@ -328,6 +327,10 @@ public class Board : NetworkBehaviour
             }
             TrashLineCountDownTextUpdate();
         }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadSceneAsync(0);
+        }
     }
 
     public void GameOver()
@@ -335,6 +338,7 @@ public class Board : NetworkBehaviour
         tilemap.ClearAllTiles();
         score = 0;
         // TODO
+        Debug.Log("gameover");
     }
     public void Set(Piece piece)
     {
