@@ -138,7 +138,7 @@ public class Piece : MonoBehaviour
         board.SpawnPiece();
     }
 
-    public bool Move(Vector2Int translation)
+    private bool Move(Vector2Int translation)
     {
         Vector3Int newPosition = position;
         newPosition.x += translation.x;
@@ -157,7 +157,7 @@ public class Piece : MonoBehaviour
         return valid;
     }
 
-    public void Rotate(int direction)
+    private void Rotate(int direction)
     {
         // Store the current rotation in case the rotation fails
         // and we need to revert
@@ -252,5 +252,40 @@ public class Piece : MonoBehaviour
         }
     }
 
-   
+    public void RotateAgent(int direction)
+    {
+        // Store the current rotation in case the rotation fails
+        // and we need to revert
+        int originalRotation = rotationIndex;
+
+        // Rotate all of the cells using a rotation matrix
+        rotationIndex = Wrap(rotationIndex + direction, 0, 4);
+        ApplyRotationMatrix(direction);
+
+        // Revert the rotation if the wall kick tests fail
+        if (!TestWallKicks(rotationIndex, direction))
+        {
+            rotationIndex = originalRotation;
+            ApplyRotationMatrix(-direction);
+        }
+    }
+
+    public bool MoveAgent(Vector2Int translation)
+    {
+        Vector3Int newPosition = position;
+        newPosition.x += translation.x;
+        newPosition.y += translation.y;
+
+        bool valid = board.IsValidPosition(this, newPosition);
+
+        // Only save the movement if the new position is valid
+        if (valid)
+        {
+            position = newPosition;
+            moveTime = Time.time + moveDelay;
+            lockTime = 0f; // reset
+        }
+
+        return valid;
+    }
 }
