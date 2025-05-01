@@ -2,26 +2,32 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using Mirror;
 using System.Collections.Generic;
+using NUnit.Framework;
 
 public class Ghost : NetworkBehaviour
 {
     public Tile tile;
     public Board mainBoard;
     public Piece trackingPiece;
-
     public Tilemap tilemap { get; private set; }
     public Vector3Int[] cells { get; private set; }
     public Vector3Int position { get; private set; }
+    private bool isPieceAwake = false;
 
     private void Awake()
     {
-        tilemap = GetComponentInChildren<Tilemap>();
         cells = new Vector3Int[4];
+        tilemap = GetComponentInChildren<Tilemap>();
+        isPieceAwake = false;
+    }
+    public void PieceAwake()
+    {
+        isPieceAwake = true;
     }
 
     private void LateUpdate()
     {
-        if(!isOwned)
+        if(!isOwned || !isPieceAwake)
         {
             return;
         }

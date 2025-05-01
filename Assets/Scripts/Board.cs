@@ -23,6 +23,10 @@ public class Board : NetworkBehaviour
 
     public Tile tile;
 
+    public Ghost ghost;
+
+    public TetrisNetworkManager tetrisNetworkManager;
+
     public TetrominoData[] tetrominoes;
 
     public Vector2Int boardSize = new Vector2Int(10, 20);
@@ -43,6 +47,9 @@ public class Board : NetworkBehaviour
     private float trashBufferDelayOffset = 5.0f;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI trashBufferDelayText;
+
+    [SyncVar]
+    public bool isGameStart = false;
     public RectInt Bounds
     {
         get
@@ -88,6 +95,9 @@ public class Board : NetworkBehaviour
     }
     private void Awake()
     {
+        tetrisNetworkManager = GameObject.Find("NetworkManager").GetComponent<TetrisNetworkManager>();
+        ghost = GetComponentInChildren<Ghost>();
+
         prevClearB2B = false;
         comboCount = 0;
 
@@ -119,7 +129,7 @@ public class Board : NetworkBehaviour
         CopyBag(bagConst, bag);
     }
 
-    private void Start()
+    private void StartGame()
     {
         Debug.Log($"[Board] isServer: {isServer}, isClient: {isClient}, isOwned: {isOwned}");
         if(!isOwned)
@@ -130,6 +140,22 @@ public class Board : NetworkBehaviour
         //TempPrefabTetris();
         SpawnPiece();
     }
+    
+    [TargetRpc]
+    public void TargetStartGame(NetworkConnection target)
+    {
+        StartGame();
+    }
+
+    [Server]
+    public void StartGameOnServer()
+    {
+        if(connectionToClient != null)
+        {
+            TargetStartGame(connectionToClient);
+        }
+    }
+    
 
     private void SetNextPiece()
     {
@@ -212,6 +238,8 @@ public class Board : NetworkBehaviour
     {
         TrashSpawner();
         // Initialize the active piece with the next piece data
+        activePiece.enabled = true;
+        ghost.PieceAwake();
         activePiece.Initialize(this, spawnPosition, nextPiece.data);
 
         // Only spawn the piece if valid position otherwise game over
@@ -267,7 +295,7 @@ public class Board : NetworkBehaviour
 
     private void Update()
     {
-        if(isOwned)
+        if(isOwned && isGameStart)
         {
             if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.C))
             {

@@ -9,7 +9,6 @@ public class Piece : NetworkBehaviour
     public Vector3Int position { get; private set; }
     public int rotationIndex;
     public bool isLastMoveRotation { get; private set; }
-
     public float stepDelay = 1f;
     public float moveDelay = 0.05f;
     public float lockDelay = 0.5f;
@@ -40,9 +39,19 @@ public class Piece : NetworkBehaviour
         }
     }
 
+    private void Awake()
+    {
+        this.enabled = false;
+    }
+
+
     private void Update()
     {
         if(!isOwned)
+        {
+            return;
+        }
+        if(!board.isGameStart)
         {
             return;
         }
