@@ -5,6 +5,7 @@ using Mirror;
 
 public class TetrisNetworkManager : NetworkManager
 {
+    private int connectedPlayer = 0;
     public GameObject boardPrefab;
     public Transform leftBoardSpawn;
     public Transform rightBoardSpawn;
@@ -22,5 +23,20 @@ public class TetrisNetworkManager : NetworkManager
         NetworkServer.AddPlayerForConnection(conn, player);
         GameObject boardObj = Instantiate(boardPrefab, startPos.position, startPos.rotation);
         NetworkServer.Spawn(boardObj, conn);
+        connectedPlayer++;
+        if(connectedPlayer == 2)
+        {
+            StartGame();
+        }
+    }
+    [Server]
+    void StartGame()
+    {
+        Debug.Log("兩位玩家已加入，開始遊戲");
+        foreach(var board in FindObjectsByType<Board>(FindObjectsSortMode.None))
+        {
+            board.isGameStart = true;
+            board.StartGameOnServer();
+        }
     }
 }

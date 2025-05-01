@@ -563,11 +563,11 @@ GameObject:
   - component: {fileID: 8440389955338837510}
   - component: {fileID: 6193286232538947100}
   - component: {fileID: 4451713079751598053}
-  - component: {fileID: 8823980033484447674}
   - component: {fileID: 5257472978678106077}
   - component: {fileID: 6870467538582568681}
   - component: {fileID: 8261367460484850284}
   - component: {fileID: 7549356048595782176}
+  - component: {fileID: 1191450301504150249}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -623,6 +623,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   tile: {fileID: 11400000, guid: 66984f6cc43196c408ae7771bcee0c49, type: 2}
+  tetrisNetworkManager: {fileID: 0}
   tetrominoes:
   - tile: {fileID: 11400000, guid: aa44b5216a5f39e4881c5323564afe81, type: 2}
     tetromino: 0
@@ -652,26 +653,7 @@ MonoBehaviour:
   score: 0
   scoreText: {fileID: 9220552608157934710}
   trashBufferDelayText: {fileID: 493813813553090314}
---- !u!114 &8823980033484447674
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7766569361612979708}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6570178d836e8642a13a0b983600cf3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  rotationIndex: 0
-  stepDelay: 1
-  moveDelay: 0.1
-  lockDelay: 0.5
-  holdmoveDelay: 0.25
+  isGameStart: 0
 --- !u!114 &5257472978678106077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -791,6 +773,26 @@ MonoBehaviour:
   rotationSensitivity: 0.01
   positionPrecision: 0.01
   scalePrecision: 0.01
+--- !u!114 &1191450301504150249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7766569361612979708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6570178d836e8642a13a0b983600cf3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  rotationIndex: 0
+  stepDelay: 1
+  moveDelay: 0.05
+  lockDelay: 0.5
+  holdmoveDelay: 0.25
 --- !u!1 &8792267438264633363
 GameObject:
   m_ObjectHideFlags: 0
@@ -854,7 +856,7 @@ MonoBehaviour:
   syncInterval: 0
   tile: {fileID: 11400000, guid: a10927dec698b7c49b1375f89e8db4d2, type: 2}
   mainBoard: {fileID: 4451713079751598053}
-  trackingPiece: {fileID: 8823980033484447674}
+  trackingPiece: {fileID: 1191450301504150249}
 --- !u!1 &9220552608157934708
 GameObject:
   m_ObjectHideFlags: 0
