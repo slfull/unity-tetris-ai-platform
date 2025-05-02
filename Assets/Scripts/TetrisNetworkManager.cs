@@ -30,13 +30,18 @@ public class TetrisNetworkManager : NetworkManager
         }
     }
     [Server]
-    void StartGame()
+    public bool StartGame()
     {
+        if(connectedPlayer != 2)
+        {
+            return false;
+        }
         Debug.Log("兩位玩家已加入，開始遊戲");
         foreach(var board in FindObjectsByType<Board>(FindObjectsSortMode.None))
         {
             board.isGameStart = true;
             board.StartGameOnServer();
         }
+        return true;
     }
 }
