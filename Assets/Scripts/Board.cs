@@ -25,8 +25,6 @@ public class Board : NetworkBehaviour
 
     public Ghost ghost;
 
-    public TetrisNetworkManager tetrisNetworkManager;
-
     public TetrominoData[] tetrominoes;
 
     public Vector2Int boardSize = new Vector2Int(10, 20);
@@ -47,6 +45,7 @@ public class Board : NetworkBehaviour
     private float trashBufferDelayOffset = 5.0f;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI trashBufferDelayText;
+    public TextMeshProUGUI countDownText;
 
     [SyncVar]
     public bool isGameStart = false;
@@ -95,7 +94,6 @@ public class Board : NetworkBehaviour
     }
     private void Awake()
     {
-        tetrisNetworkManager = GameObject.Find("NetworkManager").GetComponent<TetrisNetworkManager>();
         ghost = GetComponentInChildren<Ghost>();
 
         prevClearB2B = false;
@@ -144,7 +142,7 @@ public class Board : NetworkBehaviour
     [TargetRpc]
     public void TargetStartGame(NetworkConnection target)
     {
-        StartGame();
+        StartCoroutine(CountdownAndStart());
     }
 
     [Server]
@@ -154,6 +152,21 @@ public class Board : NetworkBehaviour
         {
             TargetStartGame(connectionToClient);
         }
+    }
+
+    IEnumerator CountdownAndStart()
+    {
+        int seconds = 3;
+        while(seconds > 0)
+        {
+            countDownText.text = seconds.ToString();
+            yield return new WaitForSeconds(1f);
+            seconds--;
+        }
+        countDownText.text = "START!";
+        yield return new WaitForSeconds(1f);
+        countDownText.text = "";
+        StartGame();
     }
     
 
