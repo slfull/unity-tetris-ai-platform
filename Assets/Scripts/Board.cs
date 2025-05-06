@@ -814,16 +814,19 @@ public class Board : NetworkBehaviour
     private void CmdSetTile(Vector3Int position, Tetromino type)
     {
         tilemap.SetTile(position, GetTileFromType(type));
+        RpcSet(position, type);
     }
     [Command]
     private void CmdClearTile(Vector3Int position)
     {
         tilemap.SetTile(position, null);
+        RpcClear(position);
     }
     [Command]
     private void CmdLineClear(int row)
     {
         LocalLineClear(row);
+        RpcLineClear(row);
     }
     [Command]
     private void CmdLineAddTrash(int trashNumberOfLines, List<int> trashPreset)
@@ -863,7 +866,7 @@ public class Board : NetworkBehaviour
     [ClientRpc]
     public void RpcLineClear(int row)
     {
-        if(isServer)
+        if(isServer || isOwned)
         {
             return;
         }
