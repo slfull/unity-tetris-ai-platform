@@ -832,21 +832,19 @@ public class Board : NetworkBehaviour
     private void CmdLineAddTrash(int trashNumberOfLines, List<int> trashPreset)
     {
         LocalLineAddTrash(trashNumberOfLines, trashPreset);
+        RpcLineAddTrash(trashNumberOfLines, trashPreset);
     }
     [Command(requiresAuthority = false)]
     public void CmdSendTrashLine(int lines)
     {
-        if(lines > 0)
-        {
-            GetAttack(lines);
-        }
+        RpcSendTrashLine(lines);
         Debug.Log("get trash: " + lines);
     }
 
     [ClientRpc]
     public void RpcSet(Vector3Int position, Tetromino type)
     {
-        if(isServer)
+        if(isServer || isOwned)
         {
             return;
         }
@@ -856,7 +854,7 @@ public class Board : NetworkBehaviour
     [ClientRpc]
     public void RpcClear(Vector3Int position)
     {
-        if(isServer)
+        if(isServer || isOwned)
         {
             return;
         }
@@ -870,14 +868,13 @@ public class Board : NetworkBehaviour
         {
             return;
         }
-        Debug.Log("RpcLineClear");
         LocalLineClear(row);
     }
 
     [ClientRpc]
     public void RpcLineAddTrash(int trashNumberOfLines, List<int> trashPreset)
     {
-        if(isServer)
+        if(isServer || isOwned)
         {
             return;
         }
@@ -887,7 +884,7 @@ public class Board : NetworkBehaviour
     [ClientRpc]
     public void RpcSendTrashLine(int lines)
     {
-        if(isServer)
+        if(!isOwned)
         {
             return;
         }
