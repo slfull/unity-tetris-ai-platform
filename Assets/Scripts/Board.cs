@@ -35,10 +35,12 @@ public class Board : NetworkBehaviour
     public Vector3Int previewPosition4 = new Vector3Int(10, -1, 0);
     public Vector3Int previewPosition5 = new Vector3Int(10, -3, 0);
     public Vector3Int holdPosition = new Vector3Int(-10, 8, 0);
+    public Vector3 trashLineCountPosition = new Vector3(-6, -10, 0);
     public readonly List<int> bagConst = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
     public List<int> bag = new List<int>();
     public List<int> trashBuffer = new List<int>();
     public List<float> trashBufferDelay = new List<float>();
+    public int trashCount = 0;
     public int score = 0;
     private int comboCount = 0;
     private bool prevClearB2B = false;
@@ -46,6 +48,7 @@ public class Board : NetworkBehaviour
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI trashBufferDelayText;
     public TextMeshProUGUI countDownText;
+    public GameObject trashLineCountUI;
 
     [SyncVar]
     public bool isGameStart = false;
@@ -94,6 +97,8 @@ public class Board : NetworkBehaviour
     }
     private void Awake()
     {
+        trashCount = 0;
+        trashLineCountPosition += transform.position;
         ghost = GetComponentInChildren<Ghost>();
 
         prevClearB2B = false;
@@ -505,6 +510,8 @@ public class Board : NetworkBehaviour
             }
             int trashAmount = trashBuffer[0];
             LineAddTrash(trashAmount, TrashPresetGenerate());
+            trashCount -= trashAmount;
+            UpdateTrashLineCount();
             trashBuffer.RemoveAt(0);
             trashBufferDelay.RemoveAt(0);
         }
@@ -525,6 +532,12 @@ public class Board : NetworkBehaviour
                 }
             }
         }
+    }
+
+    private void UpdateTrashLineCount()
+    {
+        trashLineCountUI.transform.position = trashLineCountPosition + new Vector3(0, 0.5f * trashCount, 0);
+        trashLineCountUI.transform.localScale = new Vector3(1, trashCount, 1);
     }
     
 
@@ -716,6 +729,8 @@ public class Board : NetworkBehaviour
     private void GetAttack(int lines)
     {
         trashBuffer.Add(lines);
+        trashCount += lines;
+        UpdateTrashLineCount();
         trashBufferDelay.Add(Time.time + trashBufferDelayOffset);
     }
     private void TrashLineOffset(int lines)
@@ -725,6 +740,8 @@ public class Board : NetworkBehaviour
             return;
         }
         trashBuffer[0] -= lines;
+        trashCount -= lines;
+        UpdateTrashLineCount();
         if(trashBuffer[0] <= 0)
         {
             trashBuffer.RemoveAt(0);
