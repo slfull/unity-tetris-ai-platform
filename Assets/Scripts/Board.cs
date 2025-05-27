@@ -38,12 +38,29 @@ public class Board : MonoBehaviour
     public List<int> trashBuffer = new List<int>();
     public int score = 0;
     public TextMeshProUGUI scoreText;
+    private TetrisAgent agent;
+    
+    private bool agentExists = false;
+
     public RectInt Bounds
     {
         get
         {
             Vector2Int position = new Vector2Int(-boardSize.x / 2, -boardSize.y / 2);
             return new RectInt(position, boardSize);
+        }
+    }
+
+    public void Init()
+    {
+        agent = GetComponent<TetrisAgent>();
+        if (agent != null)
+        {
+            agentExists = true;
+        }
+        else
+        {
+            agentExists = false;
         }
     }
 
@@ -113,7 +130,7 @@ public class Board : MonoBehaviour
 
     private void Start()
     {
-    
+        Init();
         InitializeNextPiece();
         TempPrefabTSpinDouble();
         //TempPrefabTSpinTriple();
@@ -278,8 +295,13 @@ public class Board : MonoBehaviour
     {
         tilemap.ClearAllTiles();
         score = 0;
+        Start();
         // TODO
         Debug.Log("gameover");
+        if (agentExists) {
+            agent.AddReward(-0.1f);
+             } 
+        
     }
 
     public void Set(Piece piece)
@@ -352,12 +374,19 @@ public class Board : MonoBehaviour
         if (linesCleared == 4)
         {
             score += linesCleared;
+            if(agentExists){agent.AddReward(0.4f);} 
         }
         //All-Spin
         if (activePiece.isLastMoveRotation)
         {
             score += linesCleared;
+            if(agentExists){agent.AddReward(0.5f);} 
         }
+        if (agentExists)
+        {
+            
+            agent.AddReward(0.1f);
+        } 
         ScoreTextUpdate();
     }
 
