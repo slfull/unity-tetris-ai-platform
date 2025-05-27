@@ -1,6 +1,7 @@
 using UnityEngine;
+using Mirror;
 
-public class Piece : MonoBehaviour
+public class Piece : NetworkBehaviour
 {
     public Board board { get; private set; }
     public TetrominoData data { get; private set; }
@@ -8,7 +9,6 @@ public class Piece : MonoBehaviour
     public Vector3Int position { get; private set; }
     public int rotationIndex;
     public bool isLastMoveRotation { get; private set; }
-
     public float stepDelay = 1f;
     public float moveDelay = 0.05f;
     public float lockDelay = 0.5f;
@@ -40,8 +40,22 @@ public class Piece : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        this.enabled = false;
+    }
+
+
     private void Update()
     {
+        if(!isOwned)
+        {
+            return;
+        }
+        if(!board.isGameStart)
+        {
+            return;
+        }
         board.Clear(this);
 
         // We use a timer to allow the player to make adjustments to the piece
@@ -72,7 +86,6 @@ public class Piece : MonoBehaviour
         if (Time.time > stepTime) {
             Step();
         }
-
         board.Set(this);
     }
 
