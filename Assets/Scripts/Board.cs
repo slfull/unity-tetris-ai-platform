@@ -365,7 +365,7 @@ public class Board : NetworkBehaviour
     {
         tilemap.ClearAllTiles();
         score = 0;
-        Start();
+        StartGame();
         // TODO
         Debug.Log("gameover");
         if (agentExists) {
