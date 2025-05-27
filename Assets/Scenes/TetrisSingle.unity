@@ -709,30 +709,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tile: {fileID: 11400000, guid: a10927dec698b7c49b1375f89e8db4d2, type: 2}
-  mainBoard: {fileID: 1328456433}
-  trackingPiece: {fileID: 1328456432}
---- !u!114 &1328456432 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4476554494948964779, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
-  m_PrefabInstance: {fileID: 1618498981}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 246835121}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6570178d836e8642a13a0b983600cf3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1328456433 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4476554494948964772, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
-  m_PrefabInstance: {fileID: 1618498981}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 246835121}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d4fe201741a0f14c82a9ce960b9f5e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  mainBoard: {fileID: 1328456440}
+  trackingPiece: {fileID: 1328456439}
 --- !u!114 &1328456436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -749,8 +727,7 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
-  board: {fileID: 1328456433}
-  decisionDelay: 0.5
+  timeBetweenDecisionsAtInference: 0
 --- !u!114 &1328456437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -797,6 +774,28 @@ MonoBehaviour:
   DecisionPeriod: 5
   DecisionStep: 0
   TakeActionsBetweenDecisions: 1
+--- !u!114 &1328456439 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4476554494948964779, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
+  m_PrefabInstance: {fileID: 1618498981}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 246835121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6570178d836e8642a13a0b983600cf3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1328456440 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4476554494948964772, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
+  m_PrefabInstance: {fileID: 1618498981}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 246835121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d4fe201741a0f14c82a9ce960b9f5e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1618498981
 PrefabInstance:
   m_ObjectHideFlags: 0

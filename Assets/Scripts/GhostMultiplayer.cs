@@ -4,11 +4,11 @@ using Mirror;
 using System.Collections.Generic;
 using NUnit.Framework;
 
-public class Ghost : NetworkBehaviour
+public class GhostMultiplayer : NetworkBehaviour
 {
     public Tile tile;
-    public Board mainBoard;
-    public Piece trackingPiece;
+    public BoardMultiplayer mainBoard;
+    public PieceMultiplayer trackingPiece;
     public Tilemap tilemap { get; private set; }
     public Vector3Int[] cells { get; private set; }
     public Vector3Int position { get; private set; }

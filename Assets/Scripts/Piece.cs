@@ -1,14 +1,14 @@
 using UnityEngine;
-using Mirror;
 
-public class PieceMultiplayer : NetworkBehaviour
+public class Piece : MonoBehaviour
 {
-    public BoardMultiplayer board { get; private set; }
+    public Board board { get; private set; }
     public TetrominoData data { get; private set; }
     public Vector3Int[] cells { get; private set; }
     public Vector3Int position { get; private set; }
     public int rotationIndex;
     public bool isLastMoveRotation { get; private set; }
+
     public float stepDelay = 1f;
     public float moveDelay = 0.05f;
     public float lockDelay = 0.5f;
@@ -19,7 +19,7 @@ public class PieceMultiplayer : NetworkBehaviour
     private float lockTime;
     private float holdmoveTime;
 
-    public void Initialize(BoardMultiplayer board, Vector3Int position, TetrominoData data)
+    public void Initialize(Board board, Vector3Int position, TetrominoData data)
     {
         this.data = data;
         this.board = board;
@@ -29,6 +29,7 @@ public class PieceMultiplayer : NetworkBehaviour
         stepTime = Time.time + stepDelay;
         moveTime = Time.time + moveDelay;
         lockTime = 0f;
+        holdmoveTime = Time.time + holdmoveDelay;
 
         if (cells == null) {
             cells = new Vector3Int[data.cells.Length];
@@ -39,22 +40,8 @@ public class PieceMultiplayer : NetworkBehaviour
         }
     }
 
-    private void Awake()
-    {
-        this.enabled = false;
-    }
-
-
     private void Update()
     {
-        if(!isOwned)
-        {
-            return;
-        }
-        if(!board.isGameStart)
-        {
-            return;
-        }
         board.Clear(this);
 
         // We use a timer to allow the player to make adjustments to the piece
@@ -85,6 +72,7 @@ public class PieceMultiplayer : NetworkBehaviour
         if (Time.time > stepTime) {
             Step();
         }
+
         board.Set(this);
     }
 
@@ -134,7 +122,7 @@ public class PieceMultiplayer : NetworkBehaviour
         }
     }
 
-    private void HardDrop()
+    public void HardDrop()
     {
         while (Move(Vector2Int.down)) {
             continue;
@@ -264,4 +252,40 @@ public class PieceMultiplayer : NetworkBehaviour
         }
     }
 
+    public void RotateAgent(int direction)
+    {
+        // Store the current rotation in case the rotation fails
+        // and we need to revert
+        int originalRotation = rotationIndex;
+
+        // Rotate all of the cells using a rotation matrix
+        rotationIndex = Wrap(rotationIndex + direction, 0, 4);
+        ApplyRotationMatrix(direction);
+
+        // Revert the rotation if the wall kick tests fail
+        if (!TestWallKicks(rotationIndex, direction))
+        {
+            rotationIndex = originalRotation;
+            ApplyRotationMatrix(-direction);
+        }
+    }
+
+    public bool MoveAgent(Vector2Int translation)
+    {
+        Vector3Int newPosition = position;
+        newPosition.x += translation.x;
+        newPosition.y += translation.y;
+
+        bool valid = board.IsValidPosition(this, newPosition);
+
+        // Only save the movement if the new position is valid
+        if (valid)
+        {
+            position = newPosition;
+            moveTime = Time.time + moveDelay;
+            lockTime = 0f; // reset
+        }
+
+        return valid;
+    }
 }

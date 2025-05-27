@@ -4,28 +4,26 @@ using UnityEngine.Tilemaps;
 using TMPro;
 using Mirror;
 using System;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using static UnityEngine.Networking.UnityWebRequest;
 using System.Collections;
 
-
 [DefaultExecutionOrder(-1)]
-public class Board : NetworkBehaviour
+public class BoardMultiplayer : NetworkBehaviour
 {
     
     public Tilemap tilemap { get; private set; }
-    public Piece activePiece { get; private set; }
-    public Piece nextPiece { get; private set; }
-    public Piece nextPiece2 { get; private set; }
-    public Piece nextPiece3 { get; private set; }
-    public Piece nextPiece4 { get; private set; }
-    public Piece nextPiece5 { get; private set; }
-    public Piece savedPiece { get; private set; }
+    public PieceMultiplayer activePiece { get; private set; }
+    public PieceMultiplayer nextPiece { get; private set; }
+    public PieceMultiplayer nextPiece2 { get; private set; }
+    public PieceMultiplayer nextPiece3 { get; private set; }
+    public PieceMultiplayer nextPiece4 { get; private set; }
+    public PieceMultiplayer nextPiece5 { get; private set; }
+    public PieceMultiplayer savedPiece { get; private set; }
 
     public Tile tile;
 
-    public Ghost ghost;
+    public GhostMultiplayer ghost;
 
     public TetrominoData[] tetrominoes;
 
@@ -48,10 +46,6 @@ public class Board : NetworkBehaviour
     private bool prevClearB2B = false;
     private float trashBufferDelayOffset = 5.0f;
     public TextMeshProUGUI scoreText;
-    private TetrisAgent agent;
-    
-    private bool agentExists = false;
-
     public TextMeshProUGUI trashBufferDelayText;
     public TextMeshProUGUI countDownText;
     public GameObject trashLineCountUI;
@@ -64,19 +58,6 @@ public class Board : NetworkBehaviour
         {
             Vector2Int position = new Vector2Int(-boardSize.x / 2, -boardSize.y / 2);
             return new RectInt(position, boardSize);
-        }
-    }
-
-    public void Init()
-    {
-        agent = GetComponent<TetrisAgent>();
-        if (agent != null)
-        {
-            agentExists = true;
-        }
-        else
-        {
-            agentExists = false;
         }
     }
 
@@ -118,30 +99,30 @@ public class Board : NetworkBehaviour
     {
         trashCount = 0;
         trashLineCountPosition += transform.position;
-        ghost = GetComponentInChildren<Ghost>();
+        ghost = GetComponentInChildren<GhostMultiplayer>();
 
         prevClearB2B = false;
         comboCount = 0;
 
         tilemap = GetComponentInChildren<Tilemap>();
-        activePiece = GetComponentInChildren<Piece>();
+        activePiece = GetComponentInChildren<PieceMultiplayer>();
 
-        nextPiece = gameObject.AddComponent<Piece>();
+        nextPiece = gameObject.AddComponent<PieceMultiplayer>();
         nextPiece.enabled = false;
 
-        nextPiece2 = gameObject.AddComponent<Piece>();
+        nextPiece2 = gameObject.AddComponent<PieceMultiplayer>();
         nextPiece2.enabled = false;
 
-        nextPiece3 = gameObject.AddComponent<Piece>();
+        nextPiece3 = gameObject.AddComponent<PieceMultiplayer>();
         nextPiece3.enabled = false;
 
-        nextPiece4 = gameObject.AddComponent<Piece>();
+        nextPiece4 = gameObject.AddComponent<PieceMultiplayer>();
         nextPiece4.enabled = false;
 
-        nextPiece5 = gameObject.AddComponent<Piece>();
+        nextPiece5 = gameObject.AddComponent<PieceMultiplayer>();
         nextPiece5.enabled = false;
 
-        savedPiece = gameObject.AddComponent<Piece>();
+        savedPiece = gameObject.AddComponent<PieceMultiplayer>();
         savedPiece.enabled = false;
 
         for (int i = 0; i < tetrominoes.Length; i++)
@@ -153,13 +134,6 @@ public class Board : NetworkBehaviour
 
     private void StartGame()
     {
-        Init();
-        InitializeNextPiece();
-        TempPrefabTSpinDouble();
-        //TempPrefabTSpinTriple();
-        //TempPrefabSSpinDouble();
-        //TempPrefabISpinSingle();
-        //TempPrefabISpinTetris();
         Debug.Log($"[Board] isServer: {isServer}, isClient: {isClient}, isOwned: {isOwned}");
         if(!isOwned)
         {
@@ -351,29 +325,15 @@ public class Board : NetworkBehaviour
             }
             TrashLineCountDownTextUpdate();
         }
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            SceneManager.LoadSceneAsync(0);
-        }
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            SceneManager.LoadSceneAsync(0);
-        }
     }
 
     public void GameOver()
     {
         tilemap.ClearAllTiles();
         score = 0;
-        StartGame();
         // TODO
-        Debug.Log("gameover");
-        if (agentExists) {
-            agent.AddReward(-0.1f);
-             } 
-        
     }
-    public void Set(Piece piece)
+    public void Set(PieceMultiplayer piece)
     {
         for (int i = 0; i < piece.cells.Length; i++)
         {
@@ -391,7 +351,7 @@ public class Board : NetworkBehaviour
         }
     }
 
-    public void Clear(Piece piece)
+    public void Clear(PieceMultiplayer piece)
     {
         for (int i = 0; i < piece.cells.Length; i++)
         {
@@ -413,7 +373,7 @@ public class Board : NetworkBehaviour
         }
     }
 
-    public bool IsValidPosition(Piece piece, Vector3Int position)
+    public bool IsValidPosition(PieceMultiplayer piece, Vector3Int position)
     {
         RectInt bounds = Bounds;
 
@@ -468,19 +428,12 @@ public class Board : NetworkBehaviour
         if (linesCleared == 4)
         {
             score += linesCleared;
-            if(agentExists){agent.AddReward(0.4f);} 
         }
         //All-Spin
         if (activePiece.isLastMoveRotation)
         {
             score += linesCleared;
-            if(agentExists){agent.AddReward(0.5f);} 
         }
-        if (agentExists)
-        {
-            
-            agent.AddReward(0.1f);
-        } 
         ScoreTextUpdate();
     }
 
@@ -565,7 +518,7 @@ public class Board : NetworkBehaviour
     }
     private void SendTrashToOppoent(int trashAmount)
     {
-        foreach(var board in FindObjectsByType<Board>(FindObjectsSortMode.None))
+        foreach(var board in FindObjectsByType<BoardMultiplayer>(FindObjectsSortMode.None))
         {
             if(board != this)
             {
