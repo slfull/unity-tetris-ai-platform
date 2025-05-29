@@ -828,6 +828,41 @@ public class BoardMultiplayer : NetworkBehaviour
         }
     }
 
+    public int[,] GetBoardState()
+    {
+        int width = boardSize.x;
+        int height = boardSize.y;
+        int[,] state = new int[width, height];
+
+        RectInt bounds = Bounds;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (tilemap.HasTile(new Vector3Int(x + bounds.xMin, y + bounds.yMin, 0)))
+                {
+                    state[x, y] = 1;
+                }
+                else
+                {
+                    state[x, y] = 0;
+                }
+            }
+        }
+
+        return state;
+    }
+
+    public int GetBoardSize(int axis)
+    {
+        if (axis == 0)
+        {
+            return boardSize.x;
+        }
+        return boardSize.y;
+    }
+
     [Command]
     private void CmdSetTile(Vector3Int position, Tetromino type)
     {
