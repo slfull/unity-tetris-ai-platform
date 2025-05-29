@@ -24,6 +24,7 @@ public class BoardMultiplayer : NetworkBehaviour
     public Tile tile;
 
     public GhostMultiplayer ghost;
+    private TetrisAgentMultiplayer agent;
 
     public TetrominoData[] tetrominoes;
 
