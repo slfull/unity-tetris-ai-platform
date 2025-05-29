@@ -1,0 +1,30 @@
+{
+    "Board": {
+        "elo": 1200.0,
+        "checkpoints": [
+            {
+                "steps": 2304,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-2304.onnx",
+                "reward": null,
+                "creation_time": 1748505760.3849044,
+                "auxillary_file_paths": [
+                    "results\\SlfullTetris_run\\Board\\Board-2304.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 2304,
+            "file_path": "results\\SlfullTetris_run\\Board.onnx",
+            "reward": null,
+            "creation_time": 1748505760.3849044,
+            "auxillary_file_paths": [
+                "results\\SlfullTetris_run\\Board\\Board-2304.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.2.2+cu121"
+    }
+}

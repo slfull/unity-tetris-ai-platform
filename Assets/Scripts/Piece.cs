@@ -103,7 +103,7 @@ public class Piece : MonoBehaviour
                 break;
             case 3: HardDrop(); break;
             case 4: Rotate(-1); isLastMoveRotation = true; break;
-            case 5: Rotate(-1); isLastMoveRotation = true; break;
+            case 5: Rotate(1); isLastMoveRotation = true; break;
             default: break;
         }
 

@@ -18,6 +18,7 @@ public class PieceMultiplayer : NetworkBehaviour
     private float moveTime;
     private float lockTime;
     private float holdmoveTime;
+    private bool agentExists = false;
 
     public void Initialize(BoardMultiplayer board, Vector3Int position, TetrominoData data)
     {
@@ -30,11 +31,13 @@ public class PieceMultiplayer : NetworkBehaviour
         moveTime = Time.time + moveDelay;
         lockTime = 0f;
 
-        if (cells == null) {
+        if (cells == null)
+        {
             cells = new Vector3Int[data.cells.Length];
         }
 
-        for (int i = 0; i < cells.Length; i++) {
+        for (int i = 0; i < cells.Length; i++)
+        {
             cells[i] = (Vector3Int)data.cells[i];
         }
     }
@@ -55,6 +58,11 @@ public class PieceMultiplayer : NetworkBehaviour
         {
             return;
         }
+        if (agentExists == false) { HandleUpdateMove(-1); }
+    }
+    
+    public void HandleUpdateMove(int movementInput)
+    {
         board.Clear(this);
 
         // We use a timer to allow the player to make adjustments to the piece
@@ -62,29 +70,54 @@ public class PieceMultiplayer : NetworkBehaviour
         lockTime += Time.deltaTime;
 
         // Handle rotation
-        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Z ) || Input.GetKeyDown(KeyCode.UpArrow)) {
+        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.UpArrow))
+        {
             Rotate(-1);
             isLastMoveRotation = true;
-        } else if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.X)) {
+        }
+        else if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.X))
+        {
             Rotate(1);
             isLastMoveRotation = true;
         }
 
         // Handle hard drop
-        if (Input.GetKeyDown(KeyCode.Space)) {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
             HardDrop();
         }
 
         // Allow the player to hold movement keys but only after a move delay
         // so it does not move too fast
-        if (Time.time > moveTime) {
+        if (Time.time > moveTime)
+        {
             HandleMoveInputs();
         }
 
+        switch (movementInput)
+        {
+            case -1: break;
+            case 0: Move(Vector2Int.left); isLastMoveRotation = false; break;
+            case 1: Move(Vector2Int.right); isLastMoveRotation = false; break;
+            case 2:
+                if (Move(Vector2Int.down))
+                {
+                    // Update the step time to prevent double movement
+                    stepTime = Time.time + stepDelay;
+                }
+                break;
+            case 3: HardDrop(); break;
+            case 4: Rotate(-1); isLastMoveRotation = true; break;
+            case 5: Rotate(1); isLastMoveRotation = true; break;
+            default: break;
+        }
+
         // Advance the piece to the next row every x seconds
-        if (Time.time > stepTime) {
+        if (Time.time > stepTime)
+        {
             Step();
         }
+
         board.Set(this);
     }
 
@@ -93,7 +126,8 @@ public class PieceMultiplayer : NetworkBehaviour
         // Soft drop movement
         if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
         {
-            if (Move(Vector2Int.down)) {
+            if (Move(Vector2Int.down))
+            {
                 // Update the step time to prevent double movement
                 stepTime = Time.time + stepDelay;
             }
@@ -101,24 +135,35 @@ public class PieceMultiplayer : NetworkBehaviour
         }
 
         // Left/right movement
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) {
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+        {
             holdmoveTime = Time.time + holdmoveDelay;
             Move(Vector2Int.left);
             isLastMoveRotation = false;
-        } else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) {
+        }
+        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+        {
             holdmoveTime = Time.time + holdmoveDelay;
             Move(Vector2Int.right);
             isLastMoveRotation = false;
         }
 
         // Left/right hold movement
-        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && (Time.time >= holdmoveTime)) {
+        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && (Time.time >= holdmoveTime))
+        {
             Move(Vector2Int.left);
             isLastMoveRotation = false;
-        } else if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && (Time.time >= holdmoveTime)) {
+        }
+        else if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && (Time.time >= holdmoveTime))
+        {
             Move(Vector2Int.right);
             isLastMoveRotation = false;
         }
+    }
+    
+    public void AgentExists()
+    {
+        agentExists = true;
     }
 
     private void Step()
@@ -129,7 +174,8 @@ public class PieceMultiplayer : NetworkBehaviour
         Move(Vector2Int.down);
 
         // Once the piece has been inactive for too long it becomes locked
-        if (lockTime >= lockDelay) {
+        if (lockTime >= lockDelay)
+        {
             Lock();
         }
     }
