@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using static UnityEngine.Networking.UnityWebRequest;
 using System.Collections;
+using System.Xml.Serialization;
 
 
 [DefaultExecutionOrder(-1)]
@@ -39,7 +40,7 @@ public class Board : MonoBehaviour
     public int score = 0;
     public TextMeshProUGUI scoreText;
     private TetrisAgent agent;
-    
+
     private bool agentExists = false;
 
     public RectInt Bounds
@@ -66,7 +67,7 @@ public class Board : MonoBehaviour
 
     void CopyBag(List<int> source, List<int> target)
     {
-        target.Clear(); 
+        target.Clear();
         target.AddRange(source);
     }
 
@@ -138,7 +139,7 @@ public class Board : MonoBehaviour
         //TempPrefabISpinSingle();
         //TempPrefabISpinTetris();
         SpawnPiece();
-        
+
     }
 
     private void SetNextPiece()
@@ -150,7 +151,7 @@ public class Board : MonoBehaviour
         for (int i = 0; i < nextPieces.Length; i++)
         {
             var piece = nextPieces[i];
-            var piecenext = nextPieces[i+1];
+            var piecenext = nextPieces[i + 1];
 
             // Clear the piece
             if (piece.cells != null)
@@ -201,7 +202,7 @@ public class Board : MonoBehaviour
             nextPieces[i].Initialize(this, nextpreviewPositions[i], BagTakeNextPiece());
             Set(nextPieces[i]);
         }
-        
+
     }
 
     private TetrominoData BagTakeNextPiece()
@@ -252,7 +253,7 @@ public class Board : MonoBehaviour
         // Store the next piece as the new saved piece
         // Draw this piece at the "hold" position on the board
         savedPiece.Initialize(this, holdPosition, activePiece.data);
-        
+
         Set(savedPiece);
 
         // Swap the saved piece to be the active piece
@@ -271,7 +272,7 @@ public class Board : MonoBehaviour
             Clear(activePiece);
             SpawnPiece();
         }
-        
+
 
     }
 
@@ -298,10 +299,11 @@ public class Board : MonoBehaviour
         Start();
         // TODO
         Debug.Log("gameover");
-        if (agentExists) {
+        if (agentExists)
+        {
             agent.AddReward(-0.1f);
-             } 
-        
+        }
+
     }
 
     public void Set(Piece piece)
@@ -374,19 +376,19 @@ public class Board : MonoBehaviour
         if (linesCleared == 4)
         {
             score += linesCleared;
-            if(agentExists){agent.AddReward(0.4f);} 
+            if (agentExists) { agent.AddReward(0.4f); }
         }
         //All-Spin
         if (activePiece.isLastMoveRotation)
         {
             score += linesCleared;
-            if(agentExists){agent.AddReward(0.5f);} 
+            if (agentExists) { agent.AddReward(0.5f); }
         }
         if (agentExists)
         {
-            
+
             agent.AddReward(0.1f);
-        } 
+        }
         ScoreTextUpdate();
     }
 
@@ -438,7 +440,7 @@ public class Board : MonoBehaviour
     public void LineAddTrash(int trashNumberOfLines, List<int> trashPreset)
     {
         RectInt bounds = Bounds;
-        for (int i = 0; i< trashNumberOfLines; i++)
+        for (int i = 0; i < trashNumberOfLines; i++)
         {
             int row = bounds.yMax;
             // Shift every row up one
@@ -476,10 +478,10 @@ public class Board : MonoBehaviour
                 }
                 cellnum++;
             }
-            
-            
+
+
         }
-        
+
 
     }
     public List<int> TrashPresetGenerate()
@@ -509,7 +511,7 @@ public class Board : MonoBehaviour
             int trashAmount = trashBuffer[0];
             LineAddTrash(trashAmount, TrashPresetGenerate());
             trashBuffer.RemoveAt(0);
-            
+
         }
     }
 
@@ -561,7 +563,7 @@ public class Board : MonoBehaviour
     {
         List<int> trashPreset = new List<int> { 1, 1, 0, 0, 0, 0, 0 };
         LineAddTrash(1, trashPreset);
-        trashPreset = new List<int>{ 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+        trashPreset = new List<int> { 1, 0, 0, 0, 0, 0, 0, 0, 0 };
         LineAddTrash(1, trashPreset);
         trashPreset = new List<int> { 1, 0 };
         LineAddTrash(1, trashPreset);
@@ -580,10 +582,45 @@ public class Board : MonoBehaviour
         trashBuffer.Add(1);
     }
 
-    
+
     private void ScoreTextUpdate()
     {
         scoreText.text = "score:" + score;
+    }
+
+    public int[,] GetBoardState()
+    {
+        int width = boardSize.x;
+        int height = boardSize.y;
+        int[,] state = new int[width, height];
+
+        RectInt bounds = Bounds;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (tilemap.HasTile(new Vector3Int(x + bounds.xMin, y + bounds.yMin, 0)))
+                {
+                    state[x, y] = 1;
+                }
+                else
+                {
+                    state[x, y] = 0;
+                }
+            }
+        }
+
+        return state;
+    }
+
+    public int GetBoardSize(int axis)
+    {
+        if (axis == 0)
+        {
+            return boardSize.x;
+        }
+        return boardSize.y;
     }
 
     

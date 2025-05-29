@@ -62,6 +62,16 @@ public class TetrisAgentMultiplayer : Agent
         // Int rotationIndex
         sensor.AddObservation((int)activePiece.rotationIndex);
 
+        int[,] state = board.GetBoardState();
+
+        for (int x = 0; x < board.GetBoardSize(0); x++)
+        {
+            for (int y = 0; y < board.GetBoardSize(1); y++)
+            {
+                sensor.AddObservation(state[x, y]);
+            }
+        }
+
         //TODO: detect all tiles in tilemap, use forloop to scan through every tile with tilemap.HasTile(tilePosition) add 10x20(board bound xy) total of 200 tiles of observations, problem: we need to let the agent know what the active piece's tile is.
     }
 
