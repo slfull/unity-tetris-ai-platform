@@ -133,7 +133,7 @@ public class Board : MonoBehaviour
     {
         Init();
         InitializeNextPiece();
-        TempPrefabTSpinDouble();
+        //TempPrefabTSpinDouble();
         //TempPrefabTSpinTriple();
         //TempPrefabSSpinDouble();
         //TempPrefabISpinSingle();
