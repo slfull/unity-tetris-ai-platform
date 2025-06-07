@@ -68,7 +68,6 @@ public class TetrisAgent : Agent
             }
         }
 
-        //TODO: detect all tiles in tilemap, use forloop to scan through every tile with tilemap.HasTile(tilePosition) add 10x20(board bound xy) total of 200 tiles of observations, problem: we need to let the agent know what the active piece's tile is.
     }
 
     private void Start()
