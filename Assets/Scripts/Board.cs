@@ -133,7 +133,7 @@ public class Board : MonoBehaviour
     {
         Init();
         InitializeNextPiece();
-        TempPrefabTSpinDouble();
+        //TempPrefabTSpinDouble();
         //TempPrefabTSpinTriple();
         //TempPrefabSSpinDouble();
         //TempPrefabISpinSingle();
@@ -301,7 +301,8 @@ public class Board : MonoBehaviour
         Debug.Log("gameover");
         if (agentExists)
         {
-            agent.AddReward(-0.1f);
+            agent.AddReward(-100f);
+            agent.EndEpisode();
         }
 
     }
@@ -376,18 +377,18 @@ public class Board : MonoBehaviour
         if (linesCleared == 4)
         {
             score += linesCleared;
-            if (agentExists) { agent.AddReward(0.4f); }
+            if (agentExists) { agent.AddReward(linesCleared); }
         }
         //All-Spin
         if (activePiece.isLastMoveRotation)
         {
             score += linesCleared;
-            if (agentExists) { agent.AddReward(0.5f); }
+            if (agentExists) { agent.AddReward(linesCleared); }
         }
         if (agentExists)
         {
-
-            agent.AddReward(0.1f);
+            agent.AddReward(0.001f);
+            agent.AddReward(linesCleared);
         }
         ScoreTextUpdate();
     }
