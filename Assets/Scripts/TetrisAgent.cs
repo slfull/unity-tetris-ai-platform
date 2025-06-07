@@ -90,7 +90,7 @@ public class TetrisAgent : Agent
     {
 
         int PieceMove = actions.DiscreteActions[0]; // Get the action (1-5)
-
+        Debug.Log("action: "+ PieceMove);
         switch (PieceMove)
         {
             case 0: activePiece.HandleUpdateMove((int)MovementInput.left); break;

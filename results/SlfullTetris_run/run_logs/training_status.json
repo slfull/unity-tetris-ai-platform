@@ -3,22 +3,22 @@
         "elo": 1200.0,
         "checkpoints": [
             {
-                "steps": 1024,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-1024.onnx",
+                "steps": 2880,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-2880.onnx",
                 "reward": null,
-                "creation_time": 1748510650.5675101,
+                "creation_time": 1749302854.946619,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-1024.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-2880.pt"
                 ]
             }
         ],
         "final_checkpoint": {
-            "steps": 1024,
+            "steps": 2880,
             "file_path": "results\\SlfullTetris_run\\Board.onnx",
             "reward": null,
-            "creation_time": 1748510650.5675101,
+            "creation_time": 1749302854.946619,
             "auxillary_file_paths": [
-                "results\\SlfullTetris_run\\Board\\Board-1024.pt"
+                "results\\SlfullTetris_run\\Board\\Board-2880.pt"
             ]
         }
     },
