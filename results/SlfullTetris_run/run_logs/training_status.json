@@ -1,24 +1,24 @@
 {
     "Board": {
-        "elo": 1200.0,
+        "elo": 972.4686180566854,
         "checkpoints": [
             {
-                "steps": 1024,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-1024.onnx",
-                "reward": null,
-                "creation_time": 1748510650.5675101,
+                "steps": 21401,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-21401.onnx",
+                "reward": -100.00945109134213,
+                "creation_time": 1749304969.9616542,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-1024.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-21401.pt"
                 ]
             }
         ],
         "final_checkpoint": {
-            "steps": 1024,
+            "steps": 21401,
             "file_path": "results\\SlfullTetris_run\\Board.onnx",
-            "reward": null,
-            "creation_time": 1748510650.5675101,
+            "reward": -100.00945109134213,
+            "creation_time": 1749304969.9616542,
             "auxillary_file_paths": [
-                "results\\SlfullTetris_run\\Board\\Board-1024.pt"
+                "results\\SlfullTetris_run\\Board\\Board-21401.pt"
             ]
         }
     },

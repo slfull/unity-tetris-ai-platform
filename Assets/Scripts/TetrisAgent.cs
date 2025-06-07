@@ -73,7 +73,6 @@ public class TetrisAgent : Agent
     private void Start()
     {
         OnEpisodeBegin();
-
     }
     public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
     {
@@ -89,7 +88,7 @@ public class TetrisAgent : Agent
     {
 
         int PieceMove = actions.DiscreteActions[0]; // Get the action (1-5)
-
+        Debug.Log("action: " + PieceMove);
         switch (PieceMove)
         {
             case 0: activePiece.HandleUpdateMove((int)MovementInput.left); break;
@@ -100,6 +99,7 @@ public class TetrisAgent : Agent
             case 5: activePiece.HandleUpdateMove((int)MovementInput.rotatecounterclockwise); break;
             default: throw new ArgumentException("Invalid action value");
         }
+        AddReward(-1f / MaxStep);
         /**
 switch (PieceMove)
                {
