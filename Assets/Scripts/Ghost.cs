@@ -11,6 +11,8 @@ public class Ghost : MonoBehaviour
     public Vector3Int[] cells { get; private set; }
     public Vector3Int position { get; private set; }
 
+    public int traveledLines = 0;
+
     private void Awake()
     {
         tilemap = GetComponentInChildren<Tilemap>();
@@ -54,13 +56,18 @@ public class Ghost : MonoBehaviour
         {
             position.y = row;
 
-            if (mainBoard.IsValidPosition(trackingPiece, position)) {
+            if (mainBoard.IsValidPosition(trackingPiece, position))
+            {
                 this.position = position;
-            } else {
+            }
+            else
+            {
                 break;
             }
+            traveledLines++;
         }
-
+        mainBoard.distanceFromBottom = traveledLines;
+        traveledLines = 0;
         mainBoard.Set(trackingPiece);
     }
 

@@ -22,6 +22,7 @@ public class TetrisAgent : Agent
     public void FixedUpdate()
     {
         activePiece = board.activePiece;
+        activePiece.AgentExists();
         WaitTimeInference();
     }
 
@@ -47,6 +48,9 @@ public class TetrisAgent : Agent
     }
 
 
+
+
+
     public override void CollectObservations(VectorSensor sensor)
     {
         // Piece data I = 0, J = 1, L = 2, O = 3, S = 4, T = 5, Z = 6
@@ -57,7 +61,14 @@ public class TetrisAgent : Agent
         sensor.AddObservation((int)activePiece.data.tetromino);
         // Int rotationIndex
         sensor.AddObservation((int)activePiece.rotationIndex);
+        // Int Holes
+        sensor.AddObservation(board.numberOfHoles);
+        // Int EmptyTiles
+        sensor.AddObservation(board.numberOfEmptyTiles);
+        // Int UnfilledLines
+        sensor.AddObservation(board.numberOfUnfilledLines);
 
+        // Int Board
         int[,] state = board.GetBoardState();
 
         for (int x = 0; x < board.GetBoardSize(0); x++)
@@ -74,6 +85,7 @@ public class TetrisAgent : Agent
     {
         OnEpisodeBegin();
     }
+
     public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
     {
         //actionMask.SetActionEnabled(0, 3, false);
@@ -88,7 +100,7 @@ public class TetrisAgent : Agent
     {
 
         int PieceMove = actions.DiscreteActions[0]; // Get the action (1-5)
-        Debug.Log("action: " + PieceMove);
+        //Debug.Log("action: " + PieceMove);
         switch (PieceMove)
         {
             case 0: activePiece.HandleUpdateMove((int)MovementInput.left); break;
@@ -100,16 +112,6 @@ public class TetrisAgent : Agent
             default: throw new ArgumentException("Invalid action value");
         }
         AddReward(-1f / MaxStep);
-        /**
-switch (PieceMove)
-               {
-                   case 0: Debug.Log("1"); break;
-                   case 1: Debug.Log("2"); break;
-                   case 2: Debug.Log("3"); break;
-                   case 3: Debug.Log("4"); break;
-                   case 4: Debug.Log("5"); break;
-                   default: throw new ArgumentException("Invalid action value");
-               }
-               **/
+
     }
 }
