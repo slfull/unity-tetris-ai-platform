@@ -64,7 +64,7 @@ public class TetrisAgent : Agent
         // Int Holes
         sensor.AddObservation(board.numberOfHoles);
         // Int EmptyTiles
-        sensor.AddObservation(board.numberOfEmptyTiles);
+        sensor.AddObservation(board.sumOfEmptyTiles);
         // Int UnfilledLines
         sensor.AddObservation(board.numberOfUnfilledLines);
 
