@@ -2,59 +2,59 @@
     "Board": {
         "checkpoints": [
             {
-                "steps": 99971,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-99971.onnx",
-                "reward": null,
-                "creation_time": 1751272291.280682,
+                "steps": 349947,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-349947.onnx",
+                "reward": -4.003133439070855,
+                "creation_time": 1751530703.9668872,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-99971.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-349947.pt"
                 ]
             },
             {
-                "steps": 149991,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-149991.onnx",
-                "reward": null,
-                "creation_time": 1751272633.2965326,
+                "steps": 399943,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-399943.onnx",
+                "reward": -4.1128667294203,
+                "creation_time": 1751531084.0273926,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-149991.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-399943.pt"
                 ]
             },
             {
-                "steps": 199976,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-199976.onnx",
-                "reward": -5.617000044730958,
-                "creation_time": 1751273040.051009,
-                "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-199976.pt"
-                ]
-            },
-            {
-                "steps": 249997,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-249997.onnx",
+                "steps": 449945,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-449945.onnx",
                 "reward": -0.9999999747378752,
-                "creation_time": 1751273401.8458169,
+                "creation_time": 1751531440.1382027,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-249997.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-449945.pt"
                 ]
             },
             {
-                "steps": 268613,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-268613.onnx",
+                "steps": 499988,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-499988.onnx",
                 "reward": -0.9999999747378752,
-                "creation_time": 1751273553.2127368,
+                "creation_time": 1751531795.2792065,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-268613.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-499988.pt"
+                ]
+            },
+            {
+                "steps": 500052,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-500052.onnx",
+                "reward": -0.9999999747378752,
+                "creation_time": 1751531795.453863,
+                "auxillary_file_paths": [
+                    "results\\SlfullTetris_run\\Board\\Board-500052.pt"
                 ]
             }
         ],
-        "elo": 733.3688118760224,
+        "elo": 719.5788321755022,
         "final_checkpoint": {
-            "steps": 268613,
+            "steps": 500052,
             "file_path": "results\\SlfullTetris_run\\Board.onnx",
             "reward": -0.9999999747378752,
-            "creation_time": 1751273553.2127368,
+            "creation_time": 1751531795.453863,
             "auxillary_file_paths": [
-                "results\\SlfullTetris_run\\Board\\Board-268613.pt"
+                "results\\SlfullTetris_run\\Board\\Board-500052.pt"
             ]
         }
     },
