@@ -742,7 +742,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 204
+    VectorObservationSize: 207
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 1
@@ -797,6 +797,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d4fe201741a0f14c82a9ce960b9f5e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1328456443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 246835121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ff5a6aeb9cf96a4c8fb85d408c3d4b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1328456444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 246835121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88b6042bc9a5d4aa58d931eae49442e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 0
 --- !u!1001 &1618498981
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -926,6 +954,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6923654491339019864, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1328456438}
+    - targetCorrespondingSourceObject: {fileID: 6923654491339019864, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1328456443}
+    - targetCorrespondingSourceObject: {fileID: 6923654491339019864, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1328456444}
   m_SourcePrefab: {fileID: 100100000, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
 --- !u!1 &2009032556
 GameObject:

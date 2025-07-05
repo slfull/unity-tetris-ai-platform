@@ -1,24 +1,60 @@
 {
     "Board": {
-        "elo": 972.4686180566854,
         "checkpoints": [
             {
-                "steps": 21401,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-21401.onnx",
-                "reward": -100.00945109134213,
-                "creation_time": 1749304969.9616542,
+                "steps": 349947,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-349947.onnx",
+                "reward": -4.003133439070855,
+                "creation_time": 1751530703.9668872,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-21401.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-349947.pt"
+                ]
+            },
+            {
+                "steps": 399943,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-399943.onnx",
+                "reward": -4.1128667294203,
+                "creation_time": 1751531084.0273926,
+                "auxillary_file_paths": [
+                    "results\\SlfullTetris_run\\Board\\Board-399943.pt"
+                ]
+            },
+            {
+                "steps": 449945,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-449945.onnx",
+                "reward": -0.9999999747378752,
+                "creation_time": 1751531440.1382027,
+                "auxillary_file_paths": [
+                    "results\\SlfullTetris_run\\Board\\Board-449945.pt"
+                ]
+            },
+            {
+                "steps": 499988,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-499988.onnx",
+                "reward": -0.9999999747378752,
+                "creation_time": 1751531795.2792065,
+                "auxillary_file_paths": [
+                    "results\\SlfullTetris_run\\Board\\Board-499988.pt"
+                ]
+            },
+            {
+                "steps": 500052,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-500052.onnx",
+                "reward": -0.9999999747378752,
+                "creation_time": 1751531795.453863,
+                "auxillary_file_paths": [
+                    "results\\SlfullTetris_run\\Board\\Board-500052.pt"
                 ]
             }
         ],
+        "elo": 719.5788321755022,
         "final_checkpoint": {
-            "steps": 21401,
+            "steps": 500052,
             "file_path": "results\\SlfullTetris_run\\Board.onnx",
-            "reward": -100.00945109134213,
-            "creation_time": 1749304969.9616542,
+            "reward": -0.9999999747378752,
+            "creation_time": 1751531795.453863,
             "auxillary_file_paths": [
-                "results\\SlfullTetris_run\\Board\\Board-21401.pt"
+                "results\\SlfullTetris_run\\Board\\Board-500052.pt"
             ]
         }
     },
