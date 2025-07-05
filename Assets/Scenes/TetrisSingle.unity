@@ -711,6 +711,7 @@ MonoBehaviour:
   tile: {fileID: 11400000, guid: a10927dec698b7c49b1375f89e8db4d2, type: 2}
   mainBoard: {fileID: 1328456440}
   trackingPiece: {fileID: 1328456439}
+  traveledLines: 0
 --- !u!114 &1328456436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -735,7 +736,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 246835121}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
   m_Name: 
@@ -766,7 +767,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 246835121}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
   m_Name: 
@@ -796,19 +797,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d4fe201741a0f14c82a9ce960b9f5e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1328456443
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 246835121}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ff5a6aeb9cf96a4c8fb85d408c3d4b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  trashBuffer: 
 --- !u!1001 &1618498981
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -938,9 +926,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6923654491339019864, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1328456438}
-    - targetCorrespondingSourceObject: {fileID: 6923654491339019864, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1328456443}
   m_SourcePrefab: {fileID: 100100000, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
 --- !u!1 &2009032556
 GameObject:
