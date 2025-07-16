@@ -48,7 +48,6 @@ public class Board : MonoBehaviour
     private TetrisAgent agent;
 
 
-
     //Add more RewardType if needed
     public enum RewardType
     {
@@ -104,7 +103,7 @@ public class Board : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.C))
+        if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.C)) && !activePiece.isPlayerTwo)
         {
             SwapPiece();
         }
