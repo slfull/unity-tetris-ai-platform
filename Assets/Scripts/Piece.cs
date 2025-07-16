@@ -23,6 +23,7 @@ public class Piece : MonoBehaviour
 
 
     private bool agentExists = false;
+    public bool isPlayerTwo = false;
 
     public void Initialize(Board board, Vector3Int position, TetrominoData data)
     {
@@ -56,6 +57,12 @@ public class Piece : MonoBehaviour
     {
         agentExists = true;
     }
+
+    public void PlayerTwoExists()
+    {
+        isPlayerTwo = true;
+    }
+
     public void HandleUpdateMove(int movementInput)
     {
         board.Clear(this);
@@ -65,26 +72,26 @@ public class Piece : MonoBehaviour
         lockTime += Time.deltaTime;
 
         // Handle rotation
-        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.UpArrow))
+        if ((Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.UpArrow)) && !isPlayerTwo)
         {
             Rotate(-1);
             isLastMoveRotation = true;
         }
-        else if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.X))
+        else if ((Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.X)) && !isPlayerTwo)
         {
             Rotate(1);
             isLastMoveRotation = true;
         }
 
         // Handle hard drop
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && !isPlayerTwo)
         {
             HardDrop();
         }
 
         // Allow the player to hold movement keys but only after a move delay
         // so it does not move too fast
-        if (Time.time > moveTime)
+        if (Time.time > moveTime && !isPlayerTwo)
         {
             HandleMoveInputs();
         }
