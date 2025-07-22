@@ -396,9 +396,13 @@ MonoBehaviour:
   moveRightInput: 108
   moveDownInput: 107
   hardDropInput: 105
-  holdInput: 109
-  clockwiseInput: 111
-  counterClockwiseInput: 117
+  holdInput: 333
+  clockwiseInput: 330
+  counterClockwiseInput: 332
+  dpadX: 0
+  dpadY: 0
+  prevDpadX: 0
+  prevDpadY: 0
 --- !u!1001 &1157774385
 PrefabInstance:
   m_ObjectHideFlags: 0
