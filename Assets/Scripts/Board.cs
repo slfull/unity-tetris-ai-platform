@@ -46,6 +46,7 @@ public class Board : MonoBehaviour
     public int numberOfUnfilledLines = 0;
     public TextMeshProUGUI scoreText;
     private TetrisAgent agent;
+    private TrashLineAttack attacker;
 
 
     //Add more RewardType if needed
@@ -54,6 +55,7 @@ public class Board : MonoBehaviour
         GameOver, LineClear, Hole, Density
     }
     private bool agentExists = false;
+    private bool attackerExists = false;
 
     public RectInt Bounds
     {
@@ -223,6 +225,11 @@ public class Board : MonoBehaviour
         if (agentExists)
         {
             AgentReward((int)RewardType.LineClear, linesCleared);
+        }
+
+        if(attackerExists)
+        {
+            attacker.HandleTrashLine(linesCleared, activePiece.isLastMoveRotation);
         }
         ScoreTextUpdate();
     }
@@ -546,6 +553,15 @@ public class Board : MonoBehaviour
         {
             agentExists = false;
         }
+        attacker = GetComponent<TrashLineAttack>();
+        if (attacker != null)
+        {
+            attackerExists = true;
+        }
+        else
+        {
+            attackerExists = false;
+        }
         score = 0;
         distanceFromBottom = 0;
         numberOfHoles = 0;
@@ -625,6 +641,27 @@ public class Board : MonoBehaviour
             case 0: agent.AddReward(-10f); break;
             case 1: agent.AddReward(lineClearReward); break;
         }
+    }
+
+    public bool CheckAllClear()
+    {
+        RectInt bounds = Bounds;
+        int row = bounds.yMax;
+            // Shift every row up one
+        while (row >= bounds.yMin)
+        {
+            for (int col = bounds.xMin; col < bounds.xMax; col++)
+            {
+                Vector3Int position = new Vector3Int(col, row, 0);
+                TileBase currTile = tilemap.GetTile(position);
+                if(currTile != null)
+                {
+                    return false;
+                }
+            }
+            row--;
+        }
+        return true;
     }
 
     public void PrintObservations()
