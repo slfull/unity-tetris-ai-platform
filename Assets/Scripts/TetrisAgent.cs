@@ -96,6 +96,11 @@ public class TetrisAgent : Agent
         activePiece = board.activePiece;
         activePiece.AgentExists();
     }
+
+    public void Highlight()
+    {
+        
+    }
     public override void OnActionReceived(ActionBuffers actions)
     {
 
@@ -111,7 +116,7 @@ public class TetrisAgent : Agent
             case 5: activePiece.HandleUpdateMove((int)MovementInput.rotatecounterclockwise); break;
             default: throw new ArgumentException("Invalid action value");
         }
-        AddReward(-1f / MaxStep);
+        AddReward(-0.1f / MaxStep);
 
     }
 }
