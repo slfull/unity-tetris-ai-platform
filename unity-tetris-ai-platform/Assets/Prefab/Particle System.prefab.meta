@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Prefab/Board.prefab.meta
+guid: c0b57b8b1fde9f84babe05faafa96c3f
+========
+guid: 5211f065192da8d49a8e0e80c08dd9c0
+>>>>>>>> 6bcdedd (added main menu effects, still WIP.):Assets/Prefab/Particle System.prefab.meta
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

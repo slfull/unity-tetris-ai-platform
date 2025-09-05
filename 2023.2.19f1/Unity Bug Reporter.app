@@ -1,0 +1,1 @@
+Unity.app/Contents/BugReporter/Unity Bug Reporter.app
