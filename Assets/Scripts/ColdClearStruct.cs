@@ -3,14 +3,62 @@ using System.Runtime.InteropServices;
 
 public enum CCPiece
 {
-    I, O, T, L, J, S, Z
+    CC_I, CC_O, CC_T, CC_L, CC_J, CC_S, CC_Z
 }
 
+public enum CCTspinStatus
+{
+    CC_NONE_TSPIN_STATUS,
+    CC_MINI,
+    CC_FULL,
+}
+
+public enum CCMovement
+{
+    CC_LEFT, CC_RIGHT,
+    CC_CW, CC_CCW,
+    CC_DROP
+}
+
+public enum CCMovementMode
+{
+    CC_0G,
+    CC_20G,
+    CC_HARD_DROP_ONLY
+}
+
+public enum CCSpawnRule
+{
+    CC_ROW_19_OR_20,
+    CC_ROW_21_AND_FALL,
+}
 public enum CCBotPollStatus
 {
-    MOVE_PROVIDED,
-    WAITING,
-    BOT_DEAD
+    CC_MOVE_PROVIDED,
+    CC_WAITING,
+    CC_BOT_DEAD
+}
+public enum CCPcPriority
+{
+    CC_PC_OFF,
+    CC_PC_FASTEST,
+    CC_PC_ATTACK
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct CCPlanPlacement
+{
+    public CCPiece piece;
+    public CCTspinStatus tspin;
+
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+    public byte[] expected_x;
+
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+    public byte[] expected_y;
+
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+    public int[] cleared_lines;
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -28,7 +76,7 @@ public struct CCMove
     public byte movement_count;
 
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-    public int[] movements;
+    public CCMovement[] movements;
 
     public uint nodes;
     public uint depth;
@@ -38,9 +86,9 @@ public struct CCMove
 [StructLayout(LayoutKind.Sequential)]
 public struct CCOptions
 {
-    public int mode;
-    public int spawn_rule;
-    public int pcloop;
+    public CCMovementMode mode;
+    public CCSpawnRule spawn_rule;
+    public CCPcPriority pcloop;
     public uint min_nodes;
     public uint max_nodes;
     public uint threads;

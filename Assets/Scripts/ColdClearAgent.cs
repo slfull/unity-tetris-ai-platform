@@ -29,7 +29,7 @@ public class ColdClearAgent : MonoBehaviour
         // 嘗試取得結果
         CCMove move;
         var status = ColdClearNative.cc_poll_next_move(bot, out move, IntPtr.Zero, IntPtr.Zero);
-        if (status == CCBotPollStatus.MOVE_PROVIDED)
+        if (status == CCBotPollStatus.CC_MOVE_PROVIDED)
         {
             Debug.Log($"ColdClear 建議: hold={move.hold}, x={move.expected_x[0]}, y={move.expected_y[0]}");
         }
