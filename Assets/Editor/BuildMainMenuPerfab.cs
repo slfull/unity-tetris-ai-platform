@@ -238,4 +238,3 @@ public static class BuildMainMenuPrefab
         return Color.white;
     }
 }
-#endif
