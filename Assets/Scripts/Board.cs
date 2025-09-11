@@ -34,8 +34,9 @@ public class Board : MonoBehaviour
     public Vector3Int previewPosition4 = new Vector3Int(10, -1, 0);
     public Vector3Int previewPosition5 = new Vector3Int(10, -3, 0);
     public Vector3Int holdPosition = new Vector3Int(-10, 8, 0);
-    public readonly List<int> bagConst = new List<int>() { 0, 1, 2, 3, 4, 5, 6 };
-    public List<int> bag = new List<int>();
+    public readonly List<Tetromino> bagConst = new List<Tetromino>()
+        {Tetromino.I, Tetromino.J, Tetromino.L, Tetromino.O, Tetromino.S, Tetromino.T, Tetromino.Z };
+    public List<Tetromino> bag = new List<Tetromino>();
 
     public List<int> trashBuffer = new List<int>();
     public int score = 0;
@@ -320,7 +321,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    void CopyBag(List<int> source, List<int> target)
+    void CopyBag(List<Tetromino> source, List<Tetromino> target)
     {
         target.Clear();
         target.AddRange(source);
@@ -384,8 +385,16 @@ public class Board : MonoBehaviour
     private TetrominoData BagTakeNextPiece()
     {
         // Pick a random tetromino to use
-        int random = bag[0];
-        TetrominoData data = tetrominoes[random];
+        Tetromino random = bag[0];
+        TetrominoData data = tetrominoes[0];
+        for (int i = 0; i < tetrominoes.Length; i++)
+        {
+            if (tetrominoes[i].tetromino == random)
+            {
+                data = tetrominoes[i];
+                break;
+            }
+        }
         bag.RemoveAt(0);
         if (bag.Count == 0)
         {
