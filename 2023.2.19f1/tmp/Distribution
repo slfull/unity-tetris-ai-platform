@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <title>Unity for Intel-based Macs</title>
+    <pkg-ref id="com.unity3d.UnityEditor5.x">
+        <bundle-version>
+            <bundle CFBundleShortVersionString="Unity version 2023.2.19f1" CFBundleVersion="2023.2.19f1" id="com.unity3d.UnityEditor5.x" path="Unity/Unity.app"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.6b37f27a98b94370edcc288322cede3c.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/6b37f27a98b94370edcc288322cede3c.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="0.0.1" CFBundleVersion="0.0.1d1" id="com.sketchup.slapi" path="Unity/Unity.app/Contents/Frameworks/SketchUpAPI.framework"/>
+            <bundle CFBundleShortVersionString="2023.2.19" CFBundleVersion="2023.2.19f1" id="com.unity3d.bugreporter" path="Unity/Unity.app/Contents/BugReporter/Unity Bug Reporter.app"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.a14c467f1de0744fa4d91642df790ef7.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/a14c467f1de0744fa4d91642df790ef7.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.6e3430219de41bd113641ca178050c35.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/6e3430219de41bd113641ca178050c35.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.e0c319bd018d5f66f261b0c0c544a0f4.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/e0c319bd018d5f66f261b0c0c544a0f4.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.062449608ef268a3963bd98e77a90c88.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/062449608ef268a3963bd98e77a90c88.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.0b1b50f779078063b111d3eb1073d1db.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/0b1b50f779078063b111d3eb1073d1db.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.8103c39ea97cb1d9a1a16251191819e7.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/8103c39ea97cb1d9a1a16251191819e7.bundle.dSYM"/>
+            <bundle CFBundleVersion="1.0" id="com.caustic.OpenRL" path="Unity/Unity.app/Contents/Tools/OpenRL.framework"/>
+            <bundle CFBundleShortVersionString="1.2.0" CFBundleVersion="1.2.0" id="com.unity3d.licensingclient" path="Unity/Unity.app/Contents/Frameworks/UnityLicensingClient.app"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.930006c618bd7cbeb672b84e6bf578cc.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/930006c618bd7cbeb672b84e6bf578cc.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.e9bf051263c834169c3ef08773e09a1d.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.2d-9.0.0/BurstCache/JIT/e9bf051263c834169c3ef08773e09a1d.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.3cfc1c1fe18dde408ccbb3b47ba07997.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/3cfc1c1fe18dde408ccbb3b47ba07997.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.cb8a4a6d6c4298bb8d7dcef7c2f0f2fa.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/cb8a4a6d6c4298bb8d7dcef7c2f0f2fa.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.a694c376ed24d70ea48c5aa8d588bed0.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/a694c376ed24d70ea48c5aa8d588bed0.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.330ac635b50a5c7e75f8e6ebfd17888e.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/330ac635b50a5c7e75f8e6ebfd17888e.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.a962b9eb42fd81028f50383e2dd9cef9.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/a962b9eb42fd81028f50383e2dd9cef9.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.67de4ace1a7c0b347a4143e816415313.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/67de4ace1a7c0b347a4143e816415313.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.UnityPlayer" path="Unity/Unity.app/Contents/PlaybackEngines/MacStandaloneSupport/Variations/macos_x64_player_nondevelopment_mono/UnityPlayer.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.031a6b633812294a81f214d196c75d45.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/031a6b633812294a81f214d196c75d45.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.2f6227ad4e8f9cfd955d4809e6a45472.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/2f6227ad4e8f9cfd955d4809e6a45472.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.08cf537def1090dcd36f0ad935903218.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/08cf537def1090dcd36f0ad935903218.bundle.dSYM"/>
+            <bundle CFBundleShortVersionString="1.0" CFBundleVersion="1" id="com.apple.xcode.dsym.f32e600dd7d49f9618337edc345c5d92.bundle" path="Unity/Unity.app/Contents/Resources/PackageManager/ProjectTemplates/libcache/com.unity.template.universal-2d-4.0.1/BurstCache/JIT/f32e600dd7d49f9618337edc345c5d92.bundle.dSYM"/>
+        </bundle-version>
+    </pkg-ref>
+    <options hostArchitectures="x86_64"/>
+    <options customize="never" require-scripts="true"/>
+    <background file="background.tiff" alignment="topleft"/>
+    <welcome file="Welcome.rtf"/>
+    <choices-outline>
+        <line choice="com.unity3d.UnityEditor5.x"/>
+    </choices-outline>
+    <choice id="com.unity3d.UnityEditor5.x" visible="false">
+        <pkg-ref id="com.unity3d.UnityEditor5.x" auth="Root"/>
+    </choice>
+    <pkg-ref id="com.unity3d.UnityEditor5.x" version="0" onConclusion="none" installKBytes="7090215">#Unity.pkg.tmp</pkg-ref>
+    <product version="2023.2.19f1"/>
+</installer-gui-script>
