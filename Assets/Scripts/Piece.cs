@@ -1,3 +1,4 @@
+using Unity.Profiling;
 using UnityEngine;
 
 public class Piece : MonoBehaviour
@@ -181,12 +182,16 @@ public class Piece : MonoBehaviour
 
     public void HardDrop()
     {
+        NormalDrop();
+        Lock();
+    }
+
+    public void NormalDrop()
+    {
         while (Move(Vector2Int.down))
         {
             continue;
         }
-
-        Lock();
     }
 
     private void Lock()

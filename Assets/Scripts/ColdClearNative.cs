@@ -23,7 +23,7 @@ internal static class ColdClearNative
     public static extern void cc_destroy_async(IntPtr bot);
 
     [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void cc_reset_async(IntPtr bot, ref bool field, bool b2b, uint combo);
+    public static extern void cc_reset_async(IntPtr bot, IntPtr field, bool b2b, uint combo);
 
     [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
     public static extern void cc_add_next_piece_async(IntPtr bot, CCPiece piece);
