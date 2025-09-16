@@ -13,9 +13,20 @@ internal static class ColdClearNative
     [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr cc_launch_async(ref CCOptions options, ref CCWeights weights,
         IntPtr book, CCPiece[] queue, uint count);
+    
+    [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr cc_launch_with_board_async(
+        ref CCOptions options, ref CCWeights weights, IntPtr book,
+        IntPtr field, uint bag_remain, IntPtr hold, bool b2b, uint combo, IntPtr queue, uint count);
 
     [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
     public static extern void cc_destroy_async(IntPtr bot);
+
+    [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void cc_reset_async(IntPtr bot, ref bool field, bool b2b, uint combo);
+
+    [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void cc_add_next_piece_async(IntPtr bot, CCPiece piece);
 
     [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
     public static extern void cc_request_next_move(IntPtr bot, uint incoming);

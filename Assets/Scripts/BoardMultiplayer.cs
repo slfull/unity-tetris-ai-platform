@@ -4,8 +4,6 @@ using UnityEngine.Tilemaps;
 using TMPro;
 using Mirror;
 using System;
-using UnityEngine.UIElements;
-using static UnityEngine.Networking.UnityWebRequest;
 using System.Collections;
 
 [DefaultExecutionOrder(-1)]
