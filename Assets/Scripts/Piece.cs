@@ -141,12 +141,14 @@ public class Piece : MonoBehaviour
             holdmoveTime = Time.time + holdmoveDelay;
             Move(Vector2Int.left);
             isLastMoveRotation = false;
+            board.AgentReward(2,1);
         }
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
             holdmoveTime = Time.time + holdmoveDelay;
             Move(Vector2Int.right);
             isLastMoveRotation = false;
+            board.AgentReward(2, 1);
         }
 
         // Left/right hold movement
@@ -217,6 +219,7 @@ public class Piece : MonoBehaviour
     {
         // Store the current rotation in case the rotation fails
         // and we need to revert
+        board.AgentReward(2,1);
         int originalRotation = rotationIndex;
 
         // Rotate all of the cells using a rotation matrix

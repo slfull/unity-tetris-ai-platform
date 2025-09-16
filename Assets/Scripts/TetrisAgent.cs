@@ -116,7 +116,6 @@ public class TetrisAgent : Agent
             case 5: activePiece.HandleUpdateMove((int)MovementInput.rotatecounterclockwise); break;
             default: throw new ArgumentException("Invalid action value");
         }
-        AddReward(-0.1f / MaxStep);
 
     }
 }

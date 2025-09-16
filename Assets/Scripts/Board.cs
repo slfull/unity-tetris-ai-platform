@@ -39,6 +39,7 @@ public class Board : MonoBehaviour
     public int score = 0;
     public int distanceFromBottom = 0;
     public int numberOfHoles = 0;
+    public float aggregateHeight = 0;
     public float density = 0;
     public int sumOfEmptyTiles = 0;
     public int numberOfUnfilledLines = 0;
@@ -50,7 +51,7 @@ public class Board : MonoBehaviour
     //Add more RewardType if needed
     public enum RewardType
     {
-        GameOver, LineClear, Hole, Density
+        GameOver, LineClear, Movement , Hole, Density, NumberOfEmptyTiles
     }
     private bool agentExists = false;
     private bool attackerExists = false;
@@ -626,7 +627,7 @@ public class Board : MonoBehaviour
     {
         numberOfUnfilledLines++;
         sumOfEmptyTiles += numberOfEmptyTiles;
-        density = sumOfEmptyTiles / numberOfEmptyTiles;
+        density = sumOfEmptyTiles / numberOfUnfilledLines;
     }
     public int GetBoardSize(int axis)
     {
@@ -641,11 +642,16 @@ public class Board : MonoBehaviour
     {
         // 0 = GameOver, 1 = LineClear
         float lineClearReward = 0.5f;
+        float MovementReward = -0.1f;
+        float Density = 0.1f;
         lineClearReward *= rewardMultiplier;
+        MovementReward *= rewardMultiplier;
         switch (rewardType)
         {
             case 0: agent.AddReward(-10f); break;
             case 1: agent.AddReward(lineClearReward); break;
+            case 2: agent.AddReward(MovementReward); break;
+            case 3: agent.AddReward(Density); break;
         }
     }
 
