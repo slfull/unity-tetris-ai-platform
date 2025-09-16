@@ -58,6 +58,7 @@ public class BoardToColdClear : MonoBehaviour
     {
         List<CCPiece> queue = new List<CCPiece>
         {
+            TetrominoToCCPiece(board.activePiece.data.tetromino),
             TetrominoToCCPiece(board.nextPiece.data.tetromino),
             TetrominoToCCPiece(board.nextPiece2.data.tetromino),
             TetrominoToCCPiece(board.nextPiece3.data.tetromino),
@@ -68,7 +69,7 @@ public class BoardToColdClear : MonoBehaviour
     }
 
     // 轉換 Tetromino
-    public static CCPiece TetrominoToCCPiece(Tetromino t)
+    public CCPiece TetrominoToCCPiece(Tetromino t)
     {
         switch (t)
         {
