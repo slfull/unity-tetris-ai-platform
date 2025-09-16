@@ -83,4 +83,9 @@ public class BoardToColdClear : MonoBehaviour
             default: return CCPiece.CC_Z;
         }
     }
+
+    public CCPiece GetNewestPiece()
+    {
+        return TetrominoToCCPiece(board.nextPiece5.data.tetromino);
+    }
 }

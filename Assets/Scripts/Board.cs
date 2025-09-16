@@ -11,7 +11,7 @@ using System.Collections;
 public class Board : MonoBehaviour
 {
     public Tilemap tilemap { get; private set; }
-    public Piece activePiece { get; private set; }
+    public Piece activePiece;
     public Piece nextPiece { get; private set; }
     public Piece nextPiece2 { get; private set; }
     public Piece nextPiece3 { get; private set; }
