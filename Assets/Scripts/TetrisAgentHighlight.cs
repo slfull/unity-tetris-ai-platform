@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using UnityEngine.Tilemaps;
 //copied from ghost, similar functionality
 public class TetrisAgentHightlight : MonoBehaviour
@@ -42,15 +43,29 @@ public class TetrisAgentHightlight : MonoBehaviour
         }
     }
 
+    private int RandomMovement()
+    {
+        int index = UnityEngine.Random.Range(0, 10);
+        return index;
+    }
     private void Drop()
     {
         //modify this part for the expected highlight
         Vector3Int position = trackingPiece.position;
+        
 
         int current = position.y;
         int bottom = -mainBoard.boardSize.y / 2 - 1;
 
+        int currentx = position.x;
+        int randomMovement = RandomMovement();
+        int leftwall = -mainBoard.boardSize.x / 2 - 1;
+        int rightwall = mainBoard.boardSize.x / 2 + 1;
+
+
         mainBoard.Clear(trackingPiece);
+
+
 
         for (int row = current; row >= bottom; row--)
         {
@@ -64,8 +79,9 @@ public class TetrisAgentHightlight : MonoBehaviour
             {
                 break;
             }
+            
         }
-
+        
         mainBoard.Set(trackingPiece);
     }
 

@@ -647,14 +647,14 @@ public class Board : MonoBehaviour
     {
         RectInt bounds = Bounds;
         int row = bounds.yMax;
-            // Shift every row up one
+        // Shift every row up one
         while (row >= bounds.yMin)
         {
             for (int col = bounds.xMin; col < bounds.xMax; col++)
             {
                 Vector3Int position = new Vector3Int(col, row, 0);
                 TileBase currTile = tilemap.GetTile(position);
-                if(currTile != null)
+                if (currTile != null)
                 {
                     return false;
                 }
@@ -674,6 +674,7 @@ public class Board : MonoBehaviour
         Debug.Log("numberOfHoles:" + numberOfHoles);
         Debug.Log("numberOfHoles:" + sumOfEmptyTiles);
         Debug.Log("numberOfHoles:" + numberOfUnfilledLines);
+        
     }
 
     /**
