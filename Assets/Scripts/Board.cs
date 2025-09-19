@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System;
 using System.Collections;
+using Unity.MLAgents.Integrations.Match3;
 
 
 [DefaultExecutionOrder(-1)]
@@ -119,6 +120,22 @@ public class Board : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.B))
         {
             PrintObservations();
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            int width = boardSize.x;
+            int height = boardSize.y;
+            bool[] fields = GetField();
+            string line = "";
+            for (int i = width * height - 1; i >= 0; i -= width)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    line += fields[i - j] ? "1 " : "0 ";
+                }
+                line += "\n";
+            }
+            Debug.Log(line);
         }
     }
 
@@ -621,6 +638,39 @@ public class Board : MonoBehaviour
         }
 
         return state;
+    }
+
+    public bool[] GetField()
+    {
+        int width = boardSize.x;
+        int height = boardSize.y;
+        bool[] field = new bool[width * height];
+        RectInt bounds = Bounds;
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                Vector3Int position = new Vector3Int(x + bounds.xMin, y + bounds.yMin, 0);
+                field[y * width + x] = tilemap.HasTile(position);
+            }
+        }
+
+        if (activePiece != null & activePiece.cells != null)
+        {
+            for (int i = 0; i < activePiece.cells.Length; i++)
+            {
+                Vector3Int cellPos = activePiece.cells[i] + activePiece.position;
+                int fx = cellPos.x - bounds.xMin;
+                int fy = cellPos.y - bounds.yMin;
+                if (fx >= 0 && fx < width && fy >= 0 && fy < height)
+                {
+                    field[fy * width + fx] = false;
+                }
+            }
+        }
+
+        return field;
     }
 
     public void DensityCalculation(int numberOfEmptyTiles)
