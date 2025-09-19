@@ -99,7 +99,7 @@ public class TetrisAgent : Agent
 
     public void Highlight()
     {
-        
+
     }
     public override void OnActionReceived(ActionBuffers actions)
     {
@@ -114,8 +114,19 @@ public class TetrisAgent : Agent
             case 3: activePiece.HandleUpdateMove((int)MovementInput.harddrop); break;
             case 4: activePiece.HandleUpdateMove((int)MovementInput.rotateclockwise); break;
             case 5: activePiece.HandleUpdateMove((int)MovementInput.rotatecounterclockwise); break;
-            default: throw new ArgumentException("Invalid action value");
+            default: break;
         }
 
+    }
+    // Heuristic NOT WORKING NEED FIX
+    public override void Heuristic(in ActionBuffers actions)
+    {
+        var PieceMove = actions.DiscreteActions;
+        PieceMove[0] = Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow) ? 0 : -1;
+        PieceMove[0] = Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow) ? 1 : -1;
+        PieceMove[0] = Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow) ? 2 : -1;
+        PieceMove[0] = Input.GetKeyDown(KeyCode.Space) ? 3 : -1;
+        PieceMove[0] = (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.UpArrow)) ? 4 : -1;
+        PieceMove[0] = (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.X)) ? 5 : -1;
     }
 }

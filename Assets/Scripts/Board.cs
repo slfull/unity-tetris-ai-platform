@@ -43,6 +43,7 @@ public class Board : MonoBehaviour
     public float density = 0;
     public int sumOfEmptyTiles = 0;
     public int numberOfUnfilledLines = 0;
+    public int[] columnheight;
     public TextMeshProUGUI scoreText;
     private TetrisAgent agent;
     private TrashLineAttack attacker;
@@ -583,6 +584,7 @@ public class Board : MonoBehaviour
         int width = boardSize.x;
         int height = boardSize.y;
         int[,] state = new int[width, height];
+        columnheight = new int[width];
         RectInt bounds = Bounds;
         numberOfHoles = 0;
 
@@ -594,6 +596,7 @@ public class Board : MonoBehaviour
                 if (tilemap.HasTile(position))
                 {
                     state[col, row] = 1;
+                    columnheight[col] = row;
                 }
                 else
                 {
@@ -684,9 +687,14 @@ public class Board : MonoBehaviour
         Debug.Log("activePiece.rotationIndex:" + activePiece.rotationIndex);
         Debug.Log("distanceFromBottom:" + distanceFromBottom);
         Debug.Log("numberOfHoles:" + numberOfHoles);
-        Debug.Log("numberOfHoles:" + sumOfEmptyTiles);
-        Debug.Log("numberOfHoles:" + numberOfUnfilledLines);
-        
+        Debug.Log("sumOfEmptyTiles:" + sumOfEmptyTiles);
+        Debug.Log("numberOfUnfilledLines:" + numberOfUnfilledLines);
+        string columnheightprint = "columnheight:";
+        for (int i = 0; i < columnheight.Length; i++)
+        {
+            columnheightprint += "" + columnheight[i];
+        }
+        Debug.Log(columnheightprint);
     }
 
     /**
