@@ -11,6 +11,7 @@ using Unity.MLAgents.Integrations.Match3;
 [DefaultExecutionOrder(-1)]
 public class Board : MonoBehaviour
 {
+    [Header("Board")]
     public Tilemap tilemap { get; private set; }
     public Piece activePiece;
     public Piece nextPiece { get; private set; }
@@ -38,22 +39,26 @@ public class Board : MonoBehaviour
 
     public List<int> trashBuffer = new List<int>();
     public int score = 0;
-    public int distanceFromBottom = 0;
-    public int numberOfHoles = 0;
-    public float aggregateHeight = 0;
-    public float density = 0;
-    public int sumOfEmptyTiles = 0;
-    public int numberOfUnfilledLines = 0;
-    public int[] columnheight;
+
     public TextMeshProUGUI scoreText;
     private TetrisAgent agent;
     private TrashLineAttack attacker;
+
+    [Header("AgentObservations")]
+    public int distanceFromBottom = 0;
+    public int numberOfHoles = 0;
+    public int numberOfOverHangs = 0;
+    public float aggregateHeight = 0;
+    public float bumpiness = 0;
+    public float density = 0;
+    public int[] columnheight;
+    public int[] rowheight;
 
 
     //Add more RewardType if needed
     public enum RewardType
     {
-        GameOver, LineClear, Movement , Hole, Density, NumberOfEmptyTiles
+        GameOver, LineClear, Movement, Hole, Density
     }
     private bool agentExists = false;
     private bool attackerExists = false;
@@ -138,6 +143,7 @@ public class Board : MonoBehaviour
             }
             Debug.Log(line);
         }
+        CalculateObservations();
     }
 
     public void GameOver()
@@ -203,8 +209,7 @@ public class Board : MonoBehaviour
         RectInt bounds = Bounds;
         int row = bounds.yMin;
         int linesCleared = 0;
-        numberOfUnfilledLines = 0;
-        sumOfEmptyTiles = 0;
+
         // Clear from bottom to top
         while (row < bounds.yMax)
         {
@@ -217,7 +222,6 @@ public class Board : MonoBehaviour
             }
             else
             {
-                if (IsLineFull(row) < 10) { DensityCalculation(IsLineFull(row)); }
                 row++;
             }
 
@@ -226,6 +230,7 @@ public class Board : MonoBehaviour
         //Score calculation
         //Default
         score += linesCleared;
+        if (linesCleared > 0) { Debug.Log("LinesCleared!! :" + linesCleared); }
         //Tetris
         if (linesCleared == 4)
         {
@@ -244,7 +249,7 @@ public class Board : MonoBehaviour
             AgentReward((int)RewardType.LineClear, linesCleared);
         }
 
-        if(attackerExists)
+        if (attackerExists)
         {
             attacker.HandleTrashLine(linesCleared, activePiece.isLastMoveRotation);
         }
@@ -591,56 +596,6 @@ public class Board : MonoBehaviour
         distanceFromBottom = 0;
         numberOfHoles = 0;
         density = 0;
-        sumOfEmptyTiles = 0;
-        numberOfUnfilledLines = 0;
-    }
-
-    //Lets agent see the entire board
-    public int[,] GetBoardState()
-    {
-        int width = boardSize.x;
-        int height = boardSize.y;
-        int[,] state = new int[width, height];
-        columnheight = new int[width];
-        RectInt bounds = Bounds;
-        numberOfHoles = 0;
-
-        for (int col = 0; col < width; col++)
-        {
-            for (int row = 0; row < height; row++)
-            {
-                Vector3Int position = new Vector3Int(col + bounds.xMin, row + bounds.yMin, 0);
-                if (tilemap.HasTile(position))
-                {
-                    state[col, row] = 1;
-                    columnheight[col] = row;
-                }
-                else
-                {
-                    state[col, row] = 0;
-                    //hole detection
-                    if (row + bounds.yMin + 1 <= bounds.yMax)
-                    {
-                        Vector3Int positionabove = new Vector3Int(col + bounds.xMin, row + bounds.yMin + 1, 0);
-                        if (!tilemap.HasTile(positionabove)) { continue; }
-                    }
-                    if (col + bounds.xMin - 1 >= bounds.xMin)
-                    {
-                        Vector3Int positionleft = new Vector3Int(col + bounds.xMin - 1, row + bounds.yMin, 0);
-                        if (!tilemap.HasTile(positionleft)) { continue; }
-                    }
-                    if (col + bounds.xMin + 1 <= bounds.xMax)
-                    {
-                        Vector3Int positionright = new Vector3Int(col + bounds.xMin + 1, row + bounds.yMin, 0);
-                        if (!tilemap.HasTile(positionright)) { continue; }
-                    }
-                    numberOfHoles++;
-
-                }
-            }
-        }
-
-        return state;
     }
 
     public bool[] GetField()
@@ -649,7 +604,7 @@ public class Board : MonoBehaviour
         int height = boardSize.y;
         bool[] field = new bool[width * height];
         RectInt bounds = Bounds;
-
+        // run through board to mark tiles
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -657,8 +612,10 @@ public class Board : MonoBehaviour
                 Vector3Int position = new Vector3Int(x + bounds.xMin, y + bounds.yMin, 0);
                 field[y * width + x] = tilemap.HasTile(position);
             }
+
         }
 
+        // clean board of activePiece
         if (activePiece != null & activePiece.cells != null)
         {
             for (int i = 0; i < activePiece.cells.Length; i++)
@@ -673,15 +630,93 @@ public class Board : MonoBehaviour
             }
         }
 
+
+
         return field;
     }
-
-    public void DensityCalculation(int numberOfEmptyTiles)
+    public void CalculateObservations()
     {
-        numberOfUnfilledLines++;
-        sumOfEmptyTiles += numberOfEmptyTiles;
-        density = sumOfEmptyTiles / numberOfUnfilledLines;
+        bool[] fields = GetField();
+        int width = boardSize.x;
+        int height = boardSize.y;
+        columnheight = new int[width];
+        rowheight = new int[height];
+        numberOfHoles = 0;
+        numberOfOverHangs = 0;
+        aggregateHeight = 0;
+        bumpiness = 0;
+        density = 0;
+
+        // run through cleaned board again for observations
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                int index = y * width + x;
+                // columnheight, rowheight
+                if (fields[index] == true)
+                {
+                    columnheight[x] = y + 1;
+                    rowheight[y]++;
+                }
+                //numberOfHoles = check block above, left and right, if all is filled then numberOfHoles++
+                else
+                {
+                    if (y + 1 <= height)
+                    {
+                        int positionabove = y + 1 * width + x;
+                        if (fields[positionabove] == false) { continue; }
+                        numberOfOverHangs++;
+                    }
+                    if (x - 1 >= 0)
+                    {
+                        int positionleft = y * width + x - 1;
+                        if (fields[positionleft] == false) { continue; }
+                    }
+                    if (x + 1 < width)
+                    {
+                        int positionright = y * width + x + 1;
+                        if (fields[positionright] == false) { continue; }
+                    }
+                    numberOfHoles++;
+                }
+            }
+
+        }
+
+        //aggregateHeight = sum of the height of each column
+        for (int i = 0; i < columnheight.Length; i++)
+        {
+            aggregateHeight += columnheight[i];
+        }
+
+        //bumpiness = summing up the absolute differences between all two adjacent columns. (for well{tetris-clear setup} generalization)
+        for (int i = 0; i < columnheight.Length; i++)
+        {
+            if (i < columnheight.Length - 1)
+            {
+                bumpiness += Mathf.Abs(columnheight[i] - columnheight[i + 1]);
+            }
+            else if (i == columnheight.Length -1)
+            {
+                break;
+            }
+
+        }
+
+        //density = sum of filled tiles / numberOfUnfilledLines(non-empty lines)
+        int numberOfTiles = 0;
+        int numberOfUnfilledLines = 0;
+        for (int i = 0; i < rowheight.Length; i++)
+        {
+            numberOfTiles += rowheight[i];
+            if (rowheight[i] != 0) { numberOfUnfilledLines++; }
+        }
+        if (numberOfUnfilledLines != 0) { density = numberOfTiles / numberOfUnfilledLines; }
+
+
     }
+
     public int GetBoardSize(int axis)
     {
         if (axis == 0)
@@ -694,9 +729,8 @@ public class Board : MonoBehaviour
     public void AgentReward(int rewardType, int rewardMultiplier)
     {
         // 0 = GameOver, 1 = LineClear
-        float lineClearReward = 0.5f;
+        float lineClearReward = 1f;
         float MovementReward = -0.1f;
-        float Density = 0.1f;
         lineClearReward *= rewardMultiplier;
         MovementReward *= rewardMultiplier;
         switch (rewardType)
@@ -704,7 +738,6 @@ public class Board : MonoBehaviour
             case 0: agent.AddReward(-10f); break;
             case 1: agent.AddReward(lineClearReward); break;
             case 2: agent.AddReward(MovementReward); break;
-            case 3: agent.AddReward(Density); break;
         }
     }
 
@@ -731,29 +764,50 @@ public class Board : MonoBehaviour
 
     public void PrintObservations()
     {
+        CalculateObservations();
         Debug.Log("activePiece.position.x:" + activePiece.position.x);
         Debug.Log("activePiece.position.y:" + activePiece.position.y);
         Debug.Log("activePiece.data.tetromino:" + activePiece.data.tetromino);
         Debug.Log("activePiece.rotationIndex:" + activePiece.rotationIndex);
         Debug.Log("distanceFromBottom:" + distanceFromBottom);
         Debug.Log("numberOfHoles:" + numberOfHoles);
-        Debug.Log("sumOfEmptyTiles:" + sumOfEmptyTiles);
-        Debug.Log("numberOfUnfilledLines:" + numberOfUnfilledLines);
+        Debug.Log("numberOfOverHangs:" + numberOfOverHangs);
+        Debug.Log("aggregateHeight:" + aggregateHeight);
+        Debug.Log("bumpiness:" + bumpiness);
+        Debug.Log("density:" + density);
         string columnheightprint = "columnheight:";
         for (int i = 0; i < columnheight.Length; i++)
         {
             columnheightprint += "" + columnheight[i];
         }
         Debug.Log(columnheightprint);
+        string rowheightprint = "rowheight:";
+        for (int i = 0; i < rowheight.Length; i++)
+        {
+            rowheightprint += "" + rowheight[i];
+        }
+        Debug.Log(rowheightprint);
+        PrintField();
+
     }
 
-    /**
-     * debug list print
-     *  string r = "list:";
-     for(int i = 0; i < list.Count; i++)
+    //NOTE: prints from top to down(reverse)
+    void PrintField()
+    {
+        bool[] fields = GetField();
+        int width = boardSize.x;
+        int height = boardSize.y;
+        for (int y = height - 1; y >= 0; y--)
         {
-            r += " " + list[i];
+            string row = $"y={y}: [";
+            for (int x = 0; x < width; x++)
+            {
+                int index = y * width + x;
+                row += fields[index] ? " X " : " . ";
+            }
+            row += "]";
+            Debug.Log(row);
         }
-        Debug.Log(r);
-     **/
+    }
+
 }

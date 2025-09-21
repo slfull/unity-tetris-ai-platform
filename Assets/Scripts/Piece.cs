@@ -10,6 +10,8 @@ public class Piece : MonoBehaviour
     public int rotationIndex;
     public bool isLastMoveRotation { get; private set; }
 
+    private TetrisAgent agent;
+
     public float stepDelay = 1f;
     public float moveDelay = 0.05f;
     public float lockDelay = 0.5f;
@@ -57,6 +59,7 @@ public class Piece : MonoBehaviour
     public void AgentExists()
     {
         agentExists = true;
+        agent = GetComponent<TetrisAgent>();
     }
 
     public void PlayerTwoExists()
