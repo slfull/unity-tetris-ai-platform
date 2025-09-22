@@ -24,11 +24,15 @@ public class Bag
         return piece;
     }
 
-    public int PeekNextPiece()
+    public int[] DumpBagInfo()
     {
         RefillBag();
-
-        return (int)bag[0];
+        int[] bagInfo = new bagInfo[bag.length];
+        for (i = 0; i < bag.length; i++)
+        {
+            bagInfo[i] = bag[i];
+        }
+        return bagInfo;
     }
 
     private void RefillBag()
@@ -56,5 +60,6 @@ public class Bag
             piece = (int)bag[0];
         }
     }
-
+    
+    
 }
