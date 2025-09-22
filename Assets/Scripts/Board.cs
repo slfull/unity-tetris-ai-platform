@@ -13,6 +13,8 @@ public class Board : MonoBehaviour
 {
     [Header("Board")]
     public Tilemap tilemap { get; private set; }
+
+
     public Piece activePiece;
     public Piece nextPiece { get; private set; }
     public Piece nextPiece2 { get; private set; }
@@ -22,7 +24,7 @@ public class Board : MonoBehaviour
     public Piece savedPiece { get; private set; }
 
     public Tile tile;
-
+    public Bag bag;
     public TetrominoData[] tetrominoes;
 
     public Vector2Int boardSize = new Vector2Int(10, 20);
@@ -33,10 +35,6 @@ public class Board : MonoBehaviour
     public Vector3Int previewPosition4 = new Vector3Int(10, -1, 0);
     public Vector3Int previewPosition5 = new Vector3Int(10, -3, 0);
     public Vector3Int holdPosition = new Vector3Int(-10, 8, 0);
-    public readonly List<Tetromino> bagConst = new List<Tetromino>()
-        {Tetromino.I, Tetromino.J, Tetromino.L, Tetromino.O, Tetromino.S, Tetromino.T, Tetromino.Z };
-    public List<Tetromino> bag = new List<Tetromino>();
-
     public List<int> trashBuffer = new List<int>();
     public int score = 0;
 
@@ -46,6 +44,7 @@ public class Board : MonoBehaviour
 
     [Header("AgentObservations")]
     public int distanceFromBottom = 0;
+    public int distanceFromBottomLast; 
     public int numberOfHoles = 0;
     public int numberOfOverHangs = 0;
     public float aggregateHeight = 0;
@@ -55,10 +54,11 @@ public class Board : MonoBehaviour
     public int[] rowheight;
 
 
+
     //Add more RewardType if needed
     public enum RewardType
     {
-        GameOver, LineClear, Movement, Hole, Density
+        GameOver, LineClear,
     }
     private bool agentExists = false;
     private bool attackerExists = false;
@@ -95,11 +95,12 @@ public class Board : MonoBehaviour
         savedPiece = gameObject.AddComponent<Piece>();
         savedPiece.enabled = false;
 
+        bag = new Bag();
+
         for (int i = 0; i < tetrominoes.Length; i++)
         {
             tetrominoes[i].Initialize();
         }
-        CopyBag(bagConst, bag);
     }
 
     private void Start()
@@ -129,19 +130,7 @@ public class Board : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
-            int width = boardSize.x;
-            int height = boardSize.y;
-            bool[] fields = GetField();
-            string line = "";
-            for (int i = width * height - 1; i >= 0; i -= width)
-            {
-                for (int j = 0; j < width; j++)
-                {
-                    line += fields[i - j] ? "1 " : "0 ";
-                }
-                line += "\n";
-            }
-            Debug.Log(line);
+            PrintField();
         }
         CalculateObservations();
     }
@@ -324,13 +313,13 @@ public class Board : MonoBehaviour
                 Clear(piece);
             }
 
-            // Check if last loop, break and BagTakeNextPiece() for the last piece
+            // Check if last loop, break and BagGetPiece() for the last piece
             if (piecenext == nextPiece5)
             {
                 piece.Initialize(this, nextpreviewPositions[i], piecenext.data);
                 Set(piece);
                 Clear(piecenext);
-                nextPiece5.Initialize(this, previewPosition5, BagTakeNextPiece());
+                nextPiece5.Initialize(this, previewPosition5, BagGetPiece());
                 Set(nextPiece5);
                 break;
             }
@@ -342,39 +331,10 @@ public class Board : MonoBehaviour
         }
     }
 
-    void CopyBag(List<Tetromino> source, List<Tetromino> target)
+    private TetrominoData BagGetPiece()
     {
-        target.Clear();
-        target.AddRange(source);
-    }
-
-    public static void Shuffle<T>(List<T> list)
-    {
-        System.Random rng = new System.Random();
-        int n = list.Count;
-        while (n > 1)
-        {
-            n--;
-            int k = rng.Next(n + 1); // Get a random index
-            T value = list[k];
-            list[k] = list[n];
-            list[n] = value;
-        }
-    }
-    public static void ShuffleWithConstraints<T>(List<T> list)
-    {
-        Shuffle(list);
-
-        // Ensure that 5 or 7 is not at the 0th position
-        while (list[0].Equals(6) || list[0].Equals(4))
-        {
-            // If 5 or 7 is at the 0th position, swap it with a random position (other than 0)
-            System.Random rng = new System.Random();
-            int randomIndex = rng.Next(1, list.Count); // Ensure the index is not 0
-            T temp = list[0];
-            list[0] = list[randomIndex];
-            list[randomIndex] = temp;
-        }
+        TetrominoData piece = tetrominoes[bag.GetPiece()];
+        return piece;
     }
     private void InitializeNextPiece()
     {
@@ -388,42 +348,18 @@ public class Board : MonoBehaviour
                 Clear(piece);
             }
         }
-
-        //Initialize Bag
-        CopyBag(bagConst, bag);
-        //Ensure that Z and S is not the first piece
-        ShuffleWithConstraints(bag);
+        // initailize bag
+        bag.RefillBagNoSZ();
 
         //Set all next pieces on the board
         for (int i = 0; i < nextPieces.Length; i++)
         {
-            nextPieces[i].Initialize(this, nextpreviewPositions[i], BagTakeNextPiece());
+            nextPieces[i].Initialize(this, nextpreviewPositions[i], BagGetPiece());
             Set(nextPieces[i]);
         }
 
     }
 
-    private TetrominoData BagTakeNextPiece()
-    {
-        // Pick a random tetromino to use
-        Tetromino random = bag[0];
-        TetrominoData data = tetrominoes[0];
-        for (int i = 0; i < tetrominoes.Length; i++)
-        {
-            if (tetrominoes[i].tetromino == random)
-            {
-                data = tetrominoes[i];
-                break;
-            }
-        }
-        bag.RemoveAt(0);
-        if (bag.Count == 0)
-        {
-            CopyBag(bagConst, bag);
-            Shuffle(bag);
-        }
-        return data;
-    }
 
     public void SpawnPiece()
     {
@@ -630,7 +566,8 @@ public class Board : MonoBehaviour
             }
         }
 
-
+        distanceFromBottom = 0;
+        
 
         return field;
     }
@@ -648,7 +585,7 @@ public class Board : MonoBehaviour
         density = 0;
 
         // run through cleaned board again for observations
-        for (int y = 0; y < height; y++)
+        for (int y = height - 1; y >= 0; y--)
         {
             for (int x = 0; x < width; x++)
             {
@@ -660,22 +597,26 @@ public class Board : MonoBehaviour
                     rowheight[y]++;
                 }
                 //numberOfHoles = check block above, left and right, if all is filled then numberOfHoles++
+
                 else
                 {
-                    if (y + 1 <= height)
+                    int positionabove = 0;
+                    int positionleft = 0;
+                    int positionright = 0;
+                    if (y + 1 < height)
                     {
-                        int positionabove = y + 1 * width + x;
+                        positionabove = (y + 1) * width + x;
                         if (fields[positionabove] == false) { continue; }
                         numberOfOverHangs++;
                     }
                     if (x - 1 >= 0)
                     {
-                        int positionleft = y * width + x - 1;
+                        positionleft = y * width + x - 1;
                         if (fields[positionleft] == false) { continue; }
                     }
                     if (x + 1 < width)
                     {
-                        int positionright = y * width + x + 1;
+                        positionright = y * width + x + 1;
                         if (fields[positionright] == false) { continue; }
                     }
                     numberOfHoles++;
@@ -683,6 +624,7 @@ public class Board : MonoBehaviour
             }
 
         }
+
 
         //aggregateHeight = sum of the height of each column
         for (int i = 0; i < columnheight.Length; i++)
@@ -697,7 +639,7 @@ public class Board : MonoBehaviour
             {
                 bumpiness += Mathf.Abs(columnheight[i] - columnheight[i + 1]);
             }
-            else if (i == columnheight.Length -1)
+            else if (i == columnheight.Length - 1)
             {
                 break;
             }
@@ -714,7 +656,10 @@ public class Board : MonoBehaviour
         }
         if (numberOfUnfilledLines != 0) { density = numberOfTiles / numberOfUnfilledLines; }
 
+        //distanceFromBottom = 0;
 
+        
+        
     }
 
     public int GetBoardSize(int axis)
@@ -729,15 +674,15 @@ public class Board : MonoBehaviour
     public void AgentReward(int rewardType, int rewardMultiplier)
     {
         // 0 = GameOver, 1 = LineClear
-        float lineClearReward = 1f;
-        float MovementReward = -0.1f;
+        float lineClearReward = 0.5f;
+        float LockPieceReward = 0.05f;
         lineClearReward *= rewardMultiplier;
-        MovementReward *= rewardMultiplier;
         switch (rewardType)
         {
-            case 0: agent.AddReward(-10f); break;
+            case 0: agent.AddReward(-2f); break;
             case 1: agent.AddReward(lineClearReward); break;
-            case 2: agent.AddReward(MovementReward); break;
+            case 2: agent.AddReward(LockPieceReward); break;
+            case 3: agent.AddReward(-0.02f); break;
         }
     }
 
@@ -803,7 +748,7 @@ public class Board : MonoBehaviour
             for (int x = 0; x < width; x++)
             {
                 int index = y * width + x;
-                row += fields[index] ? " X " : " . ";
+                row += fields[index] ? " 1 " : " 0 ";
             }
             row += "]";
             Debug.Log(row);

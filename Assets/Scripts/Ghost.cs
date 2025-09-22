@@ -25,6 +25,8 @@ public class Ghost : MonoBehaviour
         Copy();
         Drop();
         Set();
+        if (mainBoard.distanceFromBottomLast < mainBoard.distanceFromBottom) { mainBoard.AgentReward(3,1); }
+        mainBoard.distanceFromBottomLast = mainBoard.distanceFromBottom;
     }
 
     private void Clear()
@@ -68,6 +70,7 @@ public class Ghost : MonoBehaviour
         }
         mainBoard.distanceFromBottom = traveledLines;
         traveledLines = 0;
+        
         mainBoard.Set(trackingPiece);
     }
 
