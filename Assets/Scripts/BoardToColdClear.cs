@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.MLAgents.Integrations.Match3;
 using UnityEngine;
 
 public class BoardToColdClear : MonoBehaviour
@@ -29,15 +30,15 @@ public class BoardToColdClear : MonoBehaviour
     public bool[] GetFieldBoolArray()
     {
         int width = 10;
-        int height = 40;
+        int height = 20;
         bool[] field = new bool[width * height];
+        bool[] untransformedField = board.GetField();
         var bounds = board.Bounds;
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                Vector3Int pos = new Vector3Int(x + bounds.xMin, y + bounds.yMin, 0);
-                field[y * width + x] = board.tilemap.HasTile(pos);
+                field[y * width + x] = untransformedField[y * width + x];
             }
         }
         return field;

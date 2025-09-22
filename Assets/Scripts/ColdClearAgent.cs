@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Unity.MLAgents.Integrations.Match3;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
-using UnityEngine.UI;
 
 public class ColdClearAgent : MonoBehaviour
 {
@@ -25,7 +22,7 @@ public class ColdClearAgent : MonoBehaviour
 
     void Start()
     {
-        ResetBot();
+        BotInitialize();
         board = GetComponent<Board>();
         movementQueue = new List<Movement>();
         prevScore = board.score;
@@ -49,7 +46,7 @@ public class ColdClearAgent : MonoBehaviour
                 case Movement.CCW: CounterClockWise(); break;
                 case Movement.HOLD: Hold(); break;
                 case Movement.DROP: Drop(); break;
-                case Movement.HARDDROP: HardDrop(); GetNewestPiece(); break;
+                case Movement.HARDDROP: HardDrop(); break;
                 default: break;
             }
             movementQueue.RemoveAt(0);
@@ -95,7 +92,7 @@ public class ColdClearAgent : MonoBehaviour
         board.activePiece.HandleUpdateMove(3);
     }
 
-    private void GetNewestPiece()
+    public void GetNewestPiece()
     {
         // 取得棋盤狀態
         bool[] field = BoardToColdClear.instance.GetFieldBoolArray();
@@ -120,6 +117,37 @@ public class ColdClearAgent : MonoBehaviour
         ColdClearNative.cc_add_next_piece_async(bot, newestPiece);
     }
 
+    public void BotInitialize()
+    {
+
+        if(bot != IntPtr.Zero)
+        {
+            ColdClearNative.cc_destroy_async(bot);
+            bot = IntPtr.Zero;
+        }
+        
+
+        CCPiece[] queue = BoardToColdClear.instance.GetQueue();
+
+        CCOptions options;
+        CCWeights weights;
+        ColdClearNative.cc_default_options(out options);
+        ColdClearNative.cc_default_weights(out weights);
+        IntPtr queuePtr = IntPtr.Zero;
+        uint queueCount = (uint)queue.Length;
+        if (queueCount > 0)
+        {
+            queuePtr = Marshal.AllocHGlobal(sizeof(int) * queue.Length);
+            for (int i = 0; i < queue.Length; i++)
+                Marshal.WriteInt32(queuePtr + i * sizeof(int), (int)queue[i]);
+        }
+        bot = ColdClearNative.cc_launch_async(
+            ref options, ref weights, IntPtr.Zero,
+            queue, queueCount
+        );
+        if (queuePtr != IntPtr.Zero) Marshal.FreeHGlobal(queuePtr);
+    }
+
     public CCMove? RequestNextMove()
     {
         if (bot == IntPtr.Zero) return null;
@@ -128,7 +156,7 @@ public class ColdClearAgent : MonoBehaviour
         ColdClearNative.cc_request_next_move(bot, 0);
 
         CCMove move;
-        
+
         var status = ColdClearNative.cc_poll_next_move(bot, out move, IntPtr.Zero, IntPtr.Zero);
         string moveSt = $"hold={move.hold}, x={move.expected_x[0]}, y={move.expected_y[0]}, movement_count={move.movement_count}, nodes={move.nodes}";
         moveSt += "\nmovements: ";
@@ -221,11 +249,11 @@ public class ColdClearAgent : MonoBehaviour
 
     private void MovementQueueRequest()
     {
+
         if (IsNeedToResetBot())
         {
             //ResetBot();
         }
-
         prevScore = board.score;
 
         CCMove? move = RequestNextMove();
