@@ -262,10 +262,6 @@ public class Board : MonoBehaviour
             attacker.HandleTrashLine(linesCleared, activePiece.isLastMoveRotation);
         }
         ScoreTextUpdate();
-        if (ccExists)
-        {
-            coldClearAgent.GetNewestPiece();
-        }
     }
 
     public int IsLineFull(int row)
@@ -321,7 +317,6 @@ public class Board : MonoBehaviour
 
     private void SetNextPiece()
     {
-
         var nextPieces = new[] { nextPiece, nextPiece2, nextPiece3, nextPiece4, nextPiece5 };
         var nextpreviewPositions = new[] { previewPosition, previewPosition2, previewPosition3, previewPosition4, previewPosition5 };
         //Goes through all nextPieces, Display and Set Data
@@ -349,8 +344,11 @@ public class Board : MonoBehaviour
 
             piece.Initialize(this, nextpreviewPositions[i], piecenext.data);
             Set(piece);
+        }
 
-
+        if (ccExists)
+        {
+            coldClearAgent.GetNewestPiece();
         }
     }
 

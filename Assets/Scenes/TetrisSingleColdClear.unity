@@ -280,7 +280,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16f113c195ca0614d8e4e1336bb0f142, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  board: {fileID: 0}
+  movementQueue: 
 --- !u!114 &246835129
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -875,7 +875,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Board
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 172847301047478645, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
+    - {fileID: 8727019842142628535, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
+    - {fileID: 9035997003616904623, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
+    - {fileID: 798596492190713589, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
