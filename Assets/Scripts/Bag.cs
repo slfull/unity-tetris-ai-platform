@@ -27,10 +27,10 @@ public class Bag
     public int[] DumpBagInfo()
     {
         RefillBag();
-        int[] bagInfo = new bagInfo[bag.length];
-        for (i = 0; i < bag.length; i++)
+        int[] bagInfo = {bag.Count};
+        for (int i = 0; i < bag.Count; i++)
         {
-            bagInfo[i] = bag[i];
+            bagInfo[i] = (int)bag[i];
         }
         return bagInfo;
     }
