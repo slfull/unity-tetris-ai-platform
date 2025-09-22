@@ -12,7 +12,7 @@ internal static class ColdClearNative
 
     [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr cc_launch_async(ref CCOptions options, ref CCWeights weights,
-        IntPtr book, CCPiece[] queue, uint count);
+        IntPtr book, IntPtr queue, uint count);
     
     [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr cc_launch_with_board_async(

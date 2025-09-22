@@ -1,18 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Unity.MLAgents.Integrations.Match3;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
-using UnityEngine.UI;
 
 public class ColdClearAgent : MonoBehaviour
 {
+    [SerializeField] private float agentSpeed = 0.5f;
     private IntPtr bot = IntPtr.Zero;
     private Board board;
-    private Piece activePiece;
     private bool isPrevMoveHold = false;
     private int prevScore;
+    private float agentStepTime = 0;
     public enum Movement
     {
         LEFT, RIGHT,
@@ -25,16 +23,22 @@ public class ColdClearAgent : MonoBehaviour
 
     void Start()
     {
-        ResetBot();
+        BotInitialize();
         board = GetComponent<Board>();
         movementQueue = new List<Movement>();
         prevScore = board.score;
         MovementQueueRequest();
+        agentStepTime = Time.time;
+        board.activePiece.stepDelay = 100f;
     }
 
     void Update()
     {
-        HandleMovement();
+        if (Time.time >= agentStepTime)
+        {
+            HandleMovement();
+            agentStepTime = Time.time + agentSpeed;
+        }
     }
 
     private void HandleMovement()
@@ -49,14 +53,10 @@ public class ColdClearAgent : MonoBehaviour
                 case Movement.CCW: CounterClockWise(); break;
                 case Movement.HOLD: Hold(); break;
                 case Movement.DROP: Drop(); break;
-                case Movement.HARDDROP: HardDrop(); GetNewestPiece(); break;
+                case Movement.HARDDROP: HardDrop(); break;
                 default: break;
             }
             movementQueue.RemoveAt(0);
-        }
-        else
-        {
-            MovementQueueRequest();
         }
     }
 
@@ -95,108 +95,34 @@ public class ColdClearAgent : MonoBehaviour
         board.activePiece.HandleUpdateMove(3);
     }
 
-    private void GetNewestPiece()
+    public void GetNewestPiece()
     {
-        // 取得棋盤狀態
-        bool[] field = BoardToColdClear.instance.GetFieldBoolArray();
-        byte[] fieldBytes = new byte[field.Length];
-        for (int i = 0; i < field.Length; i++)
-            fieldBytes[i] = (byte)(field[i] ? 1 : 0);
-
-        // 分配 unmanaged 記憶體（400 bytes）
-        IntPtr fieldPtr = Marshal.AllocHGlobal(fieldBytes.Length);
-
-        // 複製資料
-        Marshal.Copy(fieldBytes, 0, fieldPtr, fieldBytes.Length);
-
-        // 呼叫 API
-        ColdClearNative.cc_reset_async(bot, fieldPtr, false, 0);
-
-        // 釋放記憶體
-        Marshal.FreeHGlobal(fieldPtr);
-
-        // 加入新 piece 到 queue
+        if (bot == IntPtr.Zero)
+        {
+            Debug.LogError("ColdClear bot not initialized!");
+            return;
+        }
         CCPiece newestPiece = BoardToColdClear.instance.GetNewestPiece();
+        Debug.Log($"[ColdClear] Add next piece: {newestPiece}");
         ColdClearNative.cc_add_next_piece_async(bot, newestPiece);
+        MovementQueueRequest();
     }
 
-    public CCMove? RequestNextMove()
+    public void BotInitialize()
     {
-        if (bot == IntPtr.Zero) return null;
 
-        // 請求下一步
-        ColdClearNative.cc_request_next_move(bot, 0);
-
-        CCMove move;
-        
-        var status = ColdClearNative.cc_poll_next_move(bot, out move, IntPtr.Zero, IntPtr.Zero);
-        string moveSt = $"hold={move.hold}, x={move.expected_x[0]}, y={move.expected_y[0]}, movement_count={move.movement_count}, nodes={move.nodes}";
-        moveSt += "\nmovements: ";
-        for (int i = 0; i < move.movement_count; i++)
-        {
-            moveSt += move.movements[i] + " ";
-        }
-        Debug.Log("[ColdClear] Prev Move" + moveSt);
-
-        if (status == CCBotPollStatus.CC_MOVE_PROVIDED)
-        {
-            string moveStr = $"hold={move.hold}, x={move.expected_x[0]}, y={move.expected_y[0]}, movement_count={move.movement_count}, nodes={move.nodes}";
-            moveStr += "\nmovements: ";
-            for (int i = 0; i < move.movement_count; i++)
-            {
-                moveStr += move.movements[i] + " ";
-            }
-            Debug.Log("[ColdClear] " + moveStr);
-
-            isPrevMoveHold = move.hold;
-
-
-
-            return move;
-        }
-        Debug.LogWarning("[ColdClear] Bot dead.");
-        return null;
-    }
-
-    private void ResetBot()
-    {
-        // 先銷毀舊 bot
         if (bot != IntPtr.Zero)
         {
             ColdClearNative.cc_destroy_async(bot);
             bot = IntPtr.Zero;
         }
 
-        // 重新取得最新資料
-        bool[] field = BoardToColdClear.instance.GetFieldBoolArray();
+
         CCPiece[] queue = BoardToColdClear.instance.GetQueue();
-        CCPiece? hold = BoardToColdClear.instance.GetHoldPiece();
 
-        uint bag_remain = 0;
-        foreach (var p in queue)
-            bag_remain |= 1u << (int)p;
-
-        bool b2b = false;
-        uint combo = 0;
-
-        CCOptions options;
+        CCOptions options = DefaultOption();
         CCWeights weights;
-        ColdClearNative.cc_default_options(out options);
         ColdClearNative.cc_default_weights(out weights);
-
-        IntPtr fieldPtr = Marshal.AllocHGlobal(field.Length);
-        byte[] fieldBytes = new byte[field.Length];
-        for (int i = 0; i < field.Length; i++)
-            fieldBytes[i] = (byte)(field[i] ? 1 : 0);
-        Marshal.Copy(fieldBytes, 0, fieldPtr, fieldBytes.Length);
-
-        IntPtr holdPtr = IntPtr.Zero;
-        if (hold.HasValue)
-        {
-            holdPtr = Marshal.AllocHGlobal(sizeof(int));
-            Marshal.WriteInt32(holdPtr, (int)hold.Value);
-        }
-
         IntPtr queuePtr = IntPtr.Zero;
         uint queueCount = (uint)queue.Length;
         if (queueCount > 0)
@@ -205,27 +131,50 @@ public class ColdClearAgent : MonoBehaviour
             for (int i = 0; i < queue.Length; i++)
                 Marshal.WriteInt32(queuePtr + i * sizeof(int), (int)queue[i]);
         }
-
-        // 重啟 bot
-        bot = ColdClearNative.cc_launch_with_board_async(
+        bot = ColdClearNative.cc_launch_async(
             ref options, ref weights, IntPtr.Zero,
-            fieldPtr, bag_remain, holdPtr, b2b, combo, queuePtr, queueCount
+            queuePtr, queueCount
         );
-
-        Marshal.FreeHGlobal(fieldPtr);
-        if (holdPtr != IntPtr.Zero) Marshal.FreeHGlobal(holdPtr);
         if (queuePtr != IntPtr.Zero) Marshal.FreeHGlobal(queuePtr);
 
-        Debug.Log("[ColdClear] Bot reset.");
+        Debug.Log($"queueCount={queue.Length}");
+        for (int i = 0; i < queue.Length; i++)
+            Debug.Log($"queue[{i}]={queue[i]}");
+    }
+
+    public CCMove? RequestNextMove()
+    {
+        if (bot == IntPtr.Zero) return null;
+        ColdClearNative.cc_request_next_move(bot, 0);
+        CCMove move;
+
+        CCBotPollStatus status = ColdClearNative.cc_poll_next_move(bot, out move, IntPtr.Zero, IntPtr.Zero);
+
+        if (status == CCBotPollStatus.CC_MOVE_PROVIDED)
+        {
+            string moveStr = $"hold={move.hold}, movement_count={move.movement_count}, nodes={move.nodes}";
+            moveStr += "\nmovements: ";
+            for (int i = 0; i < move.movement_count; i++)
+            {
+                moveStr += move.movements[i] + " ";
+            }
+
+            moveStr += "\nexpected: ";
+
+            for (int i = 0; i < move.expected_x.Length; i++)
+            {
+                moveStr += $"x={move.expected_x[i]}, y={move.expected_y[i]} | ";
+            }
+            Debug.Log("[ColdClear] " + moveStr);
+            isPrevMoveHold = move.hold;
+            return move;
+        }
+        Debug.LogWarning("[ColdClear] Bot dead.");
+        return null;
     }
 
     private void MovementQueueRequest()
     {
-        if (IsNeedToResetBot())
-        {
-            //ResetBot();
-        }
-
         prevScore = board.score;
 
         CCMove? move = RequestNextMove();
@@ -260,6 +209,17 @@ public class ColdClearAgent : MonoBehaviour
     private bool IsNeedToResetBot()
     {
         return isPrevMoveHold || prevScore != board.score;
+    }
+
+    private CCOptions DefaultOption()
+    {
+        CCOptions options;
+        ColdClearNative.cc_default_options(out options);
+        options.mode = CCMovementMode.CC_HARD_DROP_ONLY;
+        options.spawn_rule = CCSpawnRule.CC_ROW_19_OR_20;
+        options.pcloop = CCPcPriority.CC_PC_FASTEST;
+        options.use_hold = false;
+        return options;
     }
 
     void OnDestroy()

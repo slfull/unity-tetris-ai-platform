@@ -41,6 +41,7 @@ public class Board : MonoBehaviour
     public TextMeshProUGUI scoreText;
     private TetrisAgent agent;
     private TrashLineAttack attacker;
+    private ColdClearAgent coldClearAgent;
 
     [Header("AgentObservations")]
     public int distanceFromBottom = 0;
@@ -58,10 +59,11 @@ public class Board : MonoBehaviour
     //Add more RewardType if needed
     public enum RewardType
     {
-        GameOver, LineClear,
+        GameOver, LineClear
     }
     private bool agentExists = false;
     private bool attackerExists = false;
+    private bool ccExists = false;
 
     public RectInt Bounds
     {
@@ -100,6 +102,12 @@ public class Board : MonoBehaviour
         for (int i = 0; i < tetrominoes.Length; i++)
         {
             tetrominoes[i].Initialize();
+        }
+
+        coldClearAgent = GetComponent<ColdClearAgent>();
+        if (coldClearAgent != null)
+        {
+            ccExists = true;
         }
     }
 
@@ -298,7 +306,6 @@ public class Board : MonoBehaviour
 
     private void SetNextPiece()
     {
-
         var nextPieces = new[] { nextPiece, nextPiece2, nextPiece3, nextPiece4, nextPiece5 };
         var nextpreviewPositions = new[] { previewPosition, previewPosition2, previewPosition3, previewPosition4, previewPosition5 };
         //Goes through all nextPieces, Display and Set Data
@@ -326,8 +333,11 @@ public class Board : MonoBehaviour
 
             piece.Initialize(this, nextpreviewPositions[i], piecenext.data);
             Set(piece);
+        }
 
-
+        if (ccExists)
+        {
+            coldClearAgent.GetNewestPiece();
         }
     }
 
