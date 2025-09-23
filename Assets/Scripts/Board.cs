@@ -61,9 +61,9 @@ public class Board : MonoBehaviour
     {
         GameOver, LineClear
     }
-    private bool agentExists = false;
-    private bool attackerExists = false;
-    private bool ccExists = false;
+    public bool agentExists { get; private set; } = false;
+    public bool attackerExists { get; private set; } = false;
+    public bool ccExists { get; private set; } = false;
 
     public RectInt Bounds
     {
@@ -334,11 +334,6 @@ public class Board : MonoBehaviour
             piece.Initialize(this, nextpreviewPositions[i], piecenext.data);
             Set(piece);
         }
-
-        if (ccExists)
-        {
-            coldClearAgent.GetNewestPiece();
-        }
     }
 
     private TetrominoData BagGetPiece()
@@ -389,6 +384,11 @@ public class Board : MonoBehaviour
 
         // Set the next random piece
         SetNextPiece();
+
+        if (ccExists && coldClearAgent.bot != IntPtr.Zero)
+        {
+            coldClearAgent.GetNewestPiece();
+        }
     }
 
     public void SwapPiece()

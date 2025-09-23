@@ -280,6 +280,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16f113c195ca0614d8e4e1336bb0f142, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agentSpeed: 0.5
   movementQueue: 
 --- !u!114 &246835129
 MonoBehaviour:
@@ -827,6 +828,10 @@ PrefabInstance:
       propertyPath: scoreText
       value: 
       objectReference: {fileID: 971712394}
+    - target: {fileID: 4476554494948964772, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
+      propertyPath: activePiece
+      value: 
+      objectReference: {fileID: 246835122}
     - target: {fileID: 5230656391415050642, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
       propertyPath: m_RootOrder
       value: 0

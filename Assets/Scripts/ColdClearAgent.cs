@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Edgegap.Editor.Api.Models.Results;
 using UnityEngine;
 
 public class ColdClearAgent : MonoBehaviour
 {
     [SerializeField] private float agentSpeed = 0.5f;
-    private IntPtr bot = IntPtr.Zero;
+    public IntPtr bot { get; private set; } = IntPtr.Zero;
     private Board board;
     private bool isPrevMoveHold = false;
     private int prevScore;

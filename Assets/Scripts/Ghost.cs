@@ -25,7 +25,7 @@ public class Ghost : MonoBehaviour
         Copy();
         Drop();
         Set();
-        if (mainBoard.distanceFromBottomLast < mainBoard.distanceFromBottom) { mainBoard.AgentReward(3,1); }
+        if (mainBoard.distanceFromBottomLast < mainBoard.distanceFromBottom && mainBoard.agentExists) { mainBoard.AgentReward(3,1); }
         mainBoard.distanceFromBottomLast = mainBoard.distanceFromBottom;
     }
 

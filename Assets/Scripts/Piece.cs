@@ -200,7 +200,10 @@ public class Piece : MonoBehaviour
     private void Lock()
     {
         board.Set(this);
-        board.AgentReward(2, 1);
+        if (board.agentExists)
+        {
+            board.AgentReward(2, 1);
+        }
         board.ClearLines();
         board.SpawnPiece();
     }
