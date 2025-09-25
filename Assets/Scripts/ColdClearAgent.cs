@@ -10,9 +10,12 @@ public class ColdClearAgent : MonoBehaviour
     public IntPtr bot { get; private set; } = IntPtr.Zero;
     private Board board;
     private CCMove move;
+    private CCBotPollStatus status;
     private bool isPrevMoveHold = false;
     private int prevScore;
     private float agentStepTime = 0;
+    private float waitingTime = 0.1f;
+    private bool isRequest = false;
     public enum Movement
     {
         LEFT, RIGHT,
@@ -22,16 +25,14 @@ public class ColdClearAgent : MonoBehaviour
     }
     [SerializeField] private List<Movement> movementQueue;
 
+    //monoBhaviour
 
     void Start()
     {
         BotInitialize();
         board = GetComponent<Board>();
-        movementQueue = new List<Movement>();
-        prevScore = board.score;
-        MovementQueueRequest();
         agentStepTime = Time.time;
-        board.activePiece.stepDelay = 100f;
+        status = CCBotPollStatus.CC_WAITING;
     }
 
     void Update()
@@ -42,6 +43,8 @@ public class ColdClearAgent : MonoBehaviour
             agentStepTime = Time.time + agentSpeed;
         }
     }
+
+    //movement handle
 
     private void HandleMovement()
     {
@@ -59,6 +62,25 @@ public class ColdClearAgent : MonoBehaviour
                 default: break;
             }
             movementQueue.RemoveAt(0);
+        }
+        else if (status == CCBotPollStatus.CC_MOVE_PROVIDED)
+        {
+            FillMovementQueue();
+            status = CCBotPollStatus.CC_WAITING;
+            isRequest = false;
+        }
+        else if (status == CCBotPollStatus.CC_BOT_DEAD)
+        {
+            Debug.LogWarning("[Cold Clear] Bot Dead");
+        }
+        else
+        {
+            if (!isRequest)
+            {
+                Invoke("RequestNextMove", waitingTime);
+            }
+            Invoke("PollNextMove", waitingTime * 2);
+            //Debug.Log("[Cold Clear] Bot Waiting");
         }
     }
 
@@ -97,18 +119,7 @@ public class ColdClearAgent : MonoBehaviour
         board.activePiece.HandleUpdateMove(3);
     }
 
-    public void GetNewestPiece()
-    {
-        if (bot == IntPtr.Zero)
-        {
-            Debug.LogError("ColdClear bot not initialized!");
-            return;
-        }
-        CCPiece newestPiece = BoardToColdClear.instance.GetNewestPiece();
-        Debug.Log($"[ColdClear] Add next piece: {newestPiece}");
-        ColdClearNative.cc_add_next_piece_async(bot, newestPiece);
-        MovementQueueRequest();
-    }
+    //initialize
 
     public void BotInitialize()
     {
@@ -144,114 +155,6 @@ public class ColdClearAgent : MonoBehaviour
             Debug.Log($"queue[{i}]={queue[i]}");
     }
 
-    public void RequestNextMove()
-    {
-        if (bot == IntPtr.Zero) return;
-        ColdClearNative.cc_request_next_move(bot, 0);
-
-        CCBotPollStatus status = ColdClearNative.cc_poll_next_move(bot, out move, IntPtr.Zero, IntPtr.Zero);
-
-        if (status == CCBotPollStatus.CC_MOVE_PROVIDED)
-        {
-            string moveStr = $"hold={move.hold}, movement_count={move.movement_count}, nodes={move.nodes}";
-            moveStr += "\nmovements: ";
-            for (int i = 0; i < move.movement_count; i++)
-            {
-                moveStr += move.movements[i] + " ";
-            }
-
-            moveStr += "\nexpected: ";
-
-            for (int i = 0; i < move.expected_x.Length; i++)
-            {
-                moveStr += $"x={move.expected_x[i]}, y={move.expected_y[i]} | ";
-            }
-            Debug.Log("[ColdClear] " + moveStr);
-            isPrevMoveHold = move.hold;
-            return;
-        }
-        else if (status == CCBotPollStatus.CC_WAITING)
-        {
-            Invoke("RequestNextMove", 0.01f);
-            return;
-        }
-        Debug.LogWarning("[ColdClear] Bot dead.");
-        return;
-    }
-
-    private void MovementQueueRequest()
-    {
-        prevScore = board.score;
-
-        RequestNextMove();
-
-        if (move.movement_count == 0)
-        {
-            Invoke("MovementQueueRequestRetry", 0.01f);
-            return;
-        }
-        
-        if (move.hold)
-        {
-            movementQueue.Add(Movement.HOLD);
-        }
-
-        for (int i = 0; i < move.movement_count; i++)
-        {
-            Movement movement = Movement.LEFT;
-
-            switch (move.movements[i])
-            {
-                case CCMovement.CC_LEFT: movement = Movement.LEFT; break;
-                case CCMovement.CC_RIGHT: movement = Movement.RIGHT; break;
-                case CCMovement.CC_CW: movement = Movement.CW; break;
-                case CCMovement.CC_CCW: movement = Movement.CCW; break;
-                case CCMovement.CC_DROP: movement = Movement.DROP; break;
-                default: break;
-            }
-            movementQueue.Add(movement);
-        }
-
-        movementQueue.Add(Movement.HARDDROP);
-    }
-
-    private void MovementQueueRequestRetry()
-    {
-        if (move.movement_count == 0)
-        {
-            Invoke("MovementQueueRequestRetry", 0.01f);
-            return;
-        }
-        
-        if (move.hold)
-        {
-            movementQueue.Add(Movement.HOLD);
-        }
-
-        for (int i = 0; i < move.movement_count; i++)
-        {
-            Movement movement = Movement.LEFT;
-
-            switch (move.movements[i])
-            {
-                case CCMovement.CC_LEFT: movement = Movement.LEFT; break;
-                case CCMovement.CC_RIGHT: movement = Movement.RIGHT; break;
-                case CCMovement.CC_CW: movement = Movement.CW; break;
-                case CCMovement.CC_CCW: movement = Movement.CCW; break;
-                case CCMovement.CC_DROP: movement = Movement.DROP; break;
-                default: break;
-            }
-            movementQueue.Add(movement);
-        }
-
-        movementQueue.Add(Movement.HARDDROP);
-    }
-
-    private bool IsNeedToResetBot()
-    {
-        return isPrevMoveHold || prevScore != board.score;
-    }
-
     private CCOptions DefaultOption()
     {
         CCOptions options;
@@ -262,6 +165,62 @@ public class ColdClearAgent : MonoBehaviour
         options.use_hold = false;
         return options;
     }
+
+    //bot run
+    private void RequestNextMove()
+    {
+        ColdClearNative.cc_request_next_move(bot, 0); // 之後擴充雙人對戰要改incoming
+        isRequest = true;
+    }
+
+    private void PollNextMove()
+    {
+        status = ColdClearNative.cc_poll_next_move(bot, out move, IntPtr.Zero, IntPtr.Zero);
+    }
+
+    private void FillMovementQueue()
+    {
+        //debugger
+        string moveStr = $"[Cold Clear] hold : {move.hold} movement_count : {move.movement_count} nodes : {move.nodes} depth : {move.depth} movement : ";
+        for (int i = 0; i < move.movement_count; i++)
+        {
+            moveStr += $"{move.movements[i]} ";
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            moveStr += $"x:{move.expected_x[i]} y:{move.expected_y[i]} ";
+        }
+        Debug.Log(moveStr);
+
+        //make queue
+        if (move.hold)
+        {
+            movementQueue.Add(Movement.HOLD);
+        }
+
+        if (move.movement_count == 0)
+        {
+            Debug.LogWarning("[Cold Clear] movement count is 0");
+            return;
+        }
+
+        for (int i = 0; i < move.movement_count; i++)
+        {
+            switch (move.movements[i])
+            {
+                case CCMovement.CC_LEFT: movementQueue.Add(Movement.LEFT); break;
+                case CCMovement.CC_RIGHT: movementQueue.Add(Movement.RIGHT); break;
+                case CCMovement.CC_CW: movementQueue.Add(Movement.CW); break;
+                case CCMovement.CC_CCW: movementQueue.Add(Movement.CCW); break;
+                case CCMovement.CC_DROP: movementQueue.Add(Movement.DROP); break;
+                default: break;
+            }
+        }
+        movementQueue.Add(Movement.HARDDROP);
+    }
+
+
+    // on destroy
 
     void OnDestroy()
     {

@@ -384,11 +384,6 @@ public class Board : MonoBehaviour
 
         // Set the next random piece
         SetNextPiece();
-
-        if (ccExists && coldClearAgent.bot != IntPtr.Zero)
-        {
-            coldClearAgent.GetNewestPiece();
-        }
     }
 
     public void SwapPiece()

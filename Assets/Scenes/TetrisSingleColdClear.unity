@@ -832,6 +832,10 @@ PrefabInstance:
       propertyPath: activePiece
       value: 
       objectReference: {fileID: 246835122}
+    - target: {fileID: 4476554494948964779, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
+      propertyPath: stepDelay
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 5230656391415050642, guid: b8f5c43c26b6a3e499320aa34c557c68, type: 3}
       propertyPath: m_RootOrder
       value: 0
