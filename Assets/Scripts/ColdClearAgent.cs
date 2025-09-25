@@ -9,6 +9,7 @@ public class ColdClearAgent : MonoBehaviour
     [SerializeField] private float agentSpeed = 0.5f;
     public IntPtr bot { get; private set; } = IntPtr.Zero;
     private Board board;
+    private CCMove move;
     private bool isPrevMoveHold = false;
     private int prevScore;
     private float agentStepTime = 0;
@@ -143,11 +144,10 @@ public class ColdClearAgent : MonoBehaviour
             Debug.Log($"queue[{i}]={queue[i]}");
     }
 
-    public CCMove? RequestNextMove()
+    public void RequestNextMove()
     {
-        if (bot == IntPtr.Zero) return null;
+        if (bot == IntPtr.Zero) return;
         ColdClearNative.cc_request_next_move(bot, 0);
-        CCMove move;
 
         CCBotPollStatus status = ColdClearNative.cc_poll_next_move(bot, out move, IntPtr.Zero, IntPtr.Zero);
 
@@ -168,31 +168,71 @@ public class ColdClearAgent : MonoBehaviour
             }
             Debug.Log("[ColdClear] " + moveStr);
             isPrevMoveHold = move.hold;
-            return move;
+            return;
+        }
+        else if (status == CCBotPollStatus.CC_WAITING)
+        {
+            Invoke("RequestNextMove", 0.01f);
+            return;
         }
         Debug.LogWarning("[ColdClear] Bot dead.");
-        return null;
+        return;
     }
 
     private void MovementQueueRequest()
     {
         prevScore = board.score;
 
-        CCMove? move = RequestNextMove();
-        if (move == null)
+        RequestNextMove();
+
+        if (move.movement_count == 0)
         {
+            Invoke("MovementQueueRequestRetry", 0.01f);
             return;
         }
-        if (move.Value.hold)
+        
+        if (move.hold)
         {
             movementQueue.Add(Movement.HOLD);
         }
 
-        for (int i = 0; i < move.Value.movement_count; i++)
+        for (int i = 0; i < move.movement_count; i++)
         {
             Movement movement = Movement.LEFT;
 
-            switch (move.Value.movements[i])
+            switch (move.movements[i])
+            {
+                case CCMovement.CC_LEFT: movement = Movement.LEFT; break;
+                case CCMovement.CC_RIGHT: movement = Movement.RIGHT; break;
+                case CCMovement.CC_CW: movement = Movement.CW; break;
+                case CCMovement.CC_CCW: movement = Movement.CCW; break;
+                case CCMovement.CC_DROP: movement = Movement.DROP; break;
+                default: break;
+            }
+            movementQueue.Add(movement);
+        }
+
+        movementQueue.Add(Movement.HARDDROP);
+    }
+
+    private void MovementQueueRequestRetry()
+    {
+        if (move.movement_count == 0)
+        {
+            Invoke("MovementQueueRequestRetry", 0.01f);
+            return;
+        }
+        
+        if (move.hold)
+        {
+            movementQueue.Add(Movement.HOLD);
+        }
+
+        for (int i = 0; i < move.movement_count; i++)
+        {
+            Movement movement = Movement.LEFT;
+
+            switch (move.movements[i])
             {
                 case CCMovement.CC_LEFT: movement = Movement.LEFT; break;
                 case CCMovement.CC_RIGHT: movement = Movement.RIGHT; break;
