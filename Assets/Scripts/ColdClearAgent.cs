@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Edgegap.Editor.Api.Models.Results;
 using UnityEngine;
 
 public class ColdClearAgent : MonoBehaviour
@@ -14,8 +13,10 @@ public class ColdClearAgent : MonoBehaviour
     private bool isPrevMoveHold = false;
     private int prevScore;
     private float agentStepTime = 0;
-    private float waitingTime = 0.1f;
+    private float waitingTimeInterval = 0.1f;
+    private float waitingTime = 0f;
     private bool isRequest = false;
+    public int pieceCounter = 0;
     public enum Movement
     {
         LEFT, RIGHT,
@@ -32,15 +33,38 @@ public class ColdClearAgent : MonoBehaviour
         BotInitialize();
         board = GetComponent<Board>();
         agentStepTime = Time.time;
+        waitingTime = Time.time;
         status = CCBotPollStatus.CC_WAITING;
+        pieceCounter = 0;
     }
 
     void Update()
     {
+        AddPieceQueue();
         if (Time.time >= agentStepTime)
         {
             HandleMovement();
             agentStepTime = Time.time + agentSpeed;
+        }
+
+        if (status == CCBotPollStatus.CC_MOVE_PROVIDED)
+        {
+            FillMovementQueue();
+            status = CCBotPollStatus.CC_WAITING;
+            isRequest = false;
+        }
+        else if (status == CCBotPollStatus.CC_BOT_DEAD)
+        {
+            Debug.LogWarning("[Cold Clear] Bot Dead");
+        }
+        else if (!isRequest)
+        {
+            isRequest = true;
+            RequestNextMove();
+        }
+        else
+        {
+            PollNextMove();
         }
     }
 
@@ -63,25 +87,7 @@ public class ColdClearAgent : MonoBehaviour
             }
             movementQueue.RemoveAt(0);
         }
-        else if (status == CCBotPollStatus.CC_MOVE_PROVIDED)
-        {
-            FillMovementQueue();
-            status = CCBotPollStatus.CC_WAITING;
-            isRequest = false;
-        }
-        else if (status == CCBotPollStatus.CC_BOT_DEAD)
-        {
-            Debug.LogWarning("[Cold Clear] Bot Dead");
-        }
-        else
-        {
-            if (!isRequest)
-            {
-                Invoke("RequestNextMove", waitingTime);
-            }
-            Invoke("PollNextMove", waitingTime * 2);
-            //Debug.Log("[Cold Clear] Bot Waiting");
-        }
+        
     }
 
     private void MoveLeft()
@@ -159,9 +165,9 @@ public class ColdClearAgent : MonoBehaviour
     {
         CCOptions options;
         ColdClearNative.cc_default_options(out options);
-        options.mode = CCMovementMode.CC_HARD_DROP_ONLY;
         options.spawn_rule = CCSpawnRule.CC_ROW_19_OR_20;
         options.pcloop = CCPcPriority.CC_PC_FASTEST;
+        options.mode = CCMovementMode.CC_HARD_DROP_ONLY;
         options.use_hold = false;
         return options;
     }
@@ -175,7 +181,44 @@ public class ColdClearAgent : MonoBehaviour
 
     private void PollNextMove()
     {
-        status = ColdClearNative.cc_poll_next_move(bot, out move, IntPtr.Zero, IntPtr.Zero);
+        if (Time.time >= waitingTime)
+        {
+            waitingTime = Time.time + waitingTimeInterval;
+            status = ColdClearNative.cc_poll_next_move(bot, out move, IntPtr.Zero, IntPtr.Zero);
+        }
+    }
+
+    public void AddNewPiece(CCPiece piece)
+    {
+        if (bot == IntPtr.Zero)
+        {
+            return;
+        }
+        ColdClearNative.cc_add_next_piece_async(bot, piece);
+    }
+
+    private void AddPieceQueue()
+    {
+        if (pieceCounter == 6)
+        {
+            pieceCounter = 0;
+            CCPiece[] queue = BoardToColdClear.instance.GetQueue();
+            for (int i = 0; i < queue.Length; i++)
+            {
+                AddNewPiece(queue[i]);
+            }
+        }
+    }
+    private uint GetBagRemain()
+    {
+        // 取得目前 Bag 內剩下的 pieces
+        List<Tetromino> bagInfo = board.bag.GetBag();
+        uint bag_remain = 0;
+        for (int i = 1; i < bagInfo.Count; i++)
+        {
+            bag_remain |= 1u << (int)BoardToColdClear.instance.TetrominoToCCPiece(bagInfo[i]);
+        }
+        return bag_remain;
     }
 
     private void FillMovementQueue()
@@ -190,18 +233,13 @@ public class ColdClearAgent : MonoBehaviour
         {
             moveStr += $"x:{move.expected_x[i]} y:{move.expected_y[i]} ";
         }
+  
         Debug.Log(moveStr);
 
         //make queue
         if (move.hold)
         {
             movementQueue.Add(Movement.HOLD);
-        }
-
-        if (move.movement_count == 0)
-        {
-            Debug.LogWarning("[Cold Clear] movement count is 0");
-            return;
         }
 
         for (int i = 0; i < move.movement_count; i++)
