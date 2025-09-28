@@ -117,12 +117,20 @@ public class ColdClearAgent : MonoBehaviour
 
     private void Drop()
     {
-        board.activePiece.NormalDrop();
+        for (int i = 0; i < 20; i++)
+        {
+            SoftDrop();
+        }
     }
 
     private void HardDrop()
     {
         board.activePiece.HandleUpdateMove(3);
+    }
+
+    private void SoftDrop()
+    {
+        board.activePiece.HandleUpdateMove(2);
     }
 
     //initialize
@@ -166,9 +174,6 @@ public class ColdClearAgent : MonoBehaviour
         CCOptions options;
         ColdClearNative.cc_default_options(out options);
         options.spawn_rule = CCSpawnRule.CC_ROW_19_OR_20;
-        options.pcloop = CCPcPriority.CC_PC_FASTEST;
-        options.mode = CCMovementMode.CC_HARD_DROP_ONLY;
-        options.use_hold = false;
         return options;
     }
 
