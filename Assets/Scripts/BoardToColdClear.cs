@@ -1,13 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.MLAgents.Integrations.Match3;
 using UnityEngine;
 
 public class BoardToColdClear : MonoBehaviour
 {
     public static BoardToColdClear instance;
     private Board board;
+    private Dictionary<Tetromino, CCPiece> tetrominoMap;
 
     private void Initialize()
     {
@@ -19,7 +19,19 @@ public class BoardToColdClear : MonoBehaviour
         {
             Destroy(this);
         }
+
         board = GetComponent<Board>();
+
+        tetrominoMap = new Dictionary<Tetromino, CCPiece>()
+        {
+            { Tetromino.I, CCPiece.CC_I },
+            { Tetromino.J, CCPiece.CC_J },
+            { Tetromino.L, CCPiece.CC_L },
+            { Tetromino.O, CCPiece.CC_O },
+            { Tetromino.S, CCPiece.CC_S },
+            { Tetromino.Z, CCPiece.CC_Z },
+            { Tetromino.T, CCPiece.CC_T }
+        };
     }
     void Awake()
     {
@@ -72,17 +84,7 @@ public class BoardToColdClear : MonoBehaviour
     // 轉換 Tetromino
     public CCPiece TetrominoToCCPiece(Tetromino t)
     {
-        switch (t)
-        {
-            case Tetromino.I: return CCPiece.CC_I;
-            case Tetromino.O: return CCPiece.CC_O;
-            case Tetromino.T: return CCPiece.CC_T;
-            case Tetromino.L: return CCPiece.CC_L;
-            case Tetromino.J: return CCPiece.CC_J;
-            case Tetromino.S: return CCPiece.CC_S;
-            case Tetromino.Z: return CCPiece.CC_Z;
-            default: return CCPiece.CC_Z;
-        }
+        return tetrominoMap[t];
     }
 
     public CCPiece GetNewestPiece()

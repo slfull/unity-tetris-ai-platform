@@ -25,6 +25,8 @@ public class ColdClearAgent : MonoBehaviour
         HOLD
     }
     [SerializeField] private List<Movement> movementQueue;
+    private Dictionary<Movement, Action> movementActions;
+    private Dictionary<CCMovement, Movement> moveMap;
 
     //monoBhaviour
 
@@ -36,6 +38,26 @@ public class ColdClearAgent : MonoBehaviour
         waitingTime = Time.time;
         status = CCBotPollStatus.CC_WAITING;
         pieceCounter = 0;
+        
+        movementActions = new Dictionary<Movement, Action>()
+        {
+            { Movement.LEFT, MoveLeft },
+            { Movement.RIGHT, MoveRight },
+            { Movement.CW, ClockWise },
+            { Movement.CCW, CounterClockWise },
+            { Movement.HOLD, Hold },
+            { Movement.DROP, Drop },
+            { Movement.HARDDROP, HardDrop }
+        };
+
+        moveMap = new Dictionary<CCMovement, Movement>()
+        {
+            { CCMovement.CC_LEFT, Movement.LEFT },
+            { CCMovement.CC_RIGHT, Movement.RIGHT },
+            { CCMovement.CC_CW, Movement.CW },
+            { CCMovement.CC_CCW, Movement.CCW },
+            { CCMovement.CC_DROP, Movement.DROP}
+        };
     }
 
     void Update()
@@ -74,20 +96,12 @@ public class ColdClearAgent : MonoBehaviour
     {
         if (movementQueue.Count > 0)
         {
-            switch (movementQueue[0])
+            if (movementActions.TryGetValue(movementQueue[0], out var action))
             {
-                case Movement.LEFT: MoveLeft(); break;
-                case Movement.RIGHT: MoveRight(); break;
-                case Movement.CW: ClockWise(); break;
-                case Movement.CCW: CounterClockWise(); break;
-                case Movement.HOLD: Hold(); break;
-                case Movement.DROP: Drop(); break;
-                case Movement.HARDDROP: HardDrop(); break;
-                default: break;
+                action.Invoke();
             }
             movementQueue.RemoveAt(0);
         }
-        
     }
 
     private void MoveLeft()
@@ -249,15 +263,7 @@ public class ColdClearAgent : MonoBehaviour
 
         for (int i = 0; i < move.movement_count; i++)
         {
-            switch (move.movements[i])
-            {
-                case CCMovement.CC_LEFT: movementQueue.Add(Movement.LEFT); break;
-                case CCMovement.CC_RIGHT: movementQueue.Add(Movement.RIGHT); break;
-                case CCMovement.CC_CW: movementQueue.Add(Movement.CW); break;
-                case CCMovement.CC_CCW: movementQueue.Add(Movement.CCW); break;
-                case CCMovement.CC_DROP: movementQueue.Add(Movement.DROP); break;
-                default: break;
-            }
+            movementQueue.Add(moveMap[move.movements[i]]);
         }
         movementQueue.Add(Movement.HARDDROP);
     }
