@@ -10,8 +10,6 @@ public class ColdClearAgent : MonoBehaviour
     private Board board;
     private CCMove move;
     private CCBotPollStatus status;
-    private bool isPrevMoveHold = false;
-    private int prevScore;
     private float agentStepTime = 0;
     private float waitingTimeInterval = 0.1f;
     private float waitingTime = 0f;
@@ -62,6 +60,8 @@ public class ColdClearAgent : MonoBehaviour
 
     void Update()
     {
+
+
         AddPieceQueue();
         if (Time.time >= agentStepTime)
         {
@@ -100,7 +100,10 @@ public class ColdClearAgent : MonoBehaviour
             {
                 action.Invoke();
             }
-            movementQueue.RemoveAt(0);
+            if (movementQueue.Count > 0)
+            {
+                movementQueue.RemoveAt(0);
+            }
         }
     }
 
@@ -267,7 +270,6 @@ public class ColdClearAgent : MonoBehaviour
         }
         movementQueue.Add(Movement.HARDDROP);
     }
-
 
     // on destroy
 

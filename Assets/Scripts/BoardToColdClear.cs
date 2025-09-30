@@ -41,11 +41,10 @@ public class BoardToColdClear : MonoBehaviour
     // 轉換棋盤為 coldclear 格式
     public bool[] GetFieldBoolArray()
     {
-        int width = 10;
-        int height = 23;
+        int width = board.boardSize.x;
+        int height = board.boardSize.y;
         bool[] field = new bool[width * height];
         bool[] untransformedField = board.GetField(true);
-        var bounds = board.Bounds;
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)

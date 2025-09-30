@@ -67,6 +67,9 @@ public class Board : MonoBehaviour
     public bool attackerExists { get; private set; } = false;
     public bool ccExists { get; private set; } = false;
     private bool isInit = true;
+    private int b2bCount = 0;
+    public bool b2b { get; private set; } = false;
+    public int combo { get; private set; } = 0;
 
     public RectInt Bounds
     {
@@ -255,6 +258,42 @@ public class Board : MonoBehaviour
         if (attackerExists)
         {
             attacker.HandleTrashLine(linesCleared, activePiece.isLastMoveRotation);
+        }
+
+        if (linesCleared != 0 && linesCleared != 4 && !activePiece.isLastMoveRotation)
+        {
+            b2bCount = 0;
+        }
+        else if(linesCleared != 0)
+        {
+            b2bCount++;
+        }
+
+        if (linesCleared > 0)
+        {
+            combo++;
+        }
+        if (linesCleared == 0)
+        {
+            combo = 0;
+        }
+
+        if (b2bCount > 1)
+        {
+            b2b = true;
+        }
+        else
+        {
+            b2b = false;
+        }
+
+        if (b2b == true)
+        {
+            Debug.Log("B2B: " + b2b);
+        }
+        if (combo > 1)
+        {
+            Debug.Log("combo: " + combo);
         }
         ScoreTextUpdate();
     }
@@ -697,8 +736,13 @@ public class Board : MonoBehaviour
 
     public void AgentReward(int rewardType, int rewardMultiplier)
     {
+        if (!agentExists)
+        {
+            return;
+        }
+
         // 0 = GameOver, 1 = LineClear
-        float lineClearReward = 0.5f;
+            float lineClearReward = 0.5f;
         float LockPieceReward = 0.05f;
         float HoleReward = 0.02f;
         lineClearReward *= rewardMultiplier;
