@@ -27,7 +27,7 @@ public class Bag
     public int[] DumpBagInfo()
     {
         RefillBag();
-        int[] bagInfo = {bag.Count};
+        int[] bagInfo = { bag.Count };
         for (int i = 0; i < bag.Count; i++)
         {
             bagInfo[i] = (int)bag[i];
@@ -60,6 +60,9 @@ public class Bag
             piece = (int)bag[0];
         }
     }
-    
-    
+
+    public List<Tetromino> GetBag()
+    {
+        return bag;
+    }
 }

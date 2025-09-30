@@ -66,6 +66,7 @@ public class Board : MonoBehaviour
     public bool agentExists { get; private set; } = false;
     public bool attackerExists { get; private set; } = false;
     public bool ccExists { get; private set; } = false;
+    private bool isInit = true;
 
     public RectInt Bounds
     {
@@ -78,6 +79,8 @@ public class Board : MonoBehaviour
 
     private void Awake()
     {
+        isInit = true;
+
         tilemap = GetComponentInChildren<Tilemap>();
         activePiece = GetComponentInChildren<Piece>();
 
@@ -118,6 +121,7 @@ public class Board : MonoBehaviour
         Init();
         InitializeNextPiece();
         SpawnPiece();
+        isInit = false;
     }
 
     private void Update()
@@ -336,6 +340,11 @@ public class Board : MonoBehaviour
             piece.Initialize(this, nextpreviewPositions[i], piecenext.data);
             Set(piece);
         }
+
+        if (ccExists && !isInit)
+        {
+            coldClearAgent.pieceCounter++;
+        }
     }
 
     private TetrominoData BagGetPiece()
@@ -386,11 +395,6 @@ public class Board : MonoBehaviour
 
         // Set the next random piece
         SetNextPiece();
-
-        if (ccExists && coldClearAgent.bot != IntPtr.Zero)
-        {
-            coldClearAgent.GetNewestPiece();
-        }
     }
 
     public void SwapPiece()
