@@ -71,6 +71,8 @@ public class TetrisAgent : Agent
         sensor.AddObservation((int)activePiece.data.tetromino);
         // Int rotationIndex
         sensor.AddObservation((int)activePiece.rotationIndex);
+        // Int completedLines
+        sensor.AddObservation(board.completedLines);
         // Int numberOfHoles
         sensor.AddObservation(board.numberOfHoles);
         // Int numberOfOverHangs
@@ -93,7 +95,7 @@ public class TetrisAgent : Agent
         sensor.AddObservation((int)nextPiece5.data.tetromino);
 
         // Int Board
-        bool[] field = board.GetField();
+        bool[] field = board.GetField(false);
 
         for (int y = 0; y < board.GetBoardSize(1); y++)
         {
@@ -148,7 +150,7 @@ public class TetrisAgent : Agent
             case 0: activePiece.HandleUpdateMove((int)MovementInput.left); break;
             case 1: activePiece.HandleUpdateMove((int)MovementInput.right); break;
             case 2: activePiece.HandleUpdateMove((int)MovementInput.softdrop); break;
-            case 3: activePiece.HandleUpdateMove((int)MovementInput.harddrop); AddReward(-0.05f); break;
+            case 3: activePiece.HandleUpdateMove((int)MovementInput.harddrop); break;
             case 4: activePiece.HandleUpdateMove((int)MovementInput.rotateclockwise); break;
             case 5: activePiece.HandleUpdateMove((int)MovementInput.rotatecounterclockwise); break;
             default: break;

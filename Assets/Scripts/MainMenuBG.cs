@@ -6,7 +6,7 @@ public class MainMenuBG : MonoBehaviour
 {
         public GameObject[] objectToSpawn;
         public Collider2D mouseCollider2D;
-        public float spawnInterval = 0.5f; //¥Í¦¨ªº®É¶¡
+        public float spawnInterval = 0.5f; //ç”Ÿæˆçš„æ™‚é–“
         public Vector2 spawnAreaMin;
         public Vector2 spawnAreaMax;
         private GameObject spawnedObject;
@@ -17,7 +17,7 @@ public class MainMenuBG : MonoBehaviour
         
         }
 
-        //¥ÍÀH¾÷¦ì¸m©MÀH¾÷¤è¶ô
+        //ç”Ÿéš¨æ©Ÿä½ç½®å’Œéš¨æ©Ÿæ–¹å¡Š
     void SpawnObject()
         {
         float randomX = Random.Range(spawnAreaMin.x, spawnAreaMax.x);

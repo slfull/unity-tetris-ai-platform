@@ -32,7 +32,7 @@ public class BoardToColdClear : MonoBehaviour
         int width = 10;
         int height = 20;
         bool[] field = new bool[width * height];
-        bool[] untransformedField = board.GetField();
+        bool[] untransformedField = board.GetField(true);
         var bounds = board.Bounds;
         for (int y = 0; y < height; y++)
         {

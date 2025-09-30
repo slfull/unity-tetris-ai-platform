@@ -45,9 +45,11 @@ public class Board : MonoBehaviour
 
     [Header("AgentObservations")]
     public int distanceFromBottom = 0;
-    public int distanceFromBottomLast; 
+    public int distanceFromBottomLast;
     public int numberOfHoles = 0;
+        public int numberOfHolesLast = 0;
     public int numberOfOverHangs = 0;
+    public int completedLines = 0;
     public float aggregateHeight = 0;
     public float bumpiness = 0;
     public float density = 0;
@@ -544,7 +546,7 @@ public class Board : MonoBehaviour
         density = 0;
     }
 
-    public bool[] GetField()
+    public bool[] GetField(bool includeActivePiece)
     {
         int width = boardSize.x;
         int height = boardSize.y;
@@ -560,40 +562,44 @@ public class Board : MonoBehaviour
             }
 
         }
-
-        // clean board of activePiece
-        if (activePiece != null & activePiece.cells != null)
+        if (includeActivePiece)
         {
-            for (int i = 0; i < activePiece.cells.Length; i++)
+            // clean board of activePiece
+            if (activePiece != null & activePiece.cells != null)
             {
-                Vector3Int cellPos = activePiece.cells[i] + activePiece.position;
-                int fx = cellPos.x - bounds.xMin;
-                int fy = cellPos.y - bounds.yMin;
-                if (fx >= 0 && fx < width && fy >= 0 && fy < height)
+                for (int i = 0; i < activePiece.cells.Length; i++)
                 {
-                    field[fy * width + fx] = false;
+                    Vector3Int cellPos = activePiece.cells[i] + activePiece.position;
+                    int fx = cellPos.x - bounds.xMin;
+                    int fy = cellPos.y - bounds.yMin;
+                    if (fx >= 0 && fx < width && fy >= 0 && fy < height)
+                    {
+                        field[fy * width + fx] = false;
+                    }
                 }
             }
         }
-
         distanceFromBottom = 0;
-        
+
 
         return field;
     }
     public void CalculateObservations()
     {
-        bool[] fields = GetField();
+        bool[] fieldWithActivepiece = GetField(false);
+        bool[] fieldNOActivepiece = GetField(true);
         int width = boardSize.x;
         int height = boardSize.y;
         columnheight = new int[width];
         rowheight = new int[height];
+        
+        
         numberOfHoles = 0;
         numberOfOverHangs = 0;
         aggregateHeight = 0;
         bumpiness = 0;
         density = 0;
-
+        completedLines = 0;
         // run through cleaned board again for observations
         for (int y = height - 1; y >= 0; y--)
         {
@@ -601,7 +607,7 @@ public class Board : MonoBehaviour
             {
                 int index = y * width + x;
                 // columnheight, rowheight
-                if (fields[index] == true)
+                if (fieldWithActivepiece[index] == true)
                 {
                     columnheight[x] = y + 1;
                     rowheight[y]++;
@@ -616,18 +622,18 @@ public class Board : MonoBehaviour
                     if (y + 1 < height)
                     {
                         positionabove = (y + 1) * width + x;
-                        if (fields[positionabove] == false) { continue; }
+                        if (fieldWithActivepiece[positionabove] == false) { continue; }
                         numberOfOverHangs++;
                     }
                     if (x - 1 >= 0)
                     {
                         positionleft = y * width + x - 1;
-                        if (fields[positionleft] == false) { continue; }
+                        if (fieldWithActivepiece[positionleft] == false) { continue; }
                     }
                     if (x + 1 < width)
                     {
                         positionright = y * width + x + 1;
-                        if (fields[positionright] == false) { continue; }
+                        if (fieldWithActivepiece[positionright] == false) { continue; }
                     }
                     numberOfHoles++;
                 }
@@ -662,14 +668,18 @@ public class Board : MonoBehaviour
         for (int i = 0; i < rowheight.Length; i++)
         {
             numberOfTiles += rowheight[i];
-            if (rowheight[i] != 0) { numberOfUnfilledLines++; }
+            if (rowheight[i] != 0 && rowheight[i] != width) { numberOfUnfilledLines++; }
+            if (rowheight[i] == width) { completedLines++; }
         }
         if (numberOfUnfilledLines != 0) { density = numberOfTiles / numberOfUnfilledLines; }
 
         //distanceFromBottom = 0;
 
-        
-        
+        if (numberOfHoles < numberOfHolesLast) { AgentReward(4, 1); }
+        if (numberOfHoles > numberOfHolesLast) { AgentReward(4, -1); }
+        numberOfHolesLast = numberOfHoles;
+
+
     }
 
     public int GetBoardSize(int axis)
@@ -686,13 +696,16 @@ public class Board : MonoBehaviour
         // 0 = GameOver, 1 = LineClear
         float lineClearReward = 0.5f;
         float LockPieceReward = 0.05f;
+        float HoleReward = 0.02f;
         lineClearReward *= rewardMultiplier;
+        HoleReward *= rewardMultiplier;
         switch (rewardType)
         {
             case 0: agent.AddReward(-2f); break;
             case 1: agent.AddReward(lineClearReward); break;
             case 2: agent.AddReward(LockPieceReward); break;
             case 3: agent.AddReward(-0.02f); break;
+            case 4: agent.AddReward(HoleReward); break;
         }
     }
 
@@ -749,7 +762,7 @@ public class Board : MonoBehaviour
     //NOTE: prints from top to down(reverse)
     void PrintField()
     {
-        bool[] fields = GetField();
+        bool[] fields = GetField(false);
         int width = boardSize.x;
         int height = boardSize.y;
         for (int y = height - 1; y >= 0; y--)
