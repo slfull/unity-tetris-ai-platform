@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class ColdClearAgent : MonoBehaviour
@@ -15,6 +16,8 @@ public class ColdClearAgent : MonoBehaviour
     private float waitingTime = 0f;
     private bool isRequest = false;
     public int pieceCounter = 0;
+    private bool needReset = false;
+    private List<CCPiece> bagRemain;
     public enum Movement
     {
         LEFT, RIGHT,
@@ -30,6 +33,10 @@ public class ColdClearAgent : MonoBehaviour
 
     void Start()
     {
+        bagRemain = new List<CCPiece>()
+        {
+            CCPiece.CC_I, CCPiece.CC_O, CCPiece.CC_T, CCPiece.CC_L, CCPiece.CC_J, CCPiece.CC_S, CCPiece.CC_Z
+        };
         BotInitialize();
         board = GetComponent<Board>();
         agentStepTime = Time.time;
@@ -60,6 +67,11 @@ public class ColdClearAgent : MonoBehaviour
 
     void Update()
     {
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            needReset = true;
+        }
 
 
         AddPieceQueue();
@@ -164,6 +176,11 @@ public class ColdClearAgent : MonoBehaviour
 
         CCPiece[] queue = BoardToColdClear.instance.GetQueue();
 
+        foreach (var piece in queue)
+        {
+            bagRemain.Remove(piece);
+        }
+
         CCOptions options = DefaultOption();
         CCWeights weights;
         ColdClearNative.cc_default_weights(out weights);
@@ -191,6 +208,7 @@ public class ColdClearAgent : MonoBehaviour
         CCOptions options;
         ColdClearNative.cc_default_options(out options);
         options.spawn_rule = CCSpawnRule.CC_ROW_19_OR_20;
+        options.use_hold = false;
         return options;
     }
 
@@ -223,24 +241,123 @@ public class ColdClearAgent : MonoBehaviour
     {
         if (pieceCounter == 6)
         {
+            if (needReset)
+            {
+                ResetBot();
+                needReset = false;
+                Debug.Log("[Cold Clear] Bot Reset");
+                pieceCounter = 0;
+                return;
+            }
             pieceCounter = 0;
             CCPiece[] queue = BoardToColdClear.instance.GetQueue();
+            List<CCPiece> tempList = new List<CCPiece>();
             for (int i = 0; i < queue.Length; i++)
             {
+                if (bagRemain.Count == 0)
+                {
+                    RefillBagRemain();
+                }
+                if (bagRemain.Contains(queue[i]))
+                {
+                    bagRemain.Remove(queue[i]);
+                }
+                else
+                {
+                    tempList.Add(queue[i]);
+                }
                 AddNewPiece(queue[i]);
+            }
+
+            if (bagRemain.Count == 0)
+            {
+                RefillBagRemain();
+            }
+            if (tempList.Count > 0)
+            {
+                foreach (var piece in tempList)
+                {
+                    bagRemain.Remove(piece);
+                }
             }
         }
     }
+
+    private void RefillBagRemain()
+    {
+        bagRemain = new List<CCPiece>()
+        {
+            CCPiece.CC_I, CCPiece.CC_O, CCPiece.CC_T, CCPiece.CC_L, CCPiece.CC_J, CCPiece.CC_S, CCPiece.CC_Z
+        };
+    }
     private uint GetBagRemain()
     {
-        // 取得目前 Bag 內剩下的 pieces
-        List<Tetromino> bagInfo = board.bag.GetBag();
         uint bag_remain = 0;
-        for (int i = 1; i < bagInfo.Count; i++)
+        for (int i = 0; i < bagRemain.Count; i++)
         {
-            bag_remain |= 1u << (int)BoardToColdClear.instance.TetrominoToCCPiece(bagInfo[i]);
+            bag_remain |= 1u << (int)bagRemain[i];
         }
         return bag_remain;
+    }
+
+    private void ResetBot()
+    {
+        if (bot != IntPtr.Zero)
+        {
+            ColdClearNative.cc_destroy_async(bot);
+            bot = IntPtr.Zero;
+        }
+
+        bool[] field = BoardToColdClear.instance.GetFieldBoolArray();
+        byte[] fieldBytes = new byte[field.Length];
+        for (int i = 0; i < field.Length; i++)
+        {
+            fieldBytes[i] = (byte)(field[i] ? 1 : 0);
+        }
+        IntPtr fieldPtr = Marshal.AllocHGlobal(fieldBytes.Length);
+        Marshal.Copy(fieldBytes, 0, fieldPtr, fieldBytes.Length);
+
+        CCPiece? hold = BoardToColdClear.instance.GetHoldPiece();
+        IntPtr holdPtr = IntPtr.Zero;
+        if (hold.HasValue)
+        {
+            holdPtr = Marshal.AllocHGlobal(sizeof(int));
+            Marshal.WriteInt32(holdPtr, (int)hold.Value);
+        }
+        CCPiece[] queue = BoardToColdClear.instance.GetQueue();
+
+        CCOptions options = DefaultOption();
+        CCWeights weights;
+        ColdClearNative.cc_default_weights(out weights);
+        IntPtr queuePtr = IntPtr.Zero;
+        uint queueCount = (uint)queue.Length;
+        if (queueCount > 0)
+        {
+            queuePtr = Marshal.AllocHGlobal(sizeof(int) * queue.Length);
+            for (int i = 0; i < queue.Length; i++)
+            {
+                Marshal.WriteInt32(queuePtr + i * sizeof(int), (int)queue[i]);
+            }
+        }
+        uint bag_remain = GetBagRemain();
+
+        Debug.Log($"ResetBot queue: {string.Join(",", queue)}");
+        Debug.Log($"ResetBot bag_remain: {Convert.ToString(bag_remain, 2)}");
+
+        bot = ColdClearNative.cc_launch_with_board_async(ref options, ref weights, IntPtr.Zero,
+            fieldPtr, bag_remain, holdPtr, board.b2b, (uint)board.combo, queuePtr, queueCount
+        );
+
+        Debug.Log($"queueCount={queue.Length}");
+        for (int i = 0; i < queue.Length; i++)
+            Debug.Log($"queue[{i}]={queue[i]}");
+
+        if (holdPtr != IntPtr.Zero) Marshal.FreeHGlobal(holdPtr);
+        if (queuePtr != IntPtr.Zero) Marshal.FreeHGlobal(queuePtr);
+        isRequest = false;
+        status = CCBotPollStatus.CC_WAITING;
+        pieceCounter = 0;
+        movementQueue.Clear();
     }
 
     private void FillMovementQueue()
@@ -255,7 +372,7 @@ public class ColdClearAgent : MonoBehaviour
         {
             moveStr += $"x:{move.expected_x[i]} y:{move.expected_y[i]} ";
         }
-  
+
         Debug.Log(moveStr);
 
         //make queue
