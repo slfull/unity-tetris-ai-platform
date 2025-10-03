@@ -16,8 +16,7 @@ public class ColdClearAgent : MonoBehaviour
     private float waitingTime = 0f;
     private bool isRequest = false;
     public int pieceCounter = 0;
-    private bool needReset = false;
-    private List<CCPiece> bagRemain;
+    public bool needReset = false;
     public enum Movement
     {
         LEFT, RIGHT,
@@ -33,10 +32,6 @@ public class ColdClearAgent : MonoBehaviour
 
     void Start()
     {
-        bagRemain = new List<CCPiece>()
-        {
-            CCPiece.CC_I, CCPiece.CC_O, CCPiece.CC_T, CCPiece.CC_L, CCPiece.CC_J, CCPiece.CC_S, CCPiece.CC_Z
-        };
         BotInitialize();
         board = GetComponent<Board>();
         agentStepTime = Time.time;
@@ -176,11 +171,6 @@ public class ColdClearAgent : MonoBehaviour
 
         CCPiece[] queue = BoardToColdClear.instance.GetQueue();
 
-        foreach (var piece in queue)
-        {
-            bagRemain.Remove(piece);
-        }
-
         CCOptions options = DefaultOption();
         CCWeights weights;
         ColdClearNative.cc_default_weights(out weights);
@@ -208,7 +198,6 @@ public class ColdClearAgent : MonoBehaviour
         CCOptions options;
         ColdClearNative.cc_default_options(out options);
         options.spawn_rule = CCSpawnRule.CC_ROW_19_OR_20;
-        options.use_hold = false;
         return options;
     }
 
@@ -254,48 +243,18 @@ public class ColdClearAgent : MonoBehaviour
             List<CCPiece> tempList = new List<CCPiece>();
             for (int i = 0; i < queue.Length; i++)
             {
-                if (bagRemain.Count == 0)
-                {
-                    RefillBagRemain();
-                }
-                if (bagRemain.Contains(queue[i]))
-                {
-                    bagRemain.Remove(queue[i]);
-                }
-                else
-                {
-                    tempList.Add(queue[i]);
-                }
                 AddNewPiece(queue[i]);
             }
 
-            if (bagRemain.Count == 0)
-            {
-                RefillBagRemain();
-            }
-            if (tempList.Count > 0)
-            {
-                foreach (var piece in tempList)
-                {
-                    bagRemain.Remove(piece);
-                }
-            }
         }
-    }
-
-    private void RefillBagRemain()
-    {
-        bagRemain = new List<CCPiece>()
-        {
-            CCPiece.CC_I, CCPiece.CC_O, CCPiece.CC_T, CCPiece.CC_L, CCPiece.CC_J, CCPiece.CC_S, CCPiece.CC_Z
-        };
     }
     private uint GetBagRemain()
     {
         uint bag_remain = 0;
-        for (int i = 0; i < bagRemain.Count; i++)
+        List<Tetromino> tetrominos = board.bag.GetBag();
+        for (int i = 0; i < tetrominos.Count; i++)
         {
-            bag_remain |= 1u << (int)bagRemain[i];
+            bag_remain |= 1u << (int)BoardToColdClear.instance.TetrominoToCCPiece(tetrominos[i]);
         }
         return bag_remain;
     }

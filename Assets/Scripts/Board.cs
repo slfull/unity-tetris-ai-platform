@@ -517,6 +517,11 @@ public class Board : MonoBehaviour
 
         }
 
+        if (ccExists)
+        {
+            coldClearAgent.needReset = true;
+        }
+
 
     }
     public List<int> TrashPresetGenerate()
