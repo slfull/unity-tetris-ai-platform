@@ -54,6 +54,7 @@ public class Piece : MonoBehaviour
     private void Update()
     {
         if (agentExists == false) { HandleUpdateMove(-1); }
+        //if (agentExists == true) { agent.RequestDecision(); }
     }
 
     public void AgentExists()
@@ -115,6 +116,7 @@ public class Piece : MonoBehaviour
             case 3: HardDrop(); break;
             case 4: Rotate(-1); isLastMoveRotation = true; break;
             case 5: Rotate(1); isLastMoveRotation = true; break;
+            case 6: NormalDrop(); break;
             default: break;
         }
 
@@ -223,6 +225,17 @@ public class Piece : MonoBehaviour
             moveTime = Time.time + moveDelay;
             lockTime = 0f; // reset
         }
+
+        return valid;
+    }
+
+    public bool MoveTest(Vector2Int translation)
+    {
+        Vector3Int newPosition = position;
+        newPosition.x += translation.x;
+        newPosition.y += translation.y;
+
+        bool valid = board.IsValidPosition(this, newPosition);
 
         return valid;
     }

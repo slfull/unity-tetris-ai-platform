@@ -21,7 +21,7 @@ public class TetrisAgent : Agent
     float m_TimeSinceDecision;
     public enum MovementInput
     {
-        left, right, softdrop, harddrop, rotateclockwise, rotatecounterclockwise, hold
+        left, right, drop, harddrop, rotateclockwise, rotatecounterclockwise, hold
     }
 
     [Range(0.01f, 1f)] // Allows setting the timescale in the Inspector
@@ -119,7 +119,15 @@ public class TetrisAgent : Agent
 
     public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
     {
-        //actionMask.SetActionEnabled(0, 3, false);
+        activePiece = board.activePiece;
+        activePiece.AgentExists();
+        actionMask.SetActionEnabled(0, 0, true);
+        actionMask.SetActionEnabled(0, 0, true);
+        actionMask.SetActionEnabled(0, 0, true);
+        actionMask.SetActionEnabled(0, 0, true);
+
+        if (!activePiece.MoveTest(Vector2Int.left)) { }
+        
     }
     public override void OnEpisodeBegin()
     {
@@ -149,7 +157,7 @@ public class TetrisAgent : Agent
         {
             case 0: activePiece.HandleUpdateMove((int)MovementInput.left); break;
             case 1: activePiece.HandleUpdateMove((int)MovementInput.right); break;
-            case 2: activePiece.HandleUpdateMove((int)MovementInput.softdrop); break;
+            case 2: activePiece.HandleUpdateMove(6); break;
             case 3: activePiece.HandleUpdateMove((int)MovementInput.harddrop); break;
             case 4: activePiece.HandleUpdateMove((int)MovementInput.rotateclockwise); break;
             case 5: activePiece.HandleUpdateMove((int)MovementInput.rotatecounterclockwise); break;

@@ -700,7 +700,7 @@ public class Board : MonoBehaviour
         // 0 = GameOver, 1 = LineClear
         float lineClearReward = 0.5f;
         float LockPieceReward = 0.05f;
-        float HoleReward = 0.02f;
+        float HoleReward = 0.01f;
         lineClearReward *= rewardMultiplier;
         HoleReward *= rewardMultiplier;
         switch (rewardType)
