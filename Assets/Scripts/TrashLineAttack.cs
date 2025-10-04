@@ -117,8 +117,8 @@ public class TrashLineAttack : MonoBehaviour
 
     private void UpdateTrashLineCount()
     {
-        trashLineCountUI.transform.position = trashLineCountPosition + new Vector3(0, 0.5f * trashCount, 0);
-        trashLineCountUI.transform.localScale = new Vector3(1, trashCount, 1);
+        enemyBoard.trashLineCountUI.transform.position = trashLineCountPosition + new Vector3(0, 0.5f * enemyBoard.trashCount, 0);
+        enemyBoard.trashLineCountUI.transform.localScale = new Vector3(1, enemyBoard.trashCount, 1);
     }
 
     private int ComboBonus()

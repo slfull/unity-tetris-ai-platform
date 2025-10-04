@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class ColdClearAgent : MonoBehaviour
@@ -10,13 +11,12 @@ public class ColdClearAgent : MonoBehaviour
     private Board board;
     private CCMove move;
     private CCBotPollStatus status;
-    private bool isPrevMoveHold = false;
-    private int prevScore;
     private float agentStepTime = 0;
     private float waitingTimeInterval = 0.1f;
     private float waitingTime = 0f;
     private bool isRequest = false;
     public int pieceCounter = 0;
+    public bool needReset = false;
     public enum Movement
     {
         LEFT, RIGHT,
@@ -62,6 +62,13 @@ public class ColdClearAgent : MonoBehaviour
 
     void Update()
     {
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            needReset = true;
+        }
+
+
         AddPieceQueue();
         if (Time.time >= agentStepTime)
         {
@@ -100,7 +107,10 @@ public class ColdClearAgent : MonoBehaviour
             {
                 action.Invoke();
             }
-            movementQueue.RemoveAt(0);
+            if (movementQueue.Count > 0)
+            {
+                movementQueue.RemoveAt(0);
+            }
         }
     }
 
@@ -220,24 +230,93 @@ public class ColdClearAgent : MonoBehaviour
     {
         if (pieceCounter == 6)
         {
+            if (needReset)
+            {
+                ResetBot();
+                needReset = false;
+                Debug.Log("[Cold Clear] Bot Reset");
+                pieceCounter = 0;
+                return;
+            }
             pieceCounter = 0;
             CCPiece[] queue = BoardToColdClear.instance.GetQueue();
+            List<CCPiece> tempList = new List<CCPiece>();
             for (int i = 0; i < queue.Length; i++)
             {
                 AddNewPiece(queue[i]);
             }
+
         }
     }
     private uint GetBagRemain()
     {
-        // 取得目前 Bag 內剩下的 pieces
-        List<Tetromino> bagInfo = board.bag.GetBag();
         uint bag_remain = 0;
-        for (int i = 1; i < bagInfo.Count; i++)
+        List<Tetromino> tetrominos = board.bag.GetBag();
+        for (int i = 0; i < tetrominos.Count; i++)
         {
-            bag_remain |= 1u << (int)BoardToColdClear.instance.TetrominoToCCPiece(bagInfo[i]);
+            bag_remain |= 1u << (int)BoardToColdClear.instance.TetrominoToCCPiece(tetrominos[i]);
         }
         return bag_remain;
+    }
+
+    private void ResetBot()
+    {
+        if (bot != IntPtr.Zero)
+        {
+            ColdClearNative.cc_destroy_async(bot);
+            bot = IntPtr.Zero;
+        }
+
+        bool[] field = BoardToColdClear.instance.GetFieldBoolArray();
+        byte[] fieldBytes = new byte[field.Length];
+        for (int i = 0; i < field.Length; i++)
+        {
+            fieldBytes[i] = (byte)(field[i] ? 1 : 0);
+        }
+        IntPtr fieldPtr = Marshal.AllocHGlobal(fieldBytes.Length);
+        Marshal.Copy(fieldBytes, 0, fieldPtr, fieldBytes.Length);
+
+        CCPiece? hold = BoardToColdClear.instance.GetHoldPiece();
+        IntPtr holdPtr = IntPtr.Zero;
+        if (hold.HasValue)
+        {
+            holdPtr = Marshal.AllocHGlobal(sizeof(int));
+            Marshal.WriteInt32(holdPtr, (int)hold.Value);
+        }
+        CCPiece[] queue = BoardToColdClear.instance.GetQueue();
+
+        CCOptions options = DefaultOption();
+        CCWeights weights;
+        ColdClearNative.cc_default_weights(out weights);
+        IntPtr queuePtr = IntPtr.Zero;
+        uint queueCount = (uint)queue.Length;
+        if (queueCount > 0)
+        {
+            queuePtr = Marshal.AllocHGlobal(sizeof(int) * queue.Length);
+            for (int i = 0; i < queue.Length; i++)
+            {
+                Marshal.WriteInt32(queuePtr + i * sizeof(int), (int)queue[i]);
+            }
+        }
+        uint bag_remain = GetBagRemain();
+
+        Debug.Log($"ResetBot queue: {string.Join(",", queue)}");
+        Debug.Log($"ResetBot bag_remain: {Convert.ToString(bag_remain, 2)}");
+
+        bot = ColdClearNative.cc_launch_with_board_async(ref options, ref weights, IntPtr.Zero,
+            fieldPtr, bag_remain, holdPtr, board.b2b, (uint)board.combo, queuePtr, queueCount
+        );
+
+        Debug.Log($"queueCount={queue.Length}");
+        for (int i = 0; i < queue.Length; i++)
+            Debug.Log($"queue[{i}]={queue[i]}");
+
+        if (holdPtr != IntPtr.Zero) Marshal.FreeHGlobal(holdPtr);
+        if (queuePtr != IntPtr.Zero) Marshal.FreeHGlobal(queuePtr);
+        isRequest = false;
+        status = CCBotPollStatus.CC_WAITING;
+        pieceCounter = 0;
+        movementQueue.Clear();
     }
 
     private void FillMovementQueue()
@@ -252,7 +331,7 @@ public class ColdClearAgent : MonoBehaviour
         {
             moveStr += $"x:{move.expected_x[i]} y:{move.expected_y[i]} ";
         }
-  
+
         Debug.Log(moveStr);
 
         //make queue
@@ -267,7 +346,6 @@ public class ColdClearAgent : MonoBehaviour
         }
         movementQueue.Add(Movement.HARDDROP);
     }
-
 
     // on destroy
 
