@@ -289,11 +289,11 @@ public class Board : MonoBehaviour
 
         if (b2b == true)
         {
-            Debug.Log("B2B: " + b2b);
+            //Debug.Log("B2B: " + b2b);
         }
         if (combo > 1)
         {
-            Debug.Log("combo: " + combo);
+            //Debug.Log("combo: " + combo);
         }
         ScoreTextUpdate();
     }
@@ -546,13 +546,21 @@ public class Board : MonoBehaviour
 
     public void TrashSpawner()
     {
-        while (trashBuffer.Count > 0)
+        while (trashBuffer.Count > 0 && !attackerExists)
         {
             int trashAmount = trashBuffer[0];
             LineAddTrash(trashAmount, TrashPresetGenerate());
             trashBuffer.RemoveAt(0);
         }
 
+        while (attackerExists && trashBuffer.Count > 0 && attacker.trashlineBufferTimer[0] <= Time.time)
+        {
+            int trashAmount = trashBuffer[0];
+            LineAddTrash(trashAmount, TrashPresetGenerate());
+            attacker.trashCount -= trashBuffer[0];
+            attacker.trashlineBufferTimer.RemoveAt(0);
+            trashBuffer.RemoveAt(0);
+        }
     }
 
     //暫定function，之後移除/更改位置

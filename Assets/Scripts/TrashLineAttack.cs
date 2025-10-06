@@ -5,11 +5,10 @@ using UnityEngine;
 public class TrashLineAttack : MonoBehaviour
 {
     [Header("Board")]
-    [SerializeField] private Board playerBoard;
-    [SerializeField] private TrashLineAttack enemyBoard;
+    public Board playerBoard;
+    public TrashLineAttack enemyBoard;
 
     [Header("TrashLineVal")]
-    public List<int> trashlineBuffer;
     public List<float> trashlineBufferTimer;
 
     [Header("otherVal")]
@@ -31,7 +30,6 @@ public class TrashLineAttack : MonoBehaviour
 
     void Update()
     {
-        TrashToBoard();
         UpdateTrashLineCount();
     }
 
@@ -58,7 +56,7 @@ public class TrashLineAttack : MonoBehaviour
         {
             totalLine += ComboBonus();
         }
-        
+
         if (isLastMoveRotation || lines == 4)
         {
             if (prevClearB2B && lines < 4)
@@ -91,28 +89,34 @@ public class TrashLineAttack : MonoBehaviour
         }
 
         TrashSend(totalLine);
+        CounteringGarbage(totalLine);
+    }
+
+    private void CounteringGarbage(int lines)
+    {
+        while (trashlineBufferTimer.Count > 0 && lines > 0)
+        {
+            if (lines >= playerBoard.trashBuffer[0])
+            {
+                lines -= playerBoard.trashBuffer[0];
+                trashCount -= playerBoard.trashBuffer[0];
+                playerBoard.trashBuffer.RemoveAt(0);
+                trashlineBufferTimer.RemoveAt(0);
+            }
+            else
+            {
+                playerBoard.trashBuffer[0] -= lines;
+                trashCount -= lines;
+                lines = 0;
+            }
+        }
     }
 
     private void TrashSend(int lines)
     {
-        enemyBoard.trashlineBuffer.Add(lines);
+        enemyBoard.playerBoard.trashBuffer.Add(lines);
         enemyBoard.trashlineBufferTimer.Add(Time.time + delayTime);
         enemyBoard.trashCount += lines;
-    }
-
-    private void TrashToBoard()
-    {
-        int bufferSize = trashlineBuffer.Count;
-        if (bufferSize > 0)
-        {
-            if (trashlineBufferTimer[0] <= Time.time)
-            {
-                playerBoard.trashBuffer.Add(trashlineBuffer[0]);
-                trashCount -= trashlineBuffer[0];
-                trashlineBufferTimer.RemoveAt(0);
-                trashlineBuffer.RemoveAt(0);
-            }
-        }
     }
 
     private void UpdateTrashLineCount()
