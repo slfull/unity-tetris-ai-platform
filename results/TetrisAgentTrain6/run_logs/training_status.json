@@ -1,0 +1,66 @@
+{
+    "Board": {
+        "checkpoints": [
+            {
+                "steps": 349949,
+                "file_path": "results\\TetrisAgentTrain6\\Board\\Board-349949.onnx",
+                "reward": -2.1528571591313397,
+                "creation_time": 1759573297.7012508,
+                "auxillary_file_paths": [
+                    "results\\TetrisAgentTrain6\\Board\\Board-349949.pt"
+                ]
+            },
+            {
+                "steps": 399959,
+                "file_path": "results\\TetrisAgentTrain6\\Board\\Board-399959.onnx",
+                "reward": -2.039999990956858,
+                "creation_time": 1759573889.9882858,
+                "auxillary_file_paths": [
+                    "results\\TetrisAgentTrain6\\Board\\Board-399959.pt"
+                ]
+            },
+            {
+                "steps": 449964,
+                "file_path": "results\\TetrisAgentTrain6\\Board\\Board-449964.onnx",
+                "reward": -1.3383333096280694,
+                "creation_time": 1759574485.9735234,
+                "auxillary_file_paths": [
+                    "results\\TetrisAgentTrain6\\Board\\Board-449964.pt"
+                ]
+            },
+            {
+                "steps": 499949,
+                "file_path": "results\\TetrisAgentTrain6\\Board\\Board-499949.onnx",
+                "reward": -1.6583333322778344,
+                "creation_time": 1759575281.7269685,
+                "auxillary_file_paths": [
+                    "results\\TetrisAgentTrain6\\Board\\Board-499949.pt"
+                ]
+            },
+            {
+                "steps": 503892,
+                "file_path": "results\\TetrisAgentTrain6\\Board\\Board-503892.onnx",
+                "reward": -1.61235293395379,
+                "creation_time": 1759575351.2294998,
+                "auxillary_file_paths": [
+                    "results\\TetrisAgentTrain6\\Board\\Board-503892.pt"
+                ]
+            }
+        ],
+        "elo": -189.30870111658356,
+        "final_checkpoint": {
+            "steps": 503892,
+            "file_path": "results\\TetrisAgentTrain6\\Board.onnx",
+            "reward": -1.61235293395379,
+            "creation_time": 1759575351.2294998,
+            "auxillary_file_paths": [
+                "results\\TetrisAgentTrain6\\Board\\Board-503892.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.2.2+cu121"
+    }
+}

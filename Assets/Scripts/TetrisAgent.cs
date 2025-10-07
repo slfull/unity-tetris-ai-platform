@@ -122,11 +122,17 @@ public class TetrisAgent : Agent
         activePiece = board.activePiece;
         activePiece.AgentExists();
         actionMask.SetActionEnabled(0, 0, true);
-        actionMask.SetActionEnabled(0, 0, true);
-        actionMask.SetActionEnabled(0, 0, true);
-        actionMask.SetActionEnabled(0, 0, true);
+        actionMask.SetActionEnabled(0, 1, true);
+        actionMask.SetActionEnabled(0, 2, true);
+        //actionMask.SetActionEnabled(0, 3, true);
+        //actionMask.SetActionEnabled(0, 4, true);
+        //actionMask.SetActionEnabled(0, 5, true);
+        
 
-        if (!activePiece.MoveTest(Vector2Int.left)) { }
+
+        //if (!activePiece.MoveTest(Vector2Int.left)) { actionMask.SetActionEnabled(0, 0, false); }
+        //if (!activePiece.MoveTest(Vector2Int.right)) { actionMask.SetActionEnabled(0, 1, false);}
+        //if (!activePiece.MoveTest(Vector2Int.down)) { actionMask.SetActionEnabled(0, 2, false); }
         
     }
     public override void OnEpisodeBegin()
