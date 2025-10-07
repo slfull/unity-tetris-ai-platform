@@ -442,13 +442,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerBoard: {fileID: 0}
   enemyBoard: {fileID: 2105800524}
-  trashlineBuffer: 
   trashlineBufferTimer: []
   trashCount: 0
   combo: 0
   prevClearB2B: 0
   delayTime: 5
-  trashLineCountPosition: {x: -6, y: -10, z: 0}
+  trashLineCountPosition: {x: -6, y: -11, z: 0}
   trashLineCountUI: {fileID: 1224939840}
 --- !u!114 &1079253980 stripped
 MonoBehaviour:
@@ -913,13 +912,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerBoard: {fileID: 0}
   enemyBoard: {fileID: 1079253979}
-  trashlineBuffer: 
   trashlineBufferTimer: []
   trashCount: 0
   combo: 0
   prevClearB2B: 0
   delayTime: 5
-  trashLineCountPosition: {x: 19, y: -10, z: 0}
+  trashLineCountPosition: {x: 19, y: -11, z: 0}
   trashLineCountUI: {fileID: 1567355651}
 --- !u!114 &2105800526 stripped
 MonoBehaviour:

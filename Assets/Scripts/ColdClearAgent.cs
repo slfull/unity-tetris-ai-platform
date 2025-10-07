@@ -204,7 +204,12 @@ public class ColdClearAgent : MonoBehaviour
     //bot run
     private void RequestNextMove()
     {
-        ColdClearNative.cc_request_next_move(bot, 0); // 之後擴充雙人對戰要改incoming
+        int incoming = 0;
+        if (board.attackerExists)
+        {
+            incoming = GetComponent<TrashLineAttack>().trashCount;
+        }
+        ColdClearNative.cc_request_next_move(bot, (uint)incoming);
         isRequest = true;
     }
 
@@ -228,7 +233,7 @@ public class ColdClearAgent : MonoBehaviour
 
     private void AddPieceQueue()
     {
-        if (pieceCounter == 6)
+        if (pieceCounter > 0)
         {
             if (needReset)
             {
@@ -238,14 +243,9 @@ public class ColdClearAgent : MonoBehaviour
                 pieceCounter = 0;
                 return;
             }
-            pieceCounter = 0;
-            CCPiece[] queue = BoardToColdClear.instance.GetQueue();
-            List<CCPiece> tempList = new List<CCPiece>();
-            for (int i = 0; i < queue.Length; i++)
-            {
-                AddNewPiece(queue[i]);
-            }
-
+            pieceCounter--;
+            CCPiece piece = BoardToColdClear.instance.GetNewestPiece();
+            AddNewPiece(piece);
         }
     }
     private uint GetBagRemain()
