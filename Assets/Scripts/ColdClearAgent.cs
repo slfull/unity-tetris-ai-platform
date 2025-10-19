@@ -38,6 +38,10 @@ public class ColdClearAgent : MonoBehaviour
         waitingTime = Time.time;
         status = CCBotPollStatus.CC_WAITING;
         pieceCounter = 0;
+
+        board.onGameOver += OnGameOver;
+        board.onSetNextPiece += OnSetNextPiece;
+        board.onLineAddTrash += OnLineAddTrash;
         
         movementActions = new Dictionary<Movement, Action>()
         {
@@ -205,9 +209,9 @@ public class ColdClearAgent : MonoBehaviour
     private void RequestNextMove()
     {
         int incoming = 0;
-        if (board.attackerExists)
+        if(TryGetComponent<TrashLineAttack>(out var comp))
         {
-            incoming = GetComponent<TrashLineAttack>().trashCount;
+            incoming = comp.trashCount;
         }
         ColdClearNative.cc_request_next_move(bot, (uint)incoming);
         isRequest = true;
@@ -356,6 +360,19 @@ public class ColdClearAgent : MonoBehaviour
             ColdClearNative.cc_destroy_async(bot);
             bot = IntPtr.Zero;
         }
+    }
+
+    public void OnGameOver()
+    {
+        needReset = true;
+    }
+    public void OnSetNextPiece()
+    {
+        pieceCounter++;
+    }
+    public void OnLineAddTrash()
+    {
+        needReset = true;
     }
 }
 

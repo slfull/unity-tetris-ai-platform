@@ -9,9 +9,6 @@ public class Piece : MonoBehaviour
     public Vector3Int position { get; private set; }
     public int rotationIndex;
     public bool isLastMoveRotation { get; private set; }
-
-    private TetrisAgent agent;
-
     public float stepDelay = 1f;
     public float moveDelay = 0.05f;
     public float lockDelay = 0.5f;
@@ -22,9 +19,6 @@ public class Piece : MonoBehaviour
     private float moveTime;
     private float lockTime;
     private float holdmoveTime;
-
-
-
     private bool agentExists = false;
     public bool isPlayerTwo = false;
 
@@ -60,7 +54,6 @@ public class Piece : MonoBehaviour
     public void AgentExists()
     {
         agentExists = true;
-        agent = GetComponent<TetrisAgent>();
     }
 
     public void PlayerTwoExists()
@@ -202,10 +195,6 @@ public class Piece : MonoBehaviour
     private void Lock()
     {
         board.Set(this);
-        if (board.agentExists)
-        {
-            board.AgentReward(2, 1);
-        }
         board.ClearLines();
         board.SpawnPiece();
     }

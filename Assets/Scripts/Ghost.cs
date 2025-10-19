@@ -25,7 +25,6 @@ public class Ghost : MonoBehaviour
         Copy();
         Drop();
         Set();
-        if (mainBoard.distanceFromBottomLast < mainBoard.distanceFromBottom && mainBoard.agentExists) { mainBoard.AgentReward(3,1); }
         mainBoard.distanceFromBottomLast = mainBoard.distanceFromBottom;
     }
 
@@ -40,7 +39,8 @@ public class Ghost : MonoBehaviour
 
     private void Copy()
     {
-        for (int i = 0; i < cells.Length; i++) {
+        for (int i = 0; i < cells.Length; i++) 
+        {
             cells[i] = trackingPiece.cells[i];
         }
     }
