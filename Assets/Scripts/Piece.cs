@@ -94,25 +94,6 @@ public class Piece : MonoBehaviour
             HandleMoveInputs();
         }
 
-        switch (movementInput)
-        {
-            case -1: break;
-            case 0: Move(Vector2Int.left); isLastMoveRotation = false; break;
-            case 1: Move(Vector2Int.right); isLastMoveRotation = false; break;
-            case 2:
-                if (Move(Vector2Int.down))
-                {
-                    // Update the step time to prevent double movement
-                    stepTime = Time.time + stepDelay;
-                }
-                break;
-            case 3: HardDrop(); break;
-            case 4: Rotate(-1); isLastMoveRotation = true; break;
-            case 5: Rotate(1); isLastMoveRotation = true; break;
-            case 6: NormalDrop(); break;
-            default: break;
-        }
-
         // Advance the piece to the next row every x seconds
         if (Time.time > stepTime)
         {
@@ -199,7 +180,7 @@ public class Piece : MonoBehaviour
         board.SpawnPiece();
     }
 
-    private bool Move(Vector2Int translation)
+    public bool Move(Vector2Int translation)
     {
         Vector3Int newPosition = position;
         newPosition.x += translation.x;
@@ -213,6 +194,7 @@ public class Piece : MonoBehaviour
             position = newPosition;
             moveTime = Time.time + moveDelay;
             lockTime = 0f; // reset
+            isLastMoveRotation = false;
         }
 
         return valid;
@@ -229,7 +211,7 @@ public class Piece : MonoBehaviour
         return valid;
     }
 
-    private void Rotate(int direction)
+    public void Rotate(int direction)
     {
         // Store the current rotation in case the rotation fails
         // and we need to revert
@@ -244,6 +226,11 @@ public class Piece : MonoBehaviour
         {
             rotationIndex = originalRotation;
             ApplyRotationMatrix(-direction);
+        }
+
+        if(rotationIndex != originalRotation)
+        {
+            isLastMoveRotation = true;
         }
     }
 

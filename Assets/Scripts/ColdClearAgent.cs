@@ -17,17 +17,9 @@ public class ColdClearAgent : MonoBehaviour
     private bool isRequest = false;
     public int pieceCounter = 0;
     public bool needReset = false;
-    public enum Movement
-    {
-        LEFT, RIGHT,
-        DROP, HARDDROP,
-        CW, CCW,
-        HOLD
-    }
+    
     [SerializeField] private List<Movement> movementQueue;
-    private Dictionary<Movement, Action> movementActions;
     private Dictionary<CCMovement, Movement> moveMap;
-
     //monoBhaviour
 
     void Start()
@@ -42,17 +34,6 @@ public class ColdClearAgent : MonoBehaviour
         board.onGameOver += OnGameOver;
         board.onSetNextPiece += OnSetNextPiece;
         board.onLineAddTrash += OnLineAddTrash;
-        
-        movementActions = new Dictionary<Movement, Action>()
-        {
-            { Movement.LEFT, MoveLeft },
-            { Movement.RIGHT, MoveRight },
-            { Movement.CW, ClockWise },
-            { Movement.CCW, CounterClockWise },
-            { Movement.HOLD, Hold },
-            { Movement.DROP, Drop },
-            { Movement.HARDDROP, HardDrop }
-        };
 
         moveMap = new Dictionary<CCMovement, Movement>()
         {
@@ -107,59 +88,49 @@ public class ColdClearAgent : MonoBehaviour
     {
         if (movementQueue.Count > 0)
         {
-            if (movementActions.TryGetValue(movementQueue[0], out var action))
-            {
-                action.Invoke();
-            }
+            board.PieceMove(movementQueue[0]);
             if (movementQueue.Count > 0)
             {
                 movementQueue.RemoveAt(0);
             }
         }
     }
-
+/*
     private void MoveLeft()
     {
-        board.activePiece.HandleUpdateMove(0);
+        board.PieceMove(Movement.LEFT);
     }
 
     private void MoveRight()
     {
-        board.activePiece.HandleUpdateMove(1);
+        board.PieceMove(Movement.RIGHT);
     }
 
     private void ClockWise()
     {
-        board.activePiece.HandleUpdateMove(5);
+        board.PieceMove(Movement.CW);
     }
 
     private void CounterClockWise()
     {
-        board.activePiece.HandleUpdateMove(4);
+        board.PieceMove(Movement.CCW);
     }
 
     private void Hold()
     {
-        board.SwapPiece();
+        board.PieceMove(Movement.HOLD);
     }
 
     private void Drop()
     {
-        for (int i = 0; i < 20; i++)
-        {
-            SoftDrop();
-        }
+        board.PieceMove(Movement.DROP);
     }
 
     private void HardDrop()
     {
-        board.activePiece.HandleUpdateMove(3);
+        board.PieceMove(Movement.HARDDROP);
     }
-
-    private void SoftDrop()
-    {
-        board.activePiece.HandleUpdateMove(2);
-    }
+    */
 
     //initialize
 

@@ -163,36 +163,10 @@ public class TetrisAgent : Agent
     {
         activePiece = board.activePiece;
         activePiece.AgentExists();
-        int PieceMove = actions.DiscreteActions[0]; // Get the action (1-5)
+        Movement pieceMove = (Movement)actions.DiscreteActions[0]; // Get the action (1-5)
         // int PieceHardDrop = actions.DiscreteActions[1];
         //Debug.Log("action: " + PieceMove);
-        switch (PieceMove)
-        {
-            case 0: activePiece.HandleUpdateMove((int)MovementInput.left); break;
-            case 1: activePiece.HandleUpdateMove((int)MovementInput.right); break;
-            case 2: activePiece.HandleUpdateMove(6); break;
-            case 3: activePiece.HandleUpdateMove((int)MovementInput.harddrop); break;
-            case 4: activePiece.HandleUpdateMove((int)MovementInput.rotateclockwise); break;
-            case 5: activePiece.HandleUpdateMove((int)MovementInput.rotatecounterclockwise); break;
-            default: break;
-        }
-        /**
-        switch (PieceMove)
-        {
-            case 0: activePiece.HandleUpdateMove((int)MovementInput.left); break;
-            case 1: activePiece.HandleUpdateMove((int)MovementInput.right); break;
-            case 2: activePiece.HandleUpdateMove((int)MovementInput.softdrop); AddReward(0.01f); break;
-            case 3: activePiece.HandleUpdateMove((int)MovementInput.harddrop); AddReward(-0.05f); break;
-            case 4: activePiece.HandleUpdateMove((int)MovementInput.rotateclockwise); AddReward(-0.01f); break;
-            case 5: activePiece.HandleUpdateMove((int)MovementInput.rotatecounterclockwise); AddReward(-0.01f); break;
-            default: break;
-        }
-        switch (PieceHardDrop)
-        {
-            case 0: activePiece.HandleUpdateMove((int)MovementInput.harddrop); AddReward(-0.05f); break;
-            default: break;
-        }
-        **/
+        board.PieceMove(pieceMove);
     }
 
     public override void Heuristic(in ActionBuffers actions)

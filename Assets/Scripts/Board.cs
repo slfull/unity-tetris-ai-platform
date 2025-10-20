@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using Unity.MLAgents.Integrations.Match3;
 using UnityEngine.Events;
+using Mirror.Examples.Benchmark;
 
 
 [DefaultExecutionOrder(-1)]
@@ -702,6 +703,55 @@ public class Board : MonoBehaviour
             row--;
         }
         return true;
+    }
+
+    public void PieceMove(Movement movement)
+    {
+        Clear(activePiece);
+        if (movement == Movement.LEFT)
+        {
+            activePiece.Move(Vector2Int.left);
+        }
+
+        if (movement == Movement.RIGHT)
+        {
+            activePiece.Move(Vector2Int.right);
+        }
+
+        if (movement == Movement.DROP)
+        {
+            for(int i = 0; i < 20; i++)
+            {
+                activePiece.Move(Vector2Int.down);
+            }
+        }
+
+        if (movement == Movement.HARDDROP)
+        {
+            activePiece.HardDrop();
+        }
+
+        if(movement == Movement.SOFTDROP)
+        {
+            activePiece.Move(Vector2Int.down);
+        }
+
+        if (movement == Movement.CW)
+        {
+            activePiece.Rotate(1);
+        }
+
+        if (movement == Movement.CCW)
+        {
+            activePiece.Rotate(-1);
+        }
+
+        if (movement == Movement.HOLD)
+        {
+            SwapPiece();
+        }
+
+        Set(activePiece);
     }
 
     public void PrintObservations()
