@@ -8,6 +8,7 @@ using System.Collections;
 using Unity.MLAgents.Integrations.Match3;
 using UnityEngine.Events;
 using Mirror.Examples.Benchmark;
+using UnityEditor.Build;
 
 
 [DefaultExecutionOrder(-1)]
@@ -75,6 +76,45 @@ public class Board : MonoBehaviour
 
     private void Awake()
     {
+        Init();
+    }
+
+    private void Start()
+    {
+        InitializeNextPiece();
+        SpawnPiece();
+    }
+
+    private void Update()
+    {
+        if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.C)) && !activePiece.isPlayerTwo)
+        {
+            SwapPiece();
+        }
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            TempAddTrashFunction();
+        }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadSceneAsync(0);
+        }
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            PrintObservations();
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            PrintField();
+        }
+        CalculateObservations();
+    }
+    public void Init()
+    { 
+        score = 0;
+        distanceFromBottom = 0;
+        numberOfHoles = 0;
+        density = 0;
         tilemap = GetComponentInChildren<Tilemap>();
         activePiece = GetComponent<Piece>();
 
@@ -104,38 +144,6 @@ public class Board : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        Init();
-        InitializeNextPiece();
-        SpawnPiece();
-    }
-
-    private void Update()
-    {
-        if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.C)) && !activePiece.isPlayerTwo)
-        {
-            SwapPiece();
-        }
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            TempAddTrashFunction();
-        }
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            SceneManager.LoadSceneAsync(0);
-        }
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            PrintObservations();
-        }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            PrintField();
-        }
-        CalculateObservations();
-    }
-
     public void GameOver()
     {
         tilemap.ClearAllTiles();
@@ -144,10 +152,8 @@ public class Board : MonoBehaviour
         {
             onGameOver.Invoke();
         }
-        Start();
+        GameReset();
         Debug.Log("gameover");
-
-
     }
 
     public void Set(Piece piece)
@@ -537,14 +543,6 @@ public class Board : MonoBehaviour
         scoreText.text = "score:" + score;
     }
 
-    public void Init()
-    { 
-        score = 0;
-        distanceFromBottom = 0;
-        numberOfHoles = 0;
-        density = 0;
-    }
-
     public bool[] GetField(bool includeActivePiece)
     {
         int width = boardSize.x;
@@ -720,7 +718,7 @@ public class Board : MonoBehaviour
 
         if (movement == Movement.DROP)
         {
-            for(int i = 0; i < 20; i++)
+            for (int i = 0; i < 20; i++)
             {
                 activePiece.Move(Vector2Int.down);
             }
@@ -731,7 +729,7 @@ public class Board : MonoBehaviour
             activePiece.HardDrop();
         }
 
-        if(movement == Movement.SOFTDROP)
+        if (movement == Movement.SOFTDROP)
         {
             activePiece.Move(Vector2Int.down);
         }
@@ -752,6 +750,16 @@ public class Board : MonoBehaviour
         }
 
         Set(activePiece);
+    }
+    
+    private void GameReset()
+    {
+        bag = new Bag();
+        savedPiece = null;
+        score = 0;
+        trashBuffer.Clear();
+        InitializeNextPiece();
+        SpawnPiece();
     }
 
     public void PrintObservations()
