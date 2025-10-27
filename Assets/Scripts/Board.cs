@@ -66,7 +66,7 @@ public class Board : MonoBehaviour
     public int combo { get; private set; } = 0;
 
     [SerializeField]
-    private int seed = 12345;
+    private int boardSeed = 12345;
     public RectInt Bounds
     {
         get
@@ -139,7 +139,7 @@ public class Board : MonoBehaviour
         savedPiece.enabled = false;
 
         bag = new Bag();
-
+        
         for (int i = 0; i < tetrominoes.Length; i++)
         {
             tetrominoes[i].Initialize();
@@ -757,6 +757,7 @@ public class Board : MonoBehaviour
     private void GameReset()
     {
         bag = new Bag();
+        bag.seedInput(boardSeed);
         savedPiece = null;
         score = 0;
         trashBuffer.Clear();
