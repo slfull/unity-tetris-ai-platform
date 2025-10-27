@@ -40,31 +40,31 @@ public class PlayerTwoControll : MonoBehaviour
 
         if (Input.GetKeyDown(moveLeftInput) || (dpadX < 0 && dpadX != prevDpadX))
         {
-            board.activePiece.HandleUpdateMove(0);
+            board.PieceMove(Movement.LEFT);
         }
         if (Input.GetKeyDown(moveRightInput) || (dpadX > 0 && dpadX != prevDpadX))
         {
-            board.activePiece.HandleUpdateMove(1);
+            board.PieceMove(Movement.RIGHT);
         }
         if (Input.GetKeyDown(moveDownInput) || (dpadY > 0 && dpadY != prevDpadY))
         {
-            board.activePiece.HandleUpdateMove(2);
+            board.PieceMove(Movement.SOFTDROP);
         }
         if (Input.GetKeyDown(hardDropInput) || (dpadY < 0 && dpadY != prevDpadY))
         {
-            board.activePiece.HandleUpdateMove(3);
+            board.PieceMove(Movement.HARDDROP);
         }
         if (Input.GetKeyDown(holdInput))
         {
-            board.SwapPiece();
+            board.PieceMove(Movement.HOLD);
         }
         if (Input.GetKeyDown(clockwiseInput))
         {
-            board.activePiece.HandleUpdateMove(5);
+            board.PieceMove(Movement.CW);
         }
         if (Input.GetKeyDown(counterClockwiseInput))
         {
-            board.activePiece.HandleUpdateMove(4);
+            board.PieceMove(Movement.CCW);
         }
 
         prevDpadX = dpadX;

@@ -25,7 +25,12 @@ public class TetrisAgent : Agent
     }
 
     [Range(0.01f, 1f)] // Allows setting the timescale in the Inspector
-    public float timeSpeed = 1f; 
+    public float timeSpeed = 1f;
+
+    [Header("Agent Reward")]
+    [SerializeField] private float lineClearReward = 0.5f;
+    [SerializeField] private float lockPieceReward = 0.01f;
+    [SerializeField] private float holeReward = 0.01f;
 
 
 
@@ -114,7 +119,6 @@ public class TetrisAgent : Agent
     private void Start()
     {
         OnEpisodeBegin();
-        
     }
 
     public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
@@ -146,6 +150,9 @@ public class TetrisAgent : Agent
         nextPiece4 = board.nextPiece4;
         nextPiece5 = board.nextPiece5;
         Time.timeScale = timeSpeed;
+
+        board.onGameOver += OnGameOver;
+        board.onPieceLock += OnPieceLock;
     }
 
     public void Highlight()
@@ -156,49 +163,86 @@ public class TetrisAgent : Agent
     {
         activePiece = board.activePiece;
         activePiece.AgentExists();
-        int PieceMove = actions.DiscreteActions[0]; // Get the action (1-5)
+        Movement pieceMove = (Movement)actions.DiscreteActions[0]; // Get the action (1-5)
         // int PieceHardDrop = actions.DiscreteActions[1];
         //Debug.Log("action: " + PieceMove);
-        switch (PieceMove)
-        {
-            case 0: activePiece.HandleUpdateMove((int)MovementInput.left); break;
-            case 1: activePiece.HandleUpdateMove((int)MovementInput.right); break;
-            case 2: activePiece.HandleUpdateMove(6); break;
-            case 3: activePiece.HandleUpdateMove((int)MovementInput.harddrop); break;
-            case 4: activePiece.HandleUpdateMove((int)MovementInput.rotateclockwise); break;
-            case 5: activePiece.HandleUpdateMove((int)MovementInput.rotatecounterclockwise); break;
-            default: break;
-        }
-        /**
-        switch (PieceMove)
-        {
-            case 0: activePiece.HandleUpdateMove((int)MovementInput.left); break;
-            case 1: activePiece.HandleUpdateMove((int)MovementInput.right); break;
-            case 2: activePiece.HandleUpdateMove((int)MovementInput.softdrop); AddReward(0.01f); break;
-            case 3: activePiece.HandleUpdateMove((int)MovementInput.harddrop); AddReward(-0.05f); break;
-            case 4: activePiece.HandleUpdateMove((int)MovementInput.rotateclockwise); AddReward(-0.01f); break;
-            case 5: activePiece.HandleUpdateMove((int)MovementInput.rotatecounterclockwise); AddReward(-0.01f); break;
-            default: break;
-        }
-        switch (PieceHardDrop)
-        {
-            case 0: activePiece.HandleUpdateMove((int)MovementInput.harddrop); AddReward(-0.05f); break;
-            default: break;
-        }
-        **/
+        board.PieceMove(pieceMove);
     }
 
     public override void Heuristic(in ActionBuffers actions)
     {
         var PieceMove = actions.DiscreteActions;
 
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) { PieceMove[0] = 0; }
-            else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) { PieceMove[0] = 1; }
-            else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) { PieceMove[0] = 2; }
-            else if (Input.GetKey(KeyCode.Space)) { PieceMove[0] = 3; }
-            else if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow)) { PieceMove[0] = 4; }
-            else if (Input.GetKey(KeyCode.E) || Input.GetKey(KeyCode.X)) { PieceMove[0] = 5; }
-            else { PieceMove[0] = -1; }
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) { PieceMove[0] = 0; }
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) { PieceMove[0] = 1; }
+        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) { PieceMove[0] = 2; }
+        else if (Input.GetKey(KeyCode.Space)) { PieceMove[0] = 3; }
+        else if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow)) { PieceMove[0] = 4; }
+        else if (Input.GetKey(KeyCode.E) || Input.GetKey(KeyCode.X)) { PieceMove[0] = 5; }
+        else { PieceMove[0] = -1; }
 
+    }
+
+    public void OnGameOver()
+    {
+        AgentReward(RewardType.GameOver, 0);
+    }
+
+    public void OnPieceLock(int Line, int combo, bool isRotation, bool b2b)
+    {
+        AgentReward(RewardType.LineClear, Line);
+    }
+
+    public void AgentReward(RewardType rewardType, int rewardMultiplier)
+    {
+        lineClearReward *= rewardMultiplier;
+        holeReward *= rewardMultiplier;
+
+        if (rewardType == RewardType.GameOver)
+        {
+            GameOverReward();
+        }
+
+        if (rewardType == RewardType.LineClear)
+        {
+            LineClearReward(rewardMultiplier);
+        }
+
+        if (rewardType == RewardType.LockPiece)
+        {
+            LockPieceReward();
+        }
+
+        if (rewardType == RewardType.Distance)
+        {
+            DistanceFromBottom();
+        }
+
+        if(rewardType == RewardType.Hole)
+        {
+            NumberOfHoleReward();
+        }
+    }
+
+    private void GameOverReward()
+    {
+        AddReward(-2f);
+    }
+
+    private void LineClearReward(int line)
+    {
+        AddReward(line * lineClearReward);
+    }
+    private void LockPieceReward()
+    {
+        AddReward(lockPieceReward);
+    }
+    private void DistanceFromBottom()
+    {
+        AddReward(-0.02f);
+    }
+    private void NumberOfHoleReward()
+    {
+        AddReward(holeReward);
     }
 }

@@ -6,6 +6,9 @@ using TMPro;
 using System;
 using System.Collections;
 using Unity.MLAgents.Integrations.Match3;
+using UnityEngine.Events;
+using Mirror.Examples.Benchmark;
+using UnityEditor.Build;
 
 
 [DefaultExecutionOrder(-1)]
@@ -37,17 +40,12 @@ public class Board : MonoBehaviour
     public Vector3Int holdPosition = new Vector3Int(-10, 8, 0);
     public List<int> trashBuffer = new List<int>();
     public int score = 0;
-
     public TextMeshProUGUI scoreText;
-    private TetrisAgent agent;
-    private TrashLineAttack attacker;
-    private ColdClearAgent coldClearAgent;
-
     [Header("AgentObservations")]
     public int distanceFromBottom = 0;
     public int distanceFromBottomLast;
     public int numberOfHoles = 0;
-        public int numberOfHolesLast = 0;
+    public int numberOfHolesLast = 0;
     public int numberOfOverHangs = 0;
     public int completedLines = 0;
     public float aggregateHeight = 0;
@@ -55,18 +53,14 @@ public class Board : MonoBehaviour
     public float density = 0;
     public int[] columnheight;
     public int[] rowheight;
+    //Event
+    public event UnityAction onGameOver;
+    public event UnityAction<int, int, bool, bool> onPieceLock; //(LineClear, combo, isLastMoveRotation, isB2B)
+    public event UnityAction onSetNextPiece;
+    public event UnityAction onLineAddTrash;
+    public event UnityAction onTrashSpawner;
 
-
-
-    //Add more RewardType if needed
-    public enum RewardType
-    {
-        GameOver, LineClear
-    }
-    public bool agentExists { get; private set; } = false;
-    public bool attackerExists { get; private set; } = false;
-    public bool ccExists { get; private set; } = false;
-    private bool isInit = true;
+    [Header("State")]
     private int b2bCount = 0;
     public bool b2b { get; private set; } = false;
     public int combo { get; private set; } = 0;
@@ -84,50 +78,13 @@ public class Board : MonoBehaviour
 
     private void Awake()
     {
-        isInit = true;
-
-        tilemap = GetComponentInChildren<Tilemap>();
-        activePiece = GetComponentInChildren<Piece>();
-
-        nextPiece = gameObject.AddComponent<Piece>();
-        nextPiece.enabled = false;
-
-        nextPiece2 = gameObject.AddComponent<Piece>();
-        nextPiece2.enabled = false;
-
-        nextPiece3 = gameObject.AddComponent<Piece>();
-        nextPiece3.enabled = false;
-
-        nextPiece4 = gameObject.AddComponent<Piece>();
-        nextPiece4.enabled = false;
-
-        nextPiece5 = gameObject.AddComponent<Piece>();
-        nextPiece5.enabled = false;
-
-        savedPiece = gameObject.AddComponent<Piece>();
-        savedPiece.enabled = false;
-
-        
-        
-
-        for (int i = 0; i < tetrominoes.Length; i++)
-        {
-            tetrominoes[i].Initialize();
-        }
-
-        coldClearAgent = GetComponent<ColdClearAgent>();
-        if (coldClearAgent != null)
-        {
-            ccExists = true;
-        }
+        Init();
     }
 
     private void Start()
     {
-        Init();
         InitializeNextPiece();
         SpawnPiece();
-        isInit = false;
     }
 
     private void Update()
@@ -154,20 +111,51 @@ public class Board : MonoBehaviour
         }
         CalculateObservations();
     }
+    public void Init()
+    { 
+        score = 0;
+        distanceFromBottom = 0;
+        numberOfHoles = 0;
+        density = 0;
+        tilemap = GetComponentInChildren<Tilemap>();
+        activePiece = GetComponent<Piece>();
+
+        nextPiece = gameObject.AddComponent<Piece>();
+        nextPiece.enabled = false;
+
+        nextPiece2 = gameObject.AddComponent<Piece>();
+        nextPiece2.enabled = false;
+
+        nextPiece3 = gameObject.AddComponent<Piece>();
+        nextPiece3.enabled = false;
+
+        nextPiece4 = gameObject.AddComponent<Piece>();
+        nextPiece4.enabled = false;
+
+        nextPiece5 = gameObject.AddComponent<Piece>();
+        nextPiece5.enabled = false;
+
+        savedPiece = gameObject.AddComponent<Piece>();
+        savedPiece.enabled = false;
+
+        bag = new Bag();
+
+        for (int i = 0; i < tetrominoes.Length; i++)
+        {
+            tetrominoes[i].Initialize();
+        }
+    }
 
     public void GameOver()
     {
         tilemap.ClearAllTiles();
         score = 0;
-        if (agentExists)
+        if(onGameOver != null)
         {
-            AgentReward((int)RewardType.GameOver, 1);
-            agent.EndEpisode();
+            onGameOver.Invoke();
         }
-        Start();
+        GameReset();
         Debug.Log("gameover");
-
-
     }
 
     public void Set(Piece piece)
@@ -244,23 +232,11 @@ public class Board : MonoBehaviour
         if (linesCleared == 4)
         {
             score += linesCleared;
-
-            if (agentExists) { AgentReward((int)RewardType.LineClear, linesCleared); }
         }
         //All-Spin
         if (activePiece.isLastMoveRotation)
         {
             score += linesCleared;
-            if (agentExists) { AgentReward((int)RewardType.LineClear, linesCleared); }
-        }
-        if (agentExists)
-        {
-            AgentReward((int)RewardType.LineClear, linesCleared);
-        }
-
-        if (attackerExists)
-        {
-            attacker.HandleTrashLine(linesCleared, activePiece.isLastMoveRotation);
         }
 
         if (linesCleared != 0 && linesCleared != 4 && !activePiece.isLastMoveRotation)
@@ -289,15 +265,14 @@ public class Board : MonoBehaviour
         {
             b2b = false;
         }
+        
+        if(onPieceLock != null)
+        {
+            onPieceLock.Invoke(linesCleared, combo, activePiece.isLastMoveRotation, b2b);
+        }
+        
 
-        if (b2b == true)
-        {
-            //Debug.Log("B2B: " + b2b);
-        }
-        if (combo > 1)
-        {
-            //Debug.Log("combo: " + combo);
-        }
+
         ScoreTextUpdate();
     }
 
@@ -383,9 +358,9 @@ public class Board : MonoBehaviour
             Set(piece);
         }
 
-        if (ccExists && !isInit)
+        if(onSetNextPiece != null)
         {
-            coldClearAgent.pieceCounter++;
+            onSetNextPiece.Invoke();
         }
     }
 
@@ -516,16 +491,12 @@ public class Board : MonoBehaviour
                 }
                 cellnum++;
             }
-
-
         }
 
-        if (ccExists)
+        if(onLineAddTrash != null)
         {
-            coldClearAgent.needReset = true;
+            onLineAddTrash.Invoke();
         }
-
-
     }
     public List<int> TrashPresetGenerate()
     {
@@ -549,20 +520,16 @@ public class Board : MonoBehaviour
 
     public void TrashSpawner()
     {
-        while (trashBuffer.Count > 0 && !attackerExists)
+        while (trashBuffer.Count > 0 && onTrashSpawner == null)
         {
             int trashAmount = trashBuffer[0];
             LineAddTrash(trashAmount, TrashPresetGenerate());
             trashBuffer.RemoveAt(0);
         }
 
-        while (attackerExists && trashBuffer.Count > 0 && attacker.trashlineBufferTimer[0] <= Time.time)
+        if(onTrashSpawner != null)
         {
-            int trashAmount = trashBuffer[0];
-            LineAddTrash(trashAmount, TrashPresetGenerate());
-            attacker.trashCount -= trashBuffer[0];
-            attacker.trashlineBufferTimer.RemoveAt(0);
-            trashBuffer.RemoveAt(0);
+            onTrashSpawner.Invoke();
         }
     }
 
@@ -576,35 +543,6 @@ public class Board : MonoBehaviour
     private void ScoreTextUpdate()
     {
         scoreText.text = "score:" + score;
-    }
-
-    public void Init()
-    {
-        bag = new Bag();
-        agent = GetComponent<TetrisAgent>();
-        if (agent != null)
-        {
-            agentExists = true;
-            agent.OnEpisodeBegin();
-        }
-        else
-        {
-            agentExists = false;
-        }
-        attacker = GetComponent<TrashLineAttack>();
-        if (attacker != null)
-        {
-            attackerExists = true;
-        }
-        else
-        {
-            attackerExists = false;
-        }
-        score = 0;
-        distanceFromBottom = 0;
-        numberOfHoles = 0;
-        density = 0;
-        bag.SetBoardSeed(seed);
     }
 
     public bool[] GetField(bool includeActivePiece)
@@ -735,12 +673,7 @@ public class Board : MonoBehaviour
         if (numberOfUnfilledLines != 0) { density = numberOfTiles / numberOfUnfilledLines; }
 
         //distanceFromBottom = 0;
-
-        if (numberOfHoles < numberOfHolesLast) { AgentReward(4, 1); }
-        if (numberOfHoles > numberOfHolesLast) { AgentReward(4, -1); }
         numberOfHolesLast = numberOfHoles;
-
-
     }
 
     public int GetBoardSize(int axis)
@@ -751,30 +684,6 @@ public class Board : MonoBehaviour
         }
         return boardSize.y;
     }
-
-    public void AgentReward(int rewardType, int rewardMultiplier)
-    {
-        if (!agentExists)
-        {
-            return;
-        }
-
-        // 0 = GameOver, 1 = LineClear
-            float lineClearReward = 0.5f;
-        float LockPieceReward = 0.01f;
-        float HoleReward = 0.01f;
-        lineClearReward *= rewardMultiplier;
-        HoleReward *= rewardMultiplier;
-        switch (rewardType)
-        {
-            case 0: agent.AddReward(-2f); break;
-            case 1: agent.AddReward(lineClearReward); break;
-            case 2: agent.AddReward(LockPieceReward); break;
-            case 3: agent.AddReward(-0.02f); break;
-            case 4: agent.AddReward(HoleReward); break;
-        }
-    }
-
     public bool CheckAllClear()
     {
         RectInt bounds = Bounds;
@@ -794,6 +703,65 @@ public class Board : MonoBehaviour
             row--;
         }
         return true;
+    }
+
+    public void PieceMove(Movement movement)
+    {
+        Clear(activePiece);
+        if (movement == Movement.LEFT)
+        {
+            activePiece.Move(Vector2Int.left);
+        }
+
+        if (movement == Movement.RIGHT)
+        {
+            activePiece.Move(Vector2Int.right);
+        }
+
+        if (movement == Movement.DROP)
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                activePiece.Move(Vector2Int.down);
+            }
+        }
+
+        if (movement == Movement.HARDDROP)
+        {
+            activePiece.HardDrop();
+        }
+
+        if (movement == Movement.SOFTDROP)
+        {
+            activePiece.Move(Vector2Int.down);
+        }
+
+        if (movement == Movement.CW)
+        {
+            activePiece.Rotate(1);
+        }
+
+        if (movement == Movement.CCW)
+        {
+            activePiece.Rotate(-1);
+        }
+
+        if (movement == Movement.HOLD)
+        {
+            SwapPiece();
+        }
+
+        Set(activePiece);
+    }
+    
+    private void GameReset()
+    {
+        bag = new Bag();
+        savedPiece = null;
+        score = 0;
+        trashBuffer.Clear();
+        InitializeNextPiece();
+        SpawnPiece();
     }
 
     public void PrintObservations()

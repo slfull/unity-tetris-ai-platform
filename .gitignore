@@ -43,6 +43,7 @@
 .idea/
 *.csproj
 *.sln
+*.slnx
 *.user
 *.pidb
 *.suo
@@ -77,3 +78,5 @@ crashlytics-build.properties
 
 # Virtual Enviroment
 /Build/
+/.vscode
+/Assets/ML-Agents/Timers
