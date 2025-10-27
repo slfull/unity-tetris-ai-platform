@@ -1,7 +1,8 @@
 public enum Movement
 {
     LEFT, RIGHT,
-    DROP, HARDDROP, SOFTDROP,
+    DROP, HARDDROP, 
     CW, CCW,
+    SOFTDROP,
     HOLD
 }

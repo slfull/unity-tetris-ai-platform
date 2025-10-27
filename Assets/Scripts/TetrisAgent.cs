@@ -7,100 +7,63 @@ using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Unity.Collections;
+using TMPro;
 
 public class TetrisAgent : Agent
 {
     private Board board;
-    private Piece activePiece;
-    private Piece nextPiece;
-    private Piece nextPiece2;
-    private Piece nextPiece3;
-    private Piece nextPiece4;
-    private Piece nextPiece5;
-    public float timeBetweenDecisionsAtInference;
-    float m_TimeSinceDecision;
-    public enum MovementInput
-    {
-        left, right, drop, harddrop, rotateclockwise, rotatecounterclockwise, hold
-    }
-
     [Range(0.01f, 1f)] // Allows setting the timescale in the Inspector
     public float timeSpeed = 1f;
 
     [Header("Agent Reward")]
-    [SerializeField] private float lineClearReward = 0.5f;
-    [SerializeField] private float lockPieceReward = 0.01f;
-    [SerializeField] private float holeReward = 0.01f;
+    private float gameOverReward = -50f;
+    private float lineClearReward = 5f;
+    private float lockPieceReward = 0.1f;
+    private float holeReward = 0.01f;
+    private float actionReward;
+    private float currReward = 0f;
+    private int currEpsode = 0;
+    [Header("TMPro")]
+    [SerializeField] private TextMeshProUGUI currEpsodeUI;
+    [SerializeField] private TextMeshProUGUI currRewardUI;
+    bool[] field;
 
-
-
-    /**
-    public void FixedUpdate()
+    void Update()
     {
-
-        WaitTimeInference();
-    }
-
-    void WaitTimeInference()
-    {
-
-        if (Academy.Instance.IsCommunicatorOn)
+        if (currEpsodeUI != null && currRewardUI != null)
         {
-            RequestDecision();
+            currEpsodeUI.text = "Epsode: " + currEpsode;
+            currRewardUI.text = "Reward: " + currReward;
         }
-        else
-        {
-            if (m_TimeSinceDecision >= timeBetweenDecisionsAtInference)
-            {
-                m_TimeSinceDecision = 0f;
-                RequestDecision();
-            }
-            else
-            {
-                m_TimeSinceDecision += Time.fixedDeltaTime;
-            }
-        }
+        field = board.GetField(true);
     }
-
-    **/
-
-
 
     public override void CollectObservations(VectorSensor sensor)
     {
         // Piece data I = 0, J = 1, L = 2, O = 3, S = 4, T = 5, Z = 6
         // Vector3Int position 
-        sensor.AddObservation(activePiece.position.x);
-        sensor.AddObservation(activePiece.position.y);
+        for(int i = 0; i < board.activePiece.cellsPosition.Length; i++)
+        {
+            sensor.AddObservation(board.activePiece.cellsPosition[i].x);
+            sensor.AddObservation(board.activePiece.cellsPosition[i].y);
+        }
         // Int Tetromino
-        sensor.AddObservation((int)activePiece.data.tetromino);
+        sensor.AddObservation((int)board.activePiece.data.tetromino);
         // Int rotationIndex
-        sensor.AddObservation((int)activePiece.rotationIndex);
-        // Int completedLines
-        sensor.AddObservation(board.completedLines);
-        // Int numberOfHoles
-        sensor.AddObservation(board.numberOfHoles);
-        // Int numberOfOverHangs
-        sensor.AddObservation(board.numberOfOverHangs);
-        // Int aggregateHeight
-        sensor.AddObservation(board.aggregateHeight);
-        // Int bumpiness
-        sensor.AddObservation(board.bumpiness);
-        // Int density
-        sensor.AddObservation(board.density);
+        sensor.AddObservation(board.activePiece.rotationIndex);
         // Int nextPiece
-        sensor.AddObservation((int)nextPiece.data.tetromino);
+        sensor.AddObservation((int)board.nextPiece.data.tetromino);
         // Int nextPiece
-        sensor.AddObservation((int)nextPiece2.data.tetromino);
+        sensor.AddObservation((int)board.nextPiece2.data.tetromino);
         // Int nextPiece
-        sensor.AddObservation((int)nextPiece3.data.tetromino);
+        sensor.AddObservation((int)board.nextPiece3.data.tetromino);
         // Int nextPiece
-        sensor.AddObservation((int)nextPiece4.data.tetromino);
+        sensor.AddObservation((int)board.nextPiece4.data.tetromino);
         // Int nextPiece
-        sensor.AddObservation((int)nextPiece5.data.tetromino);
+        sensor.AddObservation((int)board.nextPiece5.data.tetromino);
 
         // Int Board
-        bool[] field = board.GetField(false);
+        field = board.GetField(true);
 
         for (int y = 0; y < board.GetBoardSize(1); y++)
         {
@@ -110,87 +73,61 @@ public class TetrisAgent : Agent
                 sensor.AddObservation(field[index]);
             }
         }
-
     }
     public override void Initialize()
     {
-        base.Initialize();
-    }
-    private void Start()
-    {
-        OnEpisodeBegin();
-    }
-
-    public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
-    {
-        activePiece = board.activePiece;
-        activePiece.AgentExists();
-        actionMask.SetActionEnabled(0, 0, true);
-        actionMask.SetActionEnabled(0, 1, true);
-        actionMask.SetActionEnabled(0, 2, true);
-        //actionMask.SetActionEnabled(0, 3, true);
-        //actionMask.SetActionEnabled(0, 4, true);
-        //actionMask.SetActionEnabled(0, 5, true);
-        
-
-
-        //if (!activePiece.MoveTest(Vector2Int.left)) { actionMask.SetActionEnabled(0, 0, false); }
-        //if (!activePiece.MoveTest(Vector2Int.right)) { actionMask.SetActionEnabled(0, 1, false);}
-        //if (!activePiece.MoveTest(Vector2Int.down)) { actionMask.SetActionEnabled(0, 2, false); }
-        
+        board = GetComponent<Board>();
+        board.onGameOver += OnGameOver;
+        board.onPieceLock += OnPieceLock;
+        actionReward = -75f / MaxStep;
     }
     public override void OnEpisodeBegin()
     {
-        board = GetComponent<Board>();
-        activePiece = board.activePiece;
-        activePiece.AgentExists();
-        nextPiece = board.nextPiece;
-        nextPiece2 = board.nextPiece2;
-        nextPiece3 = board.nextPiece3;
-        nextPiece4 = board.nextPiece4;
-        nextPiece5 = board.nextPiece5;
-        Time.timeScale = timeSpeed;
-
-        board.onGameOver += OnGameOver;
-        board.onPieceLock += OnPieceLock;
+        currEpsode++;
+        currReward = 0f;
     }
 
-    public void Highlight()
-    {
-
-    }
     public override void OnActionReceived(ActionBuffers actions)
     {
-        activePiece = board.activePiece;
-        activePiece.AgentExists();
-        Movement pieceMove = (Movement)actions.DiscreteActions[0]; // Get the action (1-5)
+        ActionSegment<int> pieceMove = actions.DiscreteActions;
         // int PieceHardDrop = actions.DiscreteActions[1];
         //Debug.Log("action: " + PieceMove);
-        board.PieceMove(pieceMove);
+        MoveAgent(pieceMove);
     }
-
-    public override void Heuristic(in ActionBuffers actions)
+    private void MoveAgent(ActionSegment<int> acts)
     {
-        var PieceMove = actions.DiscreteActions;
-
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) { PieceMove[0] = 0; }
-        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) { PieceMove[0] = 1; }
-        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) { PieceMove[0] = 2; }
-        else if (Input.GetKey(KeyCode.Space)) { PieceMove[0] = 3; }
-        else if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow)) { PieceMove[0] = 4; }
-        else if (Input.GetKey(KeyCode.E) || Input.GetKey(KeyCode.X)) { PieceMove[0] = 5; }
-        else { PieceMove[0] = -1; }
-
+        foreach(int act in acts)
+        {
+            Movement movement = (Movement)act;
+            board.PieceMove(movement);
+            AgentReward(RewardType.Action, 0);
+        }
     }
-
     public void OnGameOver()
     {
         AgentReward(RewardType.GameOver, 0);
+        EndEpisode();
     }
 
-    public void OnPieceLock(int Line, int combo, bool isRotation, bool b2b)
+    public void OnPieceLock(int line, int combo, bool isRotation, bool b2b)
     {
-        AgentReward(RewardType.LineClear, Line);
+        int reward = line + Math.Min(combo, 4);
+        if (isRotation)
+        {
+            reward += line;
+            if (b2b)
+            {
+                reward += line - 2;
+            }
+        }
+        
+        if(b2b)
+        {
+            reward += 2;
+        }
+        AgentReward(RewardType.LineClear, reward);
+        AgentReward(RewardType.LockPiece, 0);
+        actionReward = -75f / MaxStep;
     }
 
     public void AgentReward(RewardType rewardType, int rewardMultiplier)
@@ -218,31 +155,47 @@ public class TetrisAgent : Agent
             DistanceFromBottom();
         }
 
-        if(rewardType == RewardType.Hole)
+        if (rewardType == RewardType.Hole)
         {
             NumberOfHoleReward();
+        }
+        
+        if (rewardType == RewardType.Action)
+        {
+            ActionReward();
         }
     }
 
     private void GameOverReward()
     {
-        AddReward(-2f);
+        AddReward(gameOverReward);
+        currReward += gameOverReward;
     }
 
     private void LineClearReward(int line)
     {
         AddReward(line * lineClearReward);
+        currReward += line * lineClearReward;
     }
     private void LockPieceReward()
     {
         AddReward(lockPieceReward);
+        currReward += lockPieceReward;
     }
     private void DistanceFromBottom()
     {
         AddReward(-0.02f);
+        currReward += -0.02f;
     }
     private void NumberOfHoleReward()
     {
         AddReward(holeReward);
+        currReward += holeReward;
+    }
+    private void ActionReward()
+    {
+        AddReward(actionReward);
+        currReward += actionReward;
+        actionReward += -25f / MaxStep;
     }
 }

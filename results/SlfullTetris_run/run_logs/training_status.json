@@ -2,65 +2,65 @@
     "Board": {
         "checkpoints": [
             {
-                "steps": 349947,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-349947.onnx",
-                "reward": -4.003133439070855,
-                "creation_time": 1751530703.9668872,
+                "steps": 6249943,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-6249943.onnx",
+                "reward": -156.72080409526825,
+                "creation_time": 1761565568.9746797,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-349947.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-6249943.pt"
                 ]
             },
             {
-                "steps": 399943,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-399943.onnx",
-                "reward": -4.1128667294203,
-                "creation_time": 1751531084.0273926,
+                "steps": 6299977,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-6299977.onnx",
+                "reward": -123.98606499603817,
+                "creation_time": 1761565621.4371748,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-399943.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-6299977.pt"
                 ]
             },
             {
-                "steps": 449945,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-449945.onnx",
-                "reward": -0.9999999747378752,
-                "creation_time": 1751531440.1382027,
+                "steps": 6349976,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-6349976.onnx",
+                "reward": -133.54182447885213,
+                "creation_time": 1761565655.1369665,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-449945.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-6349976.pt"
                 ]
             },
             {
-                "steps": 499988,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-499988.onnx",
-                "reward": -0.9999999747378752,
-                "creation_time": 1751531795.2792065,
+                "steps": 6399940,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-6399940.onnx",
+                "reward": -109.27173095682393,
+                "creation_time": 1761565689.151296,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-499988.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-6399940.pt"
                 ]
             },
             {
-                "steps": 500052,
-                "file_path": "results\\SlfullTetris_run\\Board\\Board-500052.onnx",
-                "reward": -0.9999999747378752,
-                "creation_time": 1751531795.453863,
+                "steps": 6432684,
+                "file_path": "results\\SlfullTetris_run\\Board\\Board-6432684.onnx",
+                "reward": null,
+                "creation_time": 1761565719.9253464,
                 "auxillary_file_paths": [
-                    "results\\SlfullTetris_run\\Board\\Board-500052.pt"
+                    "results\\SlfullTetris_run\\Board\\Board-6432684.pt"
                 ]
             }
         ],
-        "elo": 719.5788321755022,
+        "elo": -645.6484694957134,
         "final_checkpoint": {
-            "steps": 500052,
+            "steps": 6432684,
             "file_path": "results\\SlfullTetris_run\\Board.onnx",
-            "reward": -0.9999999747378752,
-            "creation_time": 1751531795.453863,
+            "reward": null,
+            "creation_time": 1761565719.9253464,
             "auxillary_file_paths": [
-                "results\\SlfullTetris_run\\Board\\Board-500052.pt"
+                "results\\SlfullTetris_run\\Board\\Board-6432684.pt"
             ]
         }
     },
     "metadata": {
         "stats_format_version": "0.3.0",
         "mlagents_version": "1.1.0",
-        "torch_version": "2.2.2+cu121"
+        "torch_version": "2.4.1+cpu"
     }
 }

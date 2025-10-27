@@ -1,4 +1,4 @@
 public enum RewardType
 {
-    GameOver, LineClear, LockPiece, Distance, Hole
+    GameOver, LineClear, LockPiece, Distance, Hole, Action
 }

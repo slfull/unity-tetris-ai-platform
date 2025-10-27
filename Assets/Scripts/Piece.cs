@@ -7,6 +7,7 @@ public class Piece : MonoBehaviour
     public TetrominoData data { get; private set; }
     public Vector3Int[] cells { get; private set; }
     public Vector3Int position { get; private set; }
+    public Vector3Int[] cellsPosition { get; private set; }
     public int rotationIndex;
     public bool isLastMoveRotation { get; private set; }
     public float stepDelay = 1f;
@@ -43,11 +44,24 @@ public class Piece : MonoBehaviour
         {
             cells[i] = (Vector3Int)data.cells[i];
         }
+
+        if (cellsPosition == null)
+        {
+            cellsPosition = new Vector3Int[data.cells.Length];
+        }
+        for(int i = 0; i < cells.Length; i++)
+        {
+            cellsPosition[i] = cells[i] + position;
+        }
     }
 
     private void Update()
     {
         if (agentExists == false) { HandleUpdateMove(-1); }
+        for(int i = 0; i < cells.Length; i++)
+        {
+            cellsPosition[i] = cells[i] + position;
+        }
         //if (agentExists == true) { agent.RequestDecision(); }
     }
 

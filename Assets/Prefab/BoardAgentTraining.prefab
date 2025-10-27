@@ -310,7 +310,6 @@ GameObject:
   - component: {fileID: 172847301047478645}
   - component: {fileID: 8727019842142628535}
   - component: {fileID: 3817682932222750669}
-  - component: {fileID: 9035997003616904623}
   m_Layer: 0
   m_Name: BoardAgentTraining
   m_TagString: Untagged
@@ -360,6 +359,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d4fe201741a0f14c82a9ce960b9f5e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  activePiece: {fileID: 0}
   tile: {fileID: 11400000, guid: 66984f6cc43196c408ae7771bcee0c49, type: 2}
   tetrominoes:
   - tile: {fileID: 11400000, guid: aa44b5216a5f39e4881c5323564afe81, type: 2}
@@ -384,16 +384,20 @@ MonoBehaviour:
   previewPosition4: {x: 10, y: -1, z: 0}
   previewPosition5: {x: 10, y: -4, z: 0}
   holdPosition: {x: -10, y: 8, z: 0}
-  bag: 
   trashBuffer: 
   score: 0
-  distanceFromBottom: 0
-  numberOfHoles: 0
-  aggregateHeight: 0
-  density: 0
-  sumOfEmptyTiles: 0
-  numberOfUnfilledLines: 0
   scoreText: {fileID: 0}
+  distanceFromBottom: 0
+  distanceFromBottomLast: 0
+  numberOfHoles: 0
+  numberOfHolesLast: 0
+  numberOfOverHangs: 0
+  completedLines: 0
+  aggregateHeight: 0
+  bumpiness: 0
+  density: 0
+  columnheight: 
+  rowheight: 
 --- !u!114 &4476554494948964779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -460,7 +464,9 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 5000
-  timeBetweenDecisionsAtInference: 0
+  timeSpeed: 1
+  currEpsodeUI: {fileID: 0}
+  currRewardUI: {fileID: 0}
 --- !u!114 &8727019842142628535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -488,19 +494,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ff5a6aeb9cf96a4c8fb85d408c3d4b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &9035997003616904623
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6923654491339019864}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88b6042bc9a5d4aa58d931eae49442e5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agentParameters:
-    maxStep: 0
-  hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
