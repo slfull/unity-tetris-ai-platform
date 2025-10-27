@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Bag
 {
@@ -13,7 +15,8 @@ public class Bag
         Tetromino.Z
     };
     private List<Tetromino> bag = new List<Tetromino>();
-
+    private int boardSeed = new int();
+    private static Random rng;
     public int GetPiece()
     {
         RefillBag();
@@ -22,6 +25,19 @@ public class Bag
         bag.RemoveAt(0);
 
         return piece;
+    }
+
+
+    
+    public void SetRNGSeed()
+    {
+        rng = new Random(boardSeed);
+        boardSeed += 1;
+        IListExtension.SetRandomSeed(rng.Next(0,10000));
+    }
+    public void SetBoardSeed(int seedInput)
+    {
+        boardSeed = seedInput;
     }
 
     public int[] DumpBagInfo()
@@ -40,6 +56,7 @@ public class Bag
         if (bag.IsNullOrEmpty())
         {
             bag = new List<Tetromino>(pieces);
+            SetRNGSeed();
             bag.Shuffle();
         }
     }
@@ -50,13 +67,14 @@ public class Bag
         if (bag.IsNullOrEmpty())
         {
             bag = new List<Tetromino>(pieces);
+            SetRNGSeed();
             bag.Shuffle();
         }
         int piece = (int)bag[0];
         while (piece == 4 || piece == 6)
         {
             bag = new List<Tetromino>(pieces);
-            bag.Shuffle();
+            SetRNGSeed();
             piece = (int)bag[0];
         }
     }

@@ -71,6 +71,8 @@ public class Board : MonoBehaviour
     public bool b2b { get; private set; } = false;
     public int combo { get; private set; } = 0;
 
+    [SerializeField]
+    private int seed = 12345;
     public RectInt Bounds
     {
         get
@@ -105,7 +107,8 @@ public class Board : MonoBehaviour
         savedPiece = gameObject.AddComponent<Piece>();
         savedPiece.enabled = false;
 
-        bag = new Bag();
+        
+        
 
         for (int i = 0; i < tetrominoes.Length; i++)
         {
@@ -577,6 +580,7 @@ public class Board : MonoBehaviour
 
     public void Init()
     {
+        bag = new Bag();
         agent = GetComponent<TetrisAgent>();
         if (agent != null)
         {
@@ -600,6 +604,7 @@ public class Board : MonoBehaviour
         distanceFromBottom = 0;
         numberOfHoles = 0;
         density = 0;
+        bag.SetBoardSeed(seed);
     }
 
     public bool[] GetField(bool includeActivePiece)
