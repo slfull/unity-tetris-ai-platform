@@ -139,7 +139,7 @@ public class Board : MonoBehaviour
         savedPiece.enabled = false;
 
         bag = new Bag();
-        
+        bag.SetBoardSeed(boardSeed);
         for (int i = 0; i < tetrominoes.Length; i++)
         {
             tetrominoes[i].Initialize();
@@ -757,7 +757,7 @@ public class Board : MonoBehaviour
     private void GameReset()
     {
         bag = new Bag();
-        bag.seedInput(boardSeed);
+        bag.SetBoardSeed(boardSeed);
         savedPiece = null;
         score = 0;
         trashBuffer.Clear();

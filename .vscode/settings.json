@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "unity-tetris-ai-platform.sln"
+    "dotnet.defaultSolution": "unity-tetris-ai-platform.slnx"
 }
