@@ -8,69 +8,57 @@ using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Unity.Collections;
 using TMPro;
+using Mirror.Examples.MultipleAdditiveScenes;
 
 public class TetrisAgent : Agent
 {
+    // 0 -> rotate 1 -> move 2 -> drop move 3 -> rotate lock
     private Board board;
+    private List<Movement> movements;
     [Range(0.01f, 1f)] // Allows setting the timescale in the Inspector
     public float timeSpeed = 1f;
+    private float nextTime;
 
     [Header("Agent Reward")]
-    private float gameOverReward = -50f;
-    private float lineClearReward = 5f;
-    private float lockPieceReward = 0.1f;
-    private float holeReward = 0.01f;
-    private float actionReward;
-    private float currReward = 0f;
-    private int currEpsode = 0;
-    [Header("TMPro")]
-    [SerializeField] private TextMeshProUGUI currEpsodeUI;
-    [SerializeField] private TextMeshProUGUI currRewardUI;
-    bool[] field;
+    [SerializeField] private float lineClearReward = 1f;
+    [SerializeField] private float actionReward;
+    [SerializeField] private float gameOverReward = -10f;
+    [Header("UI")]
+    [SerializeField] private TextMeshProUGUI epsodeUI;
+    [SerializeField] private TextMeshProUGUI rewardUI;
+    private int epsode;
+    private float reward;
+    private int step;
 
     void Update()
     {
-        if (currEpsodeUI != null && currRewardUI != null)
+        if (Time.time >= nextTime)
         {
-            currEpsodeUI.text = "Epsode: " + currEpsode;
-            currRewardUI.text = "Reward: " + currReward;
+            nextTime = Time.time + timeSpeed;
+            AgentStep();
         }
-        field = board.GetField(true);
+        if(epsodeUI != null && rewardUI != null)
+        {
+            epsodeUI.text = "Epsode: " + epsode;
+            rewardUI.text = "Reward: " + reward;
+        }
     }
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        // Piece data I = 0, J = 1, L = 2, O = 3, S = 4, T = 5, Z = 6
-        // Vector3Int position 
-        for(int i = 0; i < board.activePiece.cellsPosition.Length; i++)
-        {
-            sensor.AddObservation(board.activePiece.cellsPosition[i].x);
-            sensor.AddObservation(board.activePiece.cellsPosition[i].y);
-        }
-        // Int Tetromino
         sensor.AddObservation((int)board.activePiece.data.tetromino);
-        // Int rotationIndex
-        sensor.AddObservation(board.activePiece.rotationIndex);
-        // Int nextPiece
         sensor.AddObservation((int)board.nextPiece.data.tetromino);
-        // Int nextPiece
         sensor.AddObservation((int)board.nextPiece2.data.tetromino);
-        // Int nextPiece
         sensor.AddObservation((int)board.nextPiece3.data.tetromino);
-        // Int nextPiece
         sensor.AddObservation((int)board.nextPiece4.data.tetromino);
-        // Int nextPiece
         sensor.AddObservation((int)board.nextPiece5.data.tetromino);
 
-        // Int Board
-        field = board.GetField(true);
-
-        for (int y = 0; y < board.GetBoardSize(1); y++)
+        bool[] field = board.GetField(true);
+        for (int y = 0; y < board.boardSize.y; y++)
         {
-            for (int x = 0; x < board.GetBoardSize(0); x++)
+            for(int x = 0; x < board.boardSize.x; x++)
             {
-                int index = y * board.GetBoardSize(0) + x;
-                sensor.AddObservation(field[index]);
+                sensor.AddObservation(field[y * board.boardSize.x + x]);
             }
         }
     }
@@ -79,28 +67,80 @@ public class TetrisAgent : Agent
         board = GetComponent<Board>();
         board.onGameOver += OnGameOver;
         board.onPieceLock += OnPieceLock;
-        actionReward = -75f / MaxStep;
+        movements = new List<Movement>();
+        nextTime = Time.time;
+        actionReward = 10f / MaxStep;
+        epsode = 0;
+        reward = 0;
     }
     public override void OnEpisodeBegin()
     {
-        currEpsode++;
-        currReward = 0f;
+        reward = 0;
+        step = 0;
+        epsode++;
     }
 
     public override void OnActionReceived(ActionBuffers actions)
     {
-        ActionSegment<int> pieceMove = actions.DiscreteActions;
-        // int PieceHardDrop = actions.DiscreteActions[1];
-        //Debug.Log("action: " + PieceMove);
-        MoveAgent(pieceMove);
+        AgentReward(RewardType.Action, 0);
+        step++;
+        int firstRotate = actions.DiscreteActions[0] - 1;
+        int firstMove = actions.DiscreteActions[1] - 5;
+        int secondMove = actions.DiscreteActions[2] - 5;
+        int secondRotate = actions.DiscreteActions[3] - 1;
+        bool firstDir = firstMove > 0;
+        bool secondDir = secondMove > 0;
+        firstMove = Math.Abs(firstMove);
+        secondMove = Math.Abs(secondMove);
+
+        //Debug.Log($"[ML Agent] First Move:{firstMove} First Rotate:{firstRotate} Second Move:{secondMove} Second Rotate:{secondRotate}");
+
+        RotateAgent(firstRotate);
+        MoveAgent(firstMove, firstDir);
+        movements.Add(Movement.DROP);
+        MoveAgent(secondMove, secondDir);
+        RotateAgent(secondRotate);
+        movements.Add(Movement.HARDDROP);
     }
-    private void MoveAgent(ActionSegment<int> acts)
+    private void MoveAgent(int step, bool dir)
     {
-        foreach(int act in acts)
+        for (int i = 0; i < step; i++)
         {
-            Movement movement = (Movement)act;
-            board.PieceMove(movement);
-            AgentReward(RewardType.Action, 0);
+            if (dir)
+            {
+                movements.Add(Movement.RIGHT);
+            }
+            else
+            {
+                movements.Add(Movement.LEFT);
+            }
+        }
+    }
+
+    private void RotateAgent(int step)
+    {
+        if (step == -1)
+        {
+            movements.Add(Movement.CCW);
+        }
+
+        for (int i = 0; i < step; i++)
+        {
+            movements.Add(Movement.CW);
+        }
+    }
+
+    private void AgentStep()
+    {
+        if(movements.Count > 0)
+        {
+            board.PieceMove(movements[0]);
+            movements.RemoveAt(0);
+        }
+
+        if(step == MaxStep)
+        {
+            board.GameReset();
         }
     }
     public void OnGameOver()
@@ -111,91 +151,43 @@ public class TetrisAgent : Agent
 
     public void OnPieceLock(int line, int combo, bool isRotation, bool b2b)
     {
-        int reward = line + Math.Min(combo, 4);
+        int total = line;
         if (isRotation)
         {
-            reward += line;
+            total += line;
             if (b2b)
             {
-                reward += line - 2;
+                total += line;
             }
         }
-        
-        if(b2b)
-        {
-            reward += 2;
-        }
-        AgentReward(RewardType.LineClear, reward);
-        AgentReward(RewardType.LockPiece, 0);
-        actionReward = -75f / MaxStep;
-    }
 
-    public void AgentReward(RewardType rewardType, int rewardMultiplier)
-    {
-        lineClearReward *= rewardMultiplier;
-        holeReward *= rewardMultiplier;
-
-        if (rewardType == RewardType.GameOver)
+        if (b2b && line == 4)
         {
-            GameOverReward();
+            total += 2;
         }
 
-        if (rewardType == RewardType.LineClear)
-        {
-            LineClearReward(rewardMultiplier);
-        }
+        total += Math.Min(combo, 4);
+        AgentReward(RewardType.LineClear, total);
 
-        if (rewardType == RewardType.LockPiece)
-        {
-            LockPieceReward();
-        }
-
-        if (rewardType == RewardType.Distance)
-        {
-            DistanceFromBottom();
-        }
-
-        if (rewardType == RewardType.Hole)
-        {
-            NumberOfHoleReward();
-        }
-        
-        if (rewardType == RewardType.Action)
-        {
-            ActionReward();
-        }
+        RequestDecision();
     }
 
-    private void GameOverReward()
+    private void AgentReward(RewardType type, int line)
     {
-        AddReward(gameOverReward);
-        currReward += gameOverReward;
-    }
-
-    private void LineClearReward(int line)
-    {
-        AddReward(line * lineClearReward);
-        currReward += line * lineClearReward;
-    }
-    private void LockPieceReward()
-    {
-        AddReward(lockPieceReward);
-        currReward += lockPieceReward;
-    }
-    private void DistanceFromBottom()
-    {
-        AddReward(-0.02f);
-        currReward += -0.02f;
-    }
-    private void NumberOfHoleReward()
-    {
-        AddReward(holeReward);
-        currReward += holeReward;
-    }
-    private void ActionReward()
-    {
-        AddReward(actionReward);
-        currReward += actionReward;
-        actionReward += -25f / MaxStep;
+        if (type == RewardType.Action)
+        {
+            AddReward(actionReward);
+            reward += actionReward;
+        }
+        if (type == RewardType.LineClear)
+        {
+            AddReward(line * lineClearReward);
+            reward += line * lineClearReward;
+        }
+        if(type == RewardType.GameOver)
+        {
+            AddReward(gameOverReward);
+            reward += gameOverReward;
+        }
     }
 }

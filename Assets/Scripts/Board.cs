@@ -754,7 +754,7 @@ public class Board : MonoBehaviour
         Set(activePiece);
     }
     
-    private void GameReset()
+    public void GameReset()
     {
         bag = new Bag();
         bag.SetBoardSeed(boardSeed);
