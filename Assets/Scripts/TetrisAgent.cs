@@ -37,11 +37,12 @@ public class TetrisAgent : Agent
             nextTime = Time.time + timeSpeed;
             AgentStep();
         }
-        if(epsodeUI != null && rewardUI != null)
+        if (epsodeUI != null && rewardUI != null)
         {
             epsodeUI.text = "Epsode: " + epsode;
             rewardUI.text = "Reward: " + reward;
         }
+        
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -72,12 +73,18 @@ public class TetrisAgent : Agent
         actionReward = 10f / MaxStep;
         epsode = 0;
         reward = 0;
+
+        if(board != null && board.activePiece != null)
+        {
+            board.activePiece.AgentExists();
+        }
     }
     public override void OnEpisodeBegin()
     {
         reward = 0;
         step = 0;
         epsode++;
+        RequestDecision();
     }
 
     public override void OnActionReceived(ActionBuffers actions)
@@ -93,7 +100,7 @@ public class TetrisAgent : Agent
         firstMove = Math.Abs(firstMove);
         secondMove = Math.Abs(secondMove);
 
-        //Debug.Log($"[ML Agent] First Move:{firstMove} First Rotate:{firstRotate} Second Move:{secondMove} Second Rotate:{secondRotate}");
+        Debug.Log($"[ML Agent] First Move:{firstMove} First Rotate:{firstRotate} Second Move:{secondMove} Second Rotate:{secondRotate}");
 
         RotateAgent(firstRotate);
         MoveAgent(firstMove, firstDir);
