@@ -12,17 +12,18 @@ using Mirror.Examples.MultipleAdditiveScenes;
 
 public class TetrisAgent : Agent
 {
+    public const int NUM_TETROMINO_TYPES = (int)Tetromino.Z + 1;
     // 0 -> rotate 1 -> move 2 -> drop move 3 -> rotate lock
     private Board board;
-    private List<Movement> movements;
+    private Queue<Movement> movements;
     [Range(0.01f, 1f)] // Allows setting the timescale in the Inspector
     public float timeSpeed = 1f;
     private float nextTime;
 
     [Header("Agent Reward")]
-    [SerializeField] private float lineClearReward = 1f;
+    [SerializeField] private float lineClearReward = 0.1f;
     [SerializeField] private float actionReward;
-    [SerializeField] private float gameOverReward = -10f;
+    [SerializeField] private float gameOverReward = -1f;
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI epsodeUI;
     [SerializeField] private TextMeshProUGUI rewardUI;
@@ -47,30 +48,25 @@ public class TetrisAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        sensor.AddObservation((int)board.activePiece.data.tetromino);
-        sensor.AddObservation((int)board.nextPiece.data.tetromino);
-        sensor.AddObservation((int)board.nextPiece2.data.tetromino);
-        sensor.AddObservation((int)board.nextPiece3.data.tetromino);
-        sensor.AddObservation((int)board.nextPiece4.data.tetromino);
-        sensor.AddObservation((int)board.nextPiece5.data.tetromino);
+        sensor.AddOneHotObservation((int)board.activePiece.data.tetromino, NUM_TETROMINO_TYPES);
+        sensor.AddOneHotObservation((int)board.nextPiece.data.tetromino, NUM_TETROMINO_TYPES);
+        sensor.AddOneHotObservation((int)board.nextPiece2.data.tetromino, NUM_TETROMINO_TYPES);
+        sensor.AddOneHotObservation((int)board.nextPiece3.data.tetromino, NUM_TETROMINO_TYPES);
+        sensor.AddOneHotObservation((int)board.nextPiece4.data.tetromino, NUM_TETROMINO_TYPES);
+        sensor.AddOneHotObservation((int)board.nextPiece5.data.tetromino, NUM_TETROMINO_TYPES);
 
-        bool[] field = board.GetField(true);
-        for (int y = 0; y < board.boardSize.y; y++)
-        {
-            for(int x = 0; x < board.boardSize.x; x++)
-            {
-                sensor.AddObservation(field[y * board.boardSize.x + x]);
-            }
-        }
+        sensor.AddObservation(board.aggregateHeight);
+        sensor.AddObservation(board.numberOfHoles);
+        sensor.AddObservation(board.bumpiness);
     }
     public override void Initialize()
     {
         board = GetComponent<Board>();
         board.onGameOver += OnGameOver;
         board.onPieceLock += OnPieceLock;
-        movements = new List<Movement>();
+        movements = new Queue<Movement>();
         nextTime = Time.time;
-        actionReward = 10f / MaxStep;
+        actionReward = 1f / MaxStep;
         epsode = 0;
         reward = 0;
 
@@ -100,14 +96,14 @@ public class TetrisAgent : Agent
         firstMove = Math.Abs(firstMove);
         secondMove = Math.Abs(secondMove);
 
-        Debug.Log($"[ML Agent] First Move:{firstMove} First Rotate:{firstRotate} Second Move:{secondMove} Second Rotate:{secondRotate}");
+        //Debug.Log($"[ML Agent] First Move:{firstMove} First Rotate:{firstRotate} Second Move:{secondMove} Second Rotate:{secondRotate}");
 
         RotateAgent(firstRotate);
         MoveAgent(firstMove, firstDir);
-        movements.Add(Movement.DROP);
+        movements.Enqueue(Movement.DROP);
         MoveAgent(secondMove, secondDir);
         RotateAgent(secondRotate);
-        movements.Add(Movement.HARDDROP);
+        movements.Enqueue(Movement.HARDDROP);
     }
     private void MoveAgent(int step, bool dir)
     {
@@ -115,11 +111,11 @@ public class TetrisAgent : Agent
         {
             if (dir)
             {
-                movements.Add(Movement.RIGHT);
+                movements.Enqueue(Movement.RIGHT);
             }
             else
             {
-                movements.Add(Movement.LEFT);
+                movements.Enqueue(Movement.LEFT);
             }
         }
     }
@@ -128,12 +124,12 @@ public class TetrisAgent : Agent
     {
         if (step == -1)
         {
-            movements.Add(Movement.CCW);
+            movements.Enqueue(Movement.CCW);
         }
 
         for (int i = 0; i < step; i++)
         {
-            movements.Add(Movement.CW);
+            movements.Enqueue(Movement.CW);
         }
     }
 
@@ -141,8 +137,7 @@ public class TetrisAgent : Agent
     {
         if(movements.Count > 0)
         {
-            board.PieceMove(movements[0]);
-            movements.RemoveAt(0);
+            board.PieceMove(movements.Dequeue());
         }
 
         if(step == MaxStep)
@@ -174,8 +169,10 @@ public class TetrisAgent : Agent
         }
 
         total += Math.Min(combo, 4);
-        AgentReward(RewardType.LineClear, total);
-
+        if (line > 0)
+        {
+            AgentReward(RewardType.LineClear, total);
+        }
         RequestDecision();
     }
 
@@ -183,13 +180,14 @@ public class TetrisAgent : Agent
     {
         if (type == RewardType.Action)
         {
-            AddReward(actionReward);
-            reward += actionReward;
+            float temp = board.aggregateHeight * (-0.510066f) + board.numberOfHoles * (-0.35663f) + board.bumpiness * (-0.184483f);
+            AddReward(temp * 0.01f);
+            reward += temp * 0.01f;
         }
         if (type == RewardType.LineClear)
         {
-            AddReward(line * lineClearReward);
-            reward += line * lineClearReward;
+            AddReward(line * 0.760666f);
+            reward += line * 0.760666f;
         }
         if(type == RewardType.GameOver)
         {

@@ -35,7 +35,12 @@ public class TrashLineAttack : MonoBehaviour
 
     public void HandleTrashLine(int lines, int combo, bool isLastMoveRotation, bool b2b)
     {
-        int totalLine = lines > 1 ? lines - 1 : 0;
+        int totalLine = lines - 1;
+        if (totalLine < 1)
+        {
+            totalLine = 0;
+        }
+        
         if (lines == 4)
         {
             totalLine++;
@@ -52,7 +57,8 @@ public class TrashLineAttack : MonoBehaviour
 
         if (lines > 0)
         {
-            totalLine += ComboBonus(combo);
+            totalLine += ComboBonus(combo - 1);
+            Debug.Log(totalLine);
         }
 
         if (b2b && lines == 4)
@@ -72,6 +78,8 @@ public class TrashLineAttack : MonoBehaviour
 
         TrashSend(totalLine);
         CounteringGarbage(totalLine);
+
+        Debug.Log(totalLine);
     }
 
     private void CounteringGarbage(int lines)

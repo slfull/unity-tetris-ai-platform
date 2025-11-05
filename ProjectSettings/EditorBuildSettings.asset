@@ -5,10 +5,17 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/MainMenu.unity
     guid: ea0aa156cca810047953d201c687121a
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/TetrisSingle.unity
     guid: 751af7884b77f42449d7e5c31db267c7
+  - enabled: 0
+    path: Assets/Scenes/TetrisSingleAI.unity
+    guid: 3cbbdf95cdc153c47a23360b45c19d50
+  - enabled: 1
+    path: Assets/Scenes/TetrisSingleAI 1.unity
+    guid: cb913a3ca5b7d9d4baabcba2014c6383
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0
