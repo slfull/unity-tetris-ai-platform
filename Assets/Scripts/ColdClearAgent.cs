@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using UnityEditorInternal;
 using UnityEngine;
 
 public class ColdClearAgent : MonoBehaviour

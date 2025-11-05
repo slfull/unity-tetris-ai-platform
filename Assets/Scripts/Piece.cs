@@ -329,6 +329,4 @@ public class Piece : MonoBehaviour
             return min + (input - min) % (max - min);
         }
     }
-
- 
 }

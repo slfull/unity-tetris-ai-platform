@@ -3,13 +3,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System;
-using System.Collections;
-using Unity.MLAgents.Integrations.Match3;
 using UnityEngine.Events;
-using Mirror.Examples.Benchmark;
-using UnityEditor.Build;
-
 
 [DefaultExecutionOrder(-1)]
 public class Board : MonoBehaviour
@@ -606,7 +600,7 @@ public class Board : MonoBehaviour
             {
                 int index = y * width + x;
                 // columnheight, rowheight
-                if (fieldWithActivepiece[index] == true)
+                if (fieldNOActivepiece[index] == true)
                 {
                     columnheight[x] = y + 1;
                     rowheight[y]++;
@@ -621,18 +615,18 @@ public class Board : MonoBehaviour
                     if (y + 1 < height)
                     {
                         positionabove = (y + 1) * width + x;
-                        if (fieldWithActivepiece[positionabove] == false) { continue; }
+                        if (fieldNOActivepiece[positionabove] == false) { continue; }
                         numberOfOverHangs++;
                     }
                     if (x - 1 >= 0)
                     {
                         positionleft = y * width + x - 1;
-                        if (fieldWithActivepiece[positionleft] == false) { continue; }
+                        if (fieldNOActivepiece[positionleft] == false) { continue; }
                     }
                     if (x + 1 < width)
                     {
                         positionright = y * width + x + 1;
-                        if (fieldWithActivepiece[positionright] == false) { continue; }
+                        if (fieldNOActivepiece[positionright] == false) { continue; }
                     }
                     numberOfHoles++;
                 }

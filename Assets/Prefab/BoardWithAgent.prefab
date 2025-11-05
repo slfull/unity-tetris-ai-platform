@@ -345,7 +345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 236
+    VectorObservationSize: 45
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -380,9 +380,9 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 5000
   timeSpeed: 1
-  lineClearReward: 1
+  lineClearReward: 0.1
   actionReward: 0
-  gameOverReward: -10
+  gameOverReward: -1
   epsodeUI: {fileID: 0}
   rewardUI: {fileID: 0}
 --- !u!114 &5674537143028585106
