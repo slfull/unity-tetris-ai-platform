@@ -410,11 +410,21 @@ public class Board : MonoBehaviour
 
     public void SwapPiece()
     {
+        if (activePiece == null)
+        {
+            return;
+        }
+
+        if(savedPiece == null)
+        {
+            savedPiece = gameObject.AddComponent<Piece>();
+            savedPiece.enabled = false;
+        }
         // Temporarily store the current saved data so we can swap
         TetrominoData savedData = savedPiece.data;
 
         // Clear the existing saved piece from the board
-        if (savedData.cells != null)
+        if (savedPiece != null && savedData.cells != null)
         {
             Clear(savedPiece);
         }

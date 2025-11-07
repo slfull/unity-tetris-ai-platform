@@ -30,6 +30,7 @@ public class ColdClearAgent : MonoBehaviour
         status = CCBotPollStatus.CC_WAITING;
         pieceCounter = 0;
 
+
         board.onGameOver += OnGameOver;
         board.onSetNextPiece += OnSetNextPiece;
         board.onLineAddTrash += OnLineAddTrash;
@@ -334,7 +335,8 @@ public class ColdClearAgent : MonoBehaviour
 
     public void OnGameOver()
     {
-        needReset = true;
+        movementQueue.Clear();
+        BotInitialize();
     }
     public void OnSetNextPiece()
     {
