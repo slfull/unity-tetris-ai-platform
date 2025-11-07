@@ -17,6 +17,7 @@ public class Bag
     private List<Tetromino> bag = new List<Tetromino>();
     private int boardSeed = new int();
     private static Random rng;
+    
     public int GetPiece()
     {
         RefillBag();
