@@ -5,21 +5,26 @@ public class MainMenuController : MonoBehaviour
 {
     public void AIvsAI()
     {
-        SceneManager.LoadScene();
+        SceneManager.LoadScene("TetrisLocalColdClearAndHAgent");
+    }
+
+    public void PlayervsCC()
+    {
+        SceneManager.LoadScene("TetrisLocalPlayerAndColdClear");
     }
     public void PlaySinglePlayer()
     {
-        SceneManager.LoadScene();
+        SceneManager.LoadScene("TetrisSingle");
     }
 
     public void PlayWithAI()
     {
-        SceneManager.LoadScene();
+        SceneManager.LoadScene("TetrisLocalPlayerAndHAgent");
     }
 
     public void PlayMultiplayer()
     {
-        SceneManager.LoadScene();
+        SceneManager.LoadScene("TetrisLocalTwoPlayer");
     }
 
     public void QuitGame()
