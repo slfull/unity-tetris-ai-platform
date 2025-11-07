@@ -1,11 +1,13 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TwoPlayerGameOver : MonoBehaviour
 {
     [SerializeField] Board opponent;
     [SerializeField] GameObject gameOverText;
     [SerializeField] TextMeshProUGUI winnerText;
+    [SerializeField] GameObject quitButton;
     private Board board;
     
     void Start()
@@ -14,6 +16,7 @@ public class TwoPlayerGameOver : MonoBehaviour
         board.onGameOver += OnGameOver;
         opponent.onGameOver += OnOpponentGameOver;
         gameOverText.SetActive(false);
+        quitButton.SetActive(false);
     }
 
     public void OnGameOver()
@@ -35,6 +38,7 @@ public class TwoPlayerGameOver : MonoBehaviour
         }
 
         gameOverText.SetActive(true);
+        quitButton.SetActive(true);
 
         if (GetComponent<PlayerTwoControll>() == null)
         {
@@ -65,7 +69,7 @@ public class TwoPlayerGameOver : MonoBehaviour
     private void DestroyAll(Board b)
     {
         Destroy(b.activePiece);
-        if(b.savedPiece != null)
+        if (b.savedPiece != null)
         {
             Destroy(b.savedPiece);
         }
@@ -75,5 +79,10 @@ public class TwoPlayerGameOver : MonoBehaviour
         Destroy(b.nextPiece4);
         Destroy(b.nextPiece5);
         Destroy(b);
+    }
+
+    public void Quit()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 }
