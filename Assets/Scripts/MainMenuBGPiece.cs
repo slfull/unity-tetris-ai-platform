@@ -7,7 +7,7 @@ public class MainMenuBGPiece : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     void Start()
     {
-        //透明化一點
+
         SpriteRenderer spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
 
         if (spriteRenderer != null)
@@ -22,7 +22,7 @@ public class MainMenuBGPiece : MonoBehaviour
     }
     void Update()
     {
-        //低於螢幕下就刪除
+
         float height = this.transform.position.y;
         if (height < -5.0f)
         {

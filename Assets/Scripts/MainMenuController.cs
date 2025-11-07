@@ -3,21 +3,23 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
-    [SerializeField] private string gameSceneName = "Game"; // 改成你的遊戲場景名稱
-
+    public void AIvsAI()
+    {
+        SceneManager.LoadScene();
+    }
     public void PlaySinglePlayer()
     {
-        SceneManager.LoadScene(gameSceneName);
+        SceneManager.LoadScene();
     }
 
     public void PlayWithAI()
     {
-        Debug.Log("Play With AI clicked");
+        SceneManager.LoadScene();
     }
 
     public void PlayMultiplayer()
     {
-        Debug.Log("Multiplayer clicked");
+        SceneManager.LoadScene();
     }
 
     public void QuitGame()

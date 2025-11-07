@@ -26,7 +26,7 @@ public class MainMenuBG : MonoBehaviour
 
         int i = Random.Range(0, 7);
         
-        spawnedObject = Instantiate(objectToSpawn[i], randomPosition, Quaternion.identity);
+        spawnedObject = Instantiate(objectToSpawn[i], randomPosition, Quaternion.identity, this.transform);
 
         }
 
