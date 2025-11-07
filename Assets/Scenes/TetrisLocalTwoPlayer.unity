@@ -330,6 +330,10 @@ PrefabInstance:
       propertyPath: activePiece
       value: 
       objectReference: {fileID: 2105800526}
+    - target: {fileID: 1278343923391222154, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
+      propertyPath: boardSize.y
+      value: 23
+      objectReference: {fileID: 0}
     - target: {fileID: 5432692195171681812, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
       propertyPath: m_Name
       value: BoardLocalMultiplayer player1
@@ -422,13 +426,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fec19d8dff80274d8518eacaac39b6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerBoard: {fileID: 0}
+  board: {fileID: 0}
   enemyBoard: {fileID: 2105800524}
-  trashlineBuffer: 
   trashlineBufferTimer: []
   trashCount: 0
-  combo: 0
-  prevClearB2B: 0
   delayTime: 5
   trashLineCountPosition: {x: -6, y: -10, z: 0}
   trashLineCountUI: {fileID: 1224939840}
@@ -459,6 +460,10 @@ PrefabInstance:
       propertyPath: activePiece
       value: 
       objectReference: {fileID: 1079253980}
+    - target: {fileID: 1278343923391222154, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
+      propertyPath: boardSize.y
+      value: 23
+      objectReference: {fileID: 0}
     - target: {fileID: 5432692195171681812, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
       propertyPath: m_Name
       value: BoardLocalMultiplayer player2
@@ -881,13 +886,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fec19d8dff80274d8518eacaac39b6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerBoard: {fileID: 0}
+  board: {fileID: 0}
   enemyBoard: {fileID: 1079253979}
-  trashlineBuffer: 
   trashlineBufferTimer: []
   trashCount: 0
-  combo: 0
-  prevClearB2B: 0
   delayTime: 5
   trashLineCountPosition: {x: 19, y: -10, z: 0}
   trashLineCountUI: {fileID: 1567355651}

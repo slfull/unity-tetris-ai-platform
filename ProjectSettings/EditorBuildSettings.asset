@@ -5,17 +5,32 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: ea0aa156cca810047953d201c687121a
-  - enabled: 0
-    path: Assets/Scenes/TetrisSingle.unity
-    guid: 751af7884b77f42449d7e5c31db267c7
-  - enabled: 0
-    path: Assets/Scenes/TetrisSingleAI.unity
-    guid: 3cbbdf95cdc153c47a23360b45c19d50
   - enabled: 1
-    path: Assets/Scenes/TetrisSingleAI 1.unity
+    path: Assets/Scenes/Single/TetrisSingle.unity
+    guid: 751af7884b77f42449d7e5c31db267c7
+  - enabled: 1
+    path: Assets/Scenes/TetrisLocalTwoPlayer.unity
+    guid: 874ef573dca5cd54987e010ccbe9f9d0
+  - enabled: 1
+    path: Assets/Scenes/AI vs AI/TetrisLocalColdClearAndHAgent.unity
+    guid: c4781f00b87e9d54c92f036fe8205699
+  - enabled: 1
+    path: Assets/Scenes/AI vs Player/TetrisLocalPlayerAndAI.unity
+    guid: f6a8f87d2bb092e4bb90c2f6d4e93194
+  - enabled: 1
+    path: Assets/Scenes/AI vs Player/TetrisLocalPlayerAndColdClear.unity
+    guid: 438734c23f49b7146bd48f039b6801e9
+  - enabled: 1
+    path: Assets/Scenes/AI vs Player/TetrisLocalPlayerAndHAgent.unity
+    guid: 25f8cdef2b4c10c47b4e132a2df18350
+  - enabled: 0
+    path: Assets/Scenes/Single/TetrisSingleAI.unity
+    guid: 3cbbdf95cdc153c47a23360b45c19d50
+  - enabled: 0
+    path: Assets/Scenes/Single/TetrisSingleAI 1.unity
     guid: cb913a3ca5b7d9d4baabcba2014c6383
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
