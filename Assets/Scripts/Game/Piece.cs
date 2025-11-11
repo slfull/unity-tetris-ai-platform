@@ -82,80 +82,12 @@ public class Piece : MonoBehaviour
         // We use a timer to allow the player to make adjustments to the piece
         // before it locks in place
         lockTime += Time.deltaTime;
-
-        // Handle rotation
-        if ((Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.UpArrow)) && !isPlayerTwo)
-        {
-            Rotate(-1);
-            isLastMoveRotation = true;
-        }
-        else if ((Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.X)) && !isPlayerTwo)
-        {
-            Rotate(1);
-            isLastMoveRotation = true;
-        }
-
-        // Handle hard drop
-        if (Input.GetKeyDown(KeyCode.Space) && !isPlayerTwo)
-        {
-            HardDrop();
-        }
-
-        // Allow the player to hold movement keys but only after a move delay
-        // so it does not move too fast
-        if (Time.time > moveTime && !isPlayerTwo)
-        {
-            HandleMoveInputs();
-        }
-
-        // Advance the piece to the next row every x seconds
         if (Time.time > stepTime)
         {
             Step();
         }
 
         board.Set(this);
-    }
-    private void HandleMoveInputs()
-    {
-        // Soft drop movement
-        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
-        {
-            if (Move(Vector2Int.down))
-            {
-                // Update the step time to prevent double movement
-                stepTime = Time.time + stepDelay;
-            }
-            isLastMoveRotation = false;
-        }
-
-        // Left/right movement
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            holdmoveTime = Time.time + holdmoveDelay;
-            Move(Vector2Int.left);
-            isLastMoveRotation = false;
-            // board.AgentReward(2,1);
-        }
-        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            holdmoveTime = Time.time + holdmoveDelay;
-            Move(Vector2Int.right);
-            isLastMoveRotation = false;
-            // board.AgentReward(2, 1);
-        }
-
-        // Left/right hold movement
-        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && (Time.time >= holdmoveTime))
-        {
-            Move(Vector2Int.left);
-            isLastMoveRotation = false;
-        }
-        else if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && (Time.time >= holdmoveTime))
-        {
-            Move(Vector2Int.right);
-            isLastMoveRotation = false;
-        }
     }
 
     private void Step()
@@ -208,7 +140,7 @@ public class Piece : MonoBehaviour
             position = newPosition;
             moveTime = Time.time + moveDelay;
             lockTime = 0f; // reset
-            isLastMoveRotation = false;
+            isLastMoveRotation = translation.x == 0 ? isLastMoveRotation : false;
         }
 
         return valid;

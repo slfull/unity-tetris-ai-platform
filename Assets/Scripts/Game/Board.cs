@@ -83,10 +83,6 @@ public class Board : MonoBehaviour
 
     private void Update()
     {
-        if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.C)) && !activePiece.isPlayerTwo)
-        {
-            SwapPiece();
-        }
         if (Input.GetKeyDown(KeyCode.T))
         {
             TempAddTrashFunction();

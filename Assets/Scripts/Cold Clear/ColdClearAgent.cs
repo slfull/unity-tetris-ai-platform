@@ -48,12 +48,6 @@ public class ColdClearAgent : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            needReset = true;
-        }
-
-
         AddPieceQueue();
         if (Time.time >= agentStepTime)
         {
