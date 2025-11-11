@@ -16,7 +16,7 @@ public class HeuristicAgent : MonoBehaviour
     private int currMove;
     private List<Movement> movements;
     private float nextStepTime;
-    [SerializeField]private float stepInterval = 0.5f;
+    public float stepInterval = 0.5f;
 
     private void Start()
     {
@@ -288,7 +288,7 @@ public class HeuristicAgent : MonoBehaviour
         }
         return holes;
     }
-    
+
     private int Bumpiness(int[] columnHeight)
     {
         int bumpiness = 0;
@@ -299,4 +299,6 @@ public class HeuristicAgent : MonoBehaviour
         }
         return bumpiness;
     }
+    
+    
 }
