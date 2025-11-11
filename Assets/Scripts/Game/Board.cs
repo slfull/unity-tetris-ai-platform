@@ -22,6 +22,7 @@ public class Board : MonoBehaviour
 
     public Tile tile;
     public Bag bag;
+    public Trash trash;
     public TetrominoData[] tetrominoes;
 
     public Vector2Int boardSize = new Vector2Int(10, 20);
@@ -32,7 +33,7 @@ public class Board : MonoBehaviour
     public Vector3Int previewPosition4 = new Vector3Int(10, -1, 0);
     public Vector3Int previewPosition5 = new Vector3Int(10, -3, 0);
     public Vector3Int holdPosition = new Vector3Int(-10, 8, 0);
-    public List<int> trashBuffer = new List<int>();
+    
     public int score = 0;
     public TextMeshProUGUI scoreText;
     [Header("AgentObservations")]
@@ -83,10 +84,6 @@ public class Board : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            TempAddTrashFunction();
-        }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadSceneAsync(0);
@@ -130,6 +127,9 @@ public class Board : MonoBehaviour
 
         bag = new Bag();
         bag.SetBoardSeed(boardSeed);
+
+        trash = new Trash();
+        trash.SetBounds(Bounds);
         for (int i = 0; i < tetrominoes.Length; i++)
         {
             tetrominoes[i].Initialize();
@@ -498,33 +498,12 @@ public class Board : MonoBehaviour
             onLineAddTrash.Invoke();
         }
     }
-    public List<int> TrashPresetGenerate()
-    {
-        RectInt bounds = Bounds;
-        int length = bounds.xMax - bounds.xMin;
-        List<int> trashPreset = new List<int>(new int[length]);
-
-        for (int i = 0; i < length; i++)
-        {
-            trashPreset[i] = 1;
-        }
-
-
-        //0是留空，剩下沒用到的會都是填入的
-        int index = UnityEngine.Random.Range(0, length); // Random index for 0
-        trashPreset[index] = 0;
-
-
-        return trashPreset;
-    }
 
     public void TrashSpawner()
     {
-        while (trashBuffer.Count > 0 && onTrashSpawner == null)
+        while (trash.GetTrashBuffer().Count > 0 && onTrashSpawner == null)
         {
-            int trashAmount = trashBuffer[0];
-            LineAddTrash(trashAmount, TrashPresetGenerate());
-            trashBuffer.RemoveAt(0);
+            LineAddTrash(trash.GetTrashAmountRemove(), trash.TrashPresetGenerate());
         }
 
         if(onTrashSpawner != null)
@@ -533,12 +512,6 @@ public class Board : MonoBehaviour
         }
     }
 
-    //暫定function，之後移除/更改位置
-    public void TempAddTrashFunction()
-    {
-        //這裡的1是垃圾行數
-        trashBuffer.Add(1);
-    }
 
     private void ScoreTextUpdate()
     {
@@ -760,7 +733,6 @@ public class Board : MonoBehaviour
         bag.SetBoardSeed(boardSeed);
         savedPiece = null;
         score = 0;
-        trashBuffer.Clear();
         InitializeNextPiece();
         SpawnPiece();
     }

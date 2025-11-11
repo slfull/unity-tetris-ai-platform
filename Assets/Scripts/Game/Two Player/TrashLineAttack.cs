@@ -84,18 +84,19 @@ public class TrashLineAttack : MonoBehaviour
 
     private void CounteringGarbage(int lines)
     {
+        List<int> trashBuffer = board.trash.GetTrashBuffer();
         while (trashlineBufferTimer.Count > 0 && lines > 0)
         {
-            if (lines >= board.trashBuffer[0])
+            if (lines >= trashBuffer[0])
             {
-                lines -= board.trashBuffer[0];
-                trashCount -= board.trashBuffer[0];
-                board.trashBuffer.RemoveAt(0);
+                lines -= trashBuffer[0];
+                trashCount -= trashBuffer[0];
+                board.trash.GetTrashAmountRemove();
                 trashlineBufferTimer.RemoveAt(0);
             }
             else
             {
-                board.trashBuffer[0] -= lines;
+                trashBuffer[0] -= lines;
                 trashCount -= lines;
                 lines = 0;
             }
@@ -104,7 +105,7 @@ public class TrashLineAttack : MonoBehaviour
 
     private void TrashSend(int lines)
     {
-        enemyBoard.board.trashBuffer.Add(lines);
+        enemyBoard.board.trash.TrashBufferAdd(lines);
         enemyBoard.trashlineBufferTimer.Add(Time.time + delayTime);
         enemyBoard.trashCount += lines;
     }
@@ -131,13 +132,14 @@ public class TrashLineAttack : MonoBehaviour
     }
     public void OnTrashSpawner()
     {
-        while (board.trashBuffer.Count > 0 && trashlineBufferTimer[0] <= Time.time)
+        List<int> trashBuffer = board.trash.GetTrashBuffer();
+        while (trashBuffer.Count > 0 && trashlineBufferTimer[0] <= Time.time)
         {
-            int trashAmount = board.trashBuffer[0];
-            board.LineAddTrash(trashAmount, board.TrashPresetGenerate());
-            trashCount -= board.trashBuffer[0];
+            int trashAmount = trashBuffer[0];
+            board.LineAddTrash(trashAmount, board.trash.TrashPresetGenerate());
+            trashCount -= trashBuffer[0];
             trashlineBufferTimer.RemoveAt(0);
-            board.trashBuffer.RemoveAt(0);
+            board.trash.GetTrashAmountRemove();
         }
     }
 }
