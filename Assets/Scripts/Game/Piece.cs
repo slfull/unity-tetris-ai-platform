@@ -11,9 +11,9 @@ public class Piece : MonoBehaviour
     public int rotationIndex;
     public bool isLastMoveRotation { get; private set; }
     public float stepDelay = 1f;
-    public float moveDelay = 0.05f;
+    public float moveDelay = 0.03f;
     public float lockDelay = 0.5f;
-    public float holdmoveDelay = 0.25f;
+    public float holdmoveDelay = 0.1f;
 
     public float maxlockTime = 2f;
     private float stepTime;
@@ -142,17 +142,6 @@ public class Piece : MonoBehaviour
             lockTime = 0f; // reset
             isLastMoveRotation = translation.x == 0 ? isLastMoveRotation : false;
         }
-
-        return valid;
-    }
-
-    public bool MoveTest(Vector2Int translation)
-    {
-        Vector3Int newPosition = position;
-        newPosition.x += translation.x;
-        newPosition.y += translation.y;
-
-        bool valid = board.IsValidPosition(this, newPosition);
 
         return valid;
     }
