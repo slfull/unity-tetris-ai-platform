@@ -6,6 +6,7 @@ public class SettingsMenu : MonoBehaviour
 {
     public GameObject settingsPanel; // Drag your SettingsPanel here
     private Animator settingsAnimator;
+    [SerializeField] private GameObject rebindPanel;
 
     void Start()
     {
@@ -39,13 +40,25 @@ public class SettingsMenu : MonoBehaviour
         {
             // 1. Un-pause the game
             Time.timeScale = 1f;
-            
+
             // 2. Trigger the "SlideOut" animation
             settingsAnimator.SetTrigger("SlideOut");
 
             // Optional: You could add a small delay (e.g., 0.5s)
             // and then set settingsPanel.SetActive(false)
             // to disable the object after it's off-screen.
+        }
+    }
+
+    public void OpenRebind()
+    {
+        if (rebindPanel.activeInHierarchy)
+        {
+            rebindPanel.SetActive(false);
+        }
+        else
+        {
+            rebindPanel.SetActive(true);
         }
     }
 }

@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
 
     private void Initialize()
     {
-        playerInput = new PlayerInput();
+        playerInput = InputRebindManager.Instance.Input;
         p1Move = playerInput.FindAction("P1Move");
         p1HardDrop = playerInput.FindAction("P1HardDrop");
         p1Hold = playerInput.FindAction("P1Hold");
