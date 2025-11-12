@@ -21,7 +21,6 @@ public class TetrisAgent : Agent
     private float nextTime;
 
     [Header("Agent Reward")]
-    [SerializeField] private float lineClearReward = 0.1f;
     [SerializeField] private float actionReward;
     [SerializeField] private float gameOverReward = -1f;
     [Header("UI")]
@@ -54,10 +53,6 @@ public class TetrisAgent : Agent
         sensor.AddOneHotObservation((int)board.nextPiece3.data.tetromino, NUM_TETROMINO_TYPES);
         sensor.AddOneHotObservation((int)board.nextPiece4.data.tetromino, NUM_TETROMINO_TYPES);
         sensor.AddOneHotObservation((int)board.nextPiece5.data.tetromino, NUM_TETROMINO_TYPES);
-
-        sensor.AddObservation(board.aggregateHeight);
-        sensor.AddObservation(board.numberOfHoles);
-        sensor.AddObservation(board.bumpiness);
     }
     public override void Initialize()
     {
@@ -180,7 +175,7 @@ public class TetrisAgent : Agent
     {
         if (type == RewardType.Action)
         {
-            float temp = board.aggregateHeight * (-0.510066f) + board.numberOfHoles * (-0.35663f) + board.bumpiness * (-0.184483f);
+            float temp = 0.1f; // need fix
             AddReward(temp * 0.01f);
             reward += temp * 0.01f;
         }

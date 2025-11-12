@@ -25,7 +25,6 @@ public class Ghost : MonoBehaviour
         Copy();
         Drop();
         Set();
-        mainBoard.distanceFromBottomLast = mainBoard.distanceFromBottom;
     }
 
     private void Clear()
@@ -66,10 +65,9 @@ public class Ghost : MonoBehaviour
             {
                 break;
             }
-            traveledLines++;
+            
         }
-        mainBoard.distanceFromBottom = traveledLines;
-        traveledLines = 0;
+
         
         mainBoard.Set(trackingPiece);
     }

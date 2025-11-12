@@ -36,18 +36,7 @@ public class Board : MonoBehaviour
     
     public int score = 0;
     public TextMeshProUGUI scoreText;
-    [Header("AgentObservations")]
-    public int distanceFromBottom = 0;
-    public int distanceFromBottomLast;
-    public int numberOfHoles = 0;
-    public int numberOfHolesLast = 0;
-    public int numberOfOverHangs = 0;
-    public int completedLines = 0;
-    public float aggregateHeight = 0;
-    public float bumpiness = 0;
-    public float density = 0;
-    public int[] columnheight;
-    public int[] rowheight;
+
     //Event
     public event UnityAction onGameOver;
     public event UnityAction<int, int, bool, bool> onPieceLock; //(LineClear, combo, isLastMoveRotation, isB2B)
@@ -88,22 +77,10 @@ public class Board : MonoBehaviour
         {
             SceneManager.LoadSceneAsync(0);
         }
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            PrintObservations();
-        }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            PrintField();
-        }
-        CalculateObservations();
     }
     public void Init()
     { 
         score = 0;
-        distanceFromBottom = 0;
-        numberOfHoles = 0;
-        density = 0;
         tilemap = GetComponentInChildren<Tilemap>();
         activePiece = GetComponent<Piece>();
 
@@ -551,104 +528,11 @@ public class Board : MonoBehaviour
                 }
             }
         }
-        distanceFromBottom = 0;
 
 
         return field;
     }
-    public void CalculateObservations()
-    {
-        bool[] fieldWithActivepiece = GetField(false);
-        bool[] fieldNOActivepiece = GetField(true);
-        int width = boardSize.x;
-        int height = boardSize.y;
-        columnheight = new int[width];
-        rowheight = new int[height];
-        
-        
-        numberOfHoles = 0;
-        numberOfOverHangs = 0;
-        aggregateHeight = 0;
-        bumpiness = 0;
-        density = 0;
-        completedLines = 0;
-        // run through cleaned board again for observations
-        for (int y = height - 1; y >= 0; y--)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                int index = y * width + x;
-                // columnheight, rowheight
-                if (fieldNOActivepiece[index] == true)
-                {
-                    columnheight[x] = y + 1;
-                    rowheight[y]++;
-                }
-                //numberOfHoles = check block above, left and right, if all is filled then numberOfHoles++
-
-                else
-                {
-                    int positionabove = 0;
-                    int positionleft = 0;
-                    int positionright = 0;
-                    if (y + 1 < height)
-                    {
-                        positionabove = (y + 1) * width + x;
-                        if (fieldNOActivepiece[positionabove] == false) { continue; }
-                        numberOfOverHangs++;
-                    }
-                    if (x - 1 >= 0)
-                    {
-                        positionleft = y * width + x - 1;
-                        if (fieldNOActivepiece[positionleft] == false) { continue; }
-                    }
-                    if (x + 1 < width)
-                    {
-                        positionright = y * width + x + 1;
-                        if (fieldNOActivepiece[positionright] == false) { continue; }
-                    }
-                    numberOfHoles++;
-                }
-            }
-
-        }
-
-
-        //aggregateHeight = sum of the height of each column
-        for (int i = 0; i < columnheight.Length; i++)
-        {
-            aggregateHeight += columnheight[i];
-        }
-
-        //bumpiness = summing up the absolute differences between all two adjacent columns. (for well{tetris-clear setup} generalization)
-        for (int i = 0; i < columnheight.Length; i++)
-        {
-            if (i < columnheight.Length - 1)
-            {
-                bumpiness += Mathf.Abs(columnheight[i] - columnheight[i + 1]);
-            }
-            else if (i == columnheight.Length - 1)
-            {
-                break;
-            }
-
-        }
-
-        //density = sum of filled tiles / numberOfUnfilledLines(non-empty lines)
-        int numberOfTiles = 0;
-        int numberOfUnfilledLines = 0;
-        for (int i = 0; i < rowheight.Length; i++)
-        {
-            numberOfTiles += rowheight[i];
-            if (rowheight[i] != 0 && rowheight[i] != width) { numberOfUnfilledLines++; }
-            if (rowheight[i] == width) { completedLines++; }
-        }
-        if (numberOfUnfilledLines != 0) { density = numberOfTiles / numberOfUnfilledLines; }
-
-        //distanceFromBottom = 0;
-        numberOfHolesLast = numberOfHoles;
-    }
-
+    
     public int GetBoardSize(int axis)
     {
         if (axis == 0)
@@ -737,52 +621,6 @@ public class Board : MonoBehaviour
         SpawnPiece();
     }
 
-    public void PrintObservations()
-    {
-        CalculateObservations();
-        Debug.Log("activePiece.position.x:" + activePiece.position.x);
-        Debug.Log("activePiece.position.y:" + activePiece.position.y);
-        Debug.Log("activePiece.data.tetromino:" + activePiece.data.tetromino);
-        Debug.Log("activePiece.rotationIndex:" + activePiece.rotationIndex);
-        Debug.Log("distanceFromBottom:" + distanceFromBottom);
-        Debug.Log("numberOfHoles:" + numberOfHoles);
-        Debug.Log("numberOfOverHangs:" + numberOfOverHangs);
-        Debug.Log("aggregateHeight:" + aggregateHeight);
-        Debug.Log("bumpiness:" + bumpiness);
-        Debug.Log("density:" + density);
-        string columnheightprint = "columnheight:";
-        for (int i = 0; i < columnheight.Length; i++)
-        {
-            columnheightprint += "" + columnheight[i];
-        }
-        Debug.Log(columnheightprint);
-        string rowheightprint = "rowheight:";
-        for (int i = 0; i < rowheight.Length; i++)
-        {
-            rowheightprint += "" + rowheight[i];
-        }
-        Debug.Log(rowheightprint);
-        PrintField();
-
-    }
-
-    //NOTE: prints from top to down(reverse)
-    void PrintField()
-    {
-        bool[] fields = GetField(false);
-        int width = boardSize.x;
-        int height = boardSize.y;
-        for (int y = height - 1; y >= 0; y--)
-        {
-            string row = $"y={y}: [";
-            for (int x = 0; x < width; x++)
-            {
-                int index = y * width + x;
-                row += fields[index] ? " 1 " : " 0 ";
-            }
-            row += "]";
-            Debug.Log(row);
-        }
-    }
+    
 
 }

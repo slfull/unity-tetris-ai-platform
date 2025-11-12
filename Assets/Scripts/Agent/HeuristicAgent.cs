@@ -187,6 +187,7 @@ public class HeuristicAgent : MonoBehaviour
     private float FinalWeight(bool[] field)
     {
         int width = board.boardSize.x;
+        int height = board.boardSize.y;
         RectInt bounds = board.Bounds;
         while (IsValidPosition(position + Vector2Int.down))
         {
@@ -201,13 +202,8 @@ public class HeuristicAgent : MonoBehaviour
             int y = cell.y - bounds.yMin;
             field[y * width + x] = true;
         }
+        var (columnHeight, aggregateHeight, completedLines, holes, bumpiness) = Observations.GetCalculatedObservations(field, width, height);
 
-        int[] columnHeight = ColumnHeight(field);
-
-        int aggregateHeight = AggregateHeight(columnHeight);
-        int completedLines = CompleteLines(field);
-        int holes = Holes(field, columnHeight);
-        int bumpiness = Bumpiness(columnHeight);
 
         float weight = aggregateHeight * aggregateHeightWeight + completedLines * completeLinesWeight
             + holes * holesWeight + bumpiness * bumpinessWeight;
@@ -216,89 +212,7 @@ public class HeuristicAgent : MonoBehaviour
         return weight;
     }
 
-    private int[] ColumnHeight(bool[] field)
-    {
-        int width = board.boardSize.x;
-        int height = board.boardSize.y;
-        int[] columnheight = new int[width];
-        for (int x = 0; x < width; x++)
-        {
-            columnheight[x] = 0;
-            for (int y = height - 1; y >= 0; y--)
-            {
-                if (field[y * width + x])
-                {
-                    columnheight[x] = y + 1;
-                    break;
-                }
-            }
-        }
-        return columnheight;
-    }
 
-    private int AggregateHeight(int[] columnHeight)
-    {
-        int height = 0;
-        for (int i = 0; i < columnHeight.Length; i++)
-        {
-            height += columnHeight[i];
-        }
-        return height;
-    }
-
-    private int CompleteLines(bool[] field)
-    {
-        int lines = 0;
-        int width = board.boardSize.x;
-        int height = board.boardSize.y;
-
-        for (int y = 0; y < height; y++)
-        {
-            bool flag = true;
-            for (int x = 0; x < width; x++)
-            {
-                if (!field[y * width + x])
-                {
-                    flag = false;
-                    break;
-                }
-            }
-            if (flag)
-            {
-                lines++;
-            }
-        }
-        return lines;
-    }
-
-    private int Holes(bool[] field, int[] columnHeight)
-    {
-        int holes = 0;
-        int width = board.boardSize.x;
-        int height = board.boardSize.y;
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = columnHeight[x] - 2; y >= 0; y--)
-            {
-                if (!field[y * width + x])
-                {
-                    holes++;
-                }
-            }
-        }
-        return holes;
-    }
-
-    private int Bumpiness(int[] columnHeight)
-    {
-        int bumpiness = 0;
-        int width = columnHeight.Length;
-        for (int x = 1; x < width; x++)
-        {
-            bumpiness += Math.Abs(columnHeight[x - 1] - columnHeight[x]);
-        }
-        return bumpiness;
-    }
     
     
 }

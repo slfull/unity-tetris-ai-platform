@@ -42,7 +42,7 @@ public class SettingsManager : MonoBehaviour
     private void ApplyAgentSpeed()
     {
         // 先確保有沒有這個Script
-        HeuristicAgent heuristicAgent = FindObjectOfType<HeuristicAgent>();
+        HeuristicAgent heuristicAgent = FindFirstObjectByType<HeuristicAgent>();
         if (heuristicAgent != null)
         {
             heuristicAgent.stepInterval = settings.agentSpeed;
