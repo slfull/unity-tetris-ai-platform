@@ -5,6 +5,7 @@ using UnityEngine;
 public class HeuristicAgent : MonoBehaviour
 {
     private Board board;
+    private Piece currPiece;
 
     private float aggregateHeightWeight = -0.510066f;
     private float completeLinesWeight = 0.760666f;
@@ -17,12 +18,14 @@ public class HeuristicAgent : MonoBehaviour
     private List<Movement> movements;
     private float nextStepTime;
     public float stepInterval = 0.5f;
+    private int hold = 0;
 
     private void Start()
     {
         board = GetComponent<Board>();
         movements = new List<Movement>();
         nextStepTime = Time.time + stepInterval;
+        hold = 0;
 
         MoveDecision();
     }
@@ -50,13 +53,29 @@ public class HeuristicAgent : MonoBehaviour
 
         Tetromino t = board.activePiece.data.tetromino;
         Vector2Int[] originalCells = Data.Cells[t];
-
-
-        for (int i = 0; i < 44; i++)
+        currPiece = board.nextPiece;
+        Vector2Int[] originalHoldCells = Data.Cells[board.nextPiece.data.tetromino];
+        if(board.savedPiece != null)
         {
-            int rotate = i / 11 - 1;
-            int move = i % 11 - 5;
-            cells = (Vector2Int[])originalCells.Clone();
+            originalHoldCells = Data.Cells[board.savedPiece.data.tetromino];
+        }
+
+
+        for (int i = 0; i < 88; i++)
+        {
+            int rotate = i / 22 - 1;
+            int move = i / 2 % 11 - 5;
+            hold = i % 2;
+            if(hold == 1)
+            {
+                currPiece = board.savedPiece == null ? board.nextPiece : board.savedPiece;
+                cells = (Vector2Int[])originalHoldCells.Clone();
+            }
+            else
+            {
+                currPiece = board.activePiece;
+                cells = (Vector2Int[])originalCells.Clone();
+            }
             position = new Vector2Int(board.activePiece.position.x, board.activePiece.position.y);
             bool[] fields = (bool[])baseFields.Clone();
             Rotate(rotate);
@@ -78,8 +97,14 @@ public class HeuristicAgent : MonoBehaviour
     }
     private void DecodeMovement()
     {
-        int rotate = currMove / 11 - 1;
-        int move = currMove % 11 - 5;
+        int rotate = currMove / 22 - 1;
+        int move = currMove / 2 % 11 - 5;
+        hold = currMove % 2;
+
+        if(hold == 1)
+        {
+            movements.Add(Movement.HOLD);
+        }
 
         for (int i = 0; i < Math.Abs(rotate); i++)
         {
@@ -164,7 +189,7 @@ public class HeuristicAgent : MonoBehaviour
 
             int x, y;
 
-            switch (board.activePiece.data.tetromino)
+            switch (currPiece.data.tetromino)
             {
                 case Tetromino.I:
                 case Tetromino.O:
