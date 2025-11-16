@@ -37,6 +37,8 @@ public class Board : MonoBehaviour
     public int score = 0;
     public TextMeshProUGUI scoreText;
 
+        
+
     //Event
     public event UnityAction onGameOver;
     public event UnityAction<int, int, bool, bool> onPieceLock; //(LineClear, combo, isLastMoveRotation, isB2B)
@@ -51,6 +53,9 @@ public class Board : MonoBehaviour
 
     [SerializeField]
     private int boardSeed = 12345;
+
+    [SerializeField]
+    private bool clearBoard = false;
     public RectInt Bounds
     {
         get
@@ -115,14 +120,17 @@ public class Board : MonoBehaviour
 
     public void GameOver()
     {
-        tilemap.ClearAllTiles();
+        if(clearBoard)
+        {
+            tilemap.ClearAllTiles();
+            GameReset();
+        }
         score = 0;
         if(onGameOver != null)
         {
             onGameOver.Invoke();
         }
-        GameReset();
-        Debug.Log("gameover");
+        
     }
 
     public void Set(Piece piece)
@@ -179,7 +187,7 @@ public class Board : MonoBehaviour
         {
             // Only advance to the next row if the current is not cleared
             // because the tiles above will fall down when a row is cleared
-            if (IsLineFull(row) == 0)
+            if (IsLineFull(row))
             {
                 LineClear(row);
                 linesCleared++;
@@ -243,27 +251,21 @@ public class Board : MonoBehaviour
         ScoreTextUpdate();
     }
 
-    public int IsLineFull(int row)
+    public bool IsLineFull(int row)
     {
         RectInt bounds = Bounds;
-        int lineEmptyAmout = 0;
 
         for (int col = bounds.xMin; col < bounds.xMax; col++)
         {
             Vector3Int position = new Vector3Int(col, row, 0);
 
             // The line is not full if a tile is missing
-            if (!tilemap.HasTile(position))
-            {
-                lineEmptyAmout++;
+            if (!tilemap.HasTile(position)) {
+                return false;
             }
         }
 
-        if (lineEmptyAmout > 0)
-        {
-            return lineEmptyAmout;
-        }
-        return 0;
+        return true;
     }
 
     public void LineClear(int row)
