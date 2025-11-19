@@ -61,7 +61,7 @@ public class TrashLineAttack : MonoBehaviour
             Debug.Log(totalLine);
         }
 
-        if (b2b && lines == 4)
+        if (b2b && lines >= 4)
         {
             totalLine += 2;
         }
@@ -79,7 +79,7 @@ public class TrashLineAttack : MonoBehaviour
         TrashSend(totalLine);
         CounteringGarbage(totalLine);
 
-        Debug.Log(totalLine);
+        //Debug.Log(totalLine);
     }
 
     private void CounteringGarbage(int lines)

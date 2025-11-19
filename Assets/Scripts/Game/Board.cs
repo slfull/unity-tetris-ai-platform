@@ -33,21 +33,23 @@ public class Board : MonoBehaviour
     public Vector3Int previewPosition4 = new Vector3Int(10, -1, 0);
     public Vector3Int previewPosition5 = new Vector3Int(10, -3, 0);
     public Vector3Int holdPosition = new Vector3Int(-10, 8, 0);
-    
+
     public int score = 0;
     public TextMeshProUGUI scoreText;
 
-        
+
 
     //Event
     public event UnityAction onGameOver;
     public event UnityAction<int, int, bool, bool> onPieceLock; //(LineClear, combo, isLastMoveRotation, isB2B)
+    public event UnityAction<int, int, int, int> onUiUpdate; //(LineClear, combo, cleartype, b2bCount)
     public event UnityAction onSetNextPiece;
     public event UnityAction onLineAddTrash;
     public event UnityAction onTrashSpawner;
 
     [Header("State")]
     private int b2bCount = 0;
+    private int clearType = 0;
     public bool b2b { get; private set; } = false;
     public int combo { get; private set; } = 0;
 
@@ -56,6 +58,8 @@ public class Board : MonoBehaviour
 
     [SerializeField]
     private bool clearBoard = false;
+    [SerializeField]
+    private bool calculatescore = true;
     public RectInt Bounds
     {
         get
@@ -84,7 +88,7 @@ public class Board : MonoBehaviour
         }
     }
     public void Init()
-    { 
+    {
         score = 0;
         tilemap = GetComponentInChildren<Tilemap>();
         activePiece = GetComponent<Piece>();
@@ -120,17 +124,17 @@ public class Board : MonoBehaviour
 
     public void GameOver()
     {
-        if(clearBoard)
+        if (clearBoard)
         {
             tilemap.ClearAllTiles();
             GameReset();
         }
         score = 0;
-        if(onGameOver != null)
+        if (onGameOver != null)
         {
             onGameOver.Invoke();
         }
-        
+
     }
 
     public void Set(Piece piece)
@@ -199,26 +203,51 @@ public class Board : MonoBehaviour
 
         }
 
+        if (calculatescore)
+        {
+            CalculateScore(linesCleared);
+        }
+
+    }
+
+    public void CalculateScore(int linesCleared)
+    {
         //Score calculation
         //Default
         score += linesCleared;
-        if (linesCleared > 0) { Debug.Log("LinesCleared!! :" + linesCleared); }
+
         //Tetris
         if (linesCleared == 4)
         {
             score += linesCleared;
         }
-        //All-Spin
+        //All-Spin, this may cause extra trash send due to poor logic
         if (activePiece.isLastMoveRotation)
         {
             score += linesCleared;
+            if ((int)activePiece.data.tetromino == 5)
+            {
+                if (linesCleared == 3){clearType = (int)ClearType.TSpinTriple;}
+                if (linesCleared == 2){clearType = (int)ClearType.TSpinDouble;}
+            }
+        }
+        else
+        {
+            switch (linesCleared)
+            {
+                case 1: clearType = (int)ClearType.Single; break;
+                case 2: clearType = (int)ClearType.Double; break;
+                case 3: clearType = (int)ClearType.Triple; break;
+                case 4: clearType = (int)ClearType.Tetris; break;
+                default: break;
+            }
         }
 
         if (linesCleared != 0 && linesCleared != 4 && !activePiece.isLastMoveRotation)
         {
             b2bCount = 0;
         }
-        else if(linesCleared != 0)
+        else if (linesCleared != 0)
         {
             b2bCount++;
         }
@@ -240,15 +269,16 @@ public class Board : MonoBehaviour
         {
             b2b = false;
         }
-        
-        if(onPieceLock != null)
+
+        if (onPieceLock != null)
         {
             onPieceLock.Invoke(linesCleared, combo, activePiece.isLastMoveRotation, b2b);
         }
-        
 
-
-        ScoreTextUpdate();
+        if (onUiUpdate != null)
+        {
+            onUiUpdate.Invoke(score, combo, clearType, b2bCount);
+        }
     }
 
     public bool IsLineFull(int row)
@@ -260,7 +290,8 @@ public class Board : MonoBehaviour
             Vector3Int position = new Vector3Int(col, row, 0);
 
             // The line is not full if a tile is missing
-            if (!tilemap.HasTile(position)) {
+            if (!tilemap.HasTile(position))
+            {
                 return false;
             }
         }
@@ -327,7 +358,7 @@ public class Board : MonoBehaviour
             Set(piece);
         }
 
-        if(onSetNextPiece != null)
+        if (onSetNextPiece != null)
         {
             onSetNextPiece.Invoke();
         }
@@ -390,7 +421,7 @@ public class Board : MonoBehaviour
             return;
         }
 
-        if(savedPiece == null)
+        if (savedPiece == null)
         {
             savedPiece = gameObject.AddComponent<Piece>();
             savedPiece.enabled = false;
@@ -472,7 +503,7 @@ public class Board : MonoBehaviour
             }
         }
 
-        if(onLineAddTrash != null)
+        if (onLineAddTrash != null)
         {
             onLineAddTrash.Invoke();
         }
@@ -485,17 +516,14 @@ public class Board : MonoBehaviour
             LineAddTrash(trash.GetTrashAmountRemove(), trash.TrashPresetGenerate());
         }
 
-        if(onTrashSpawner != null)
+        if (onTrashSpawner != null)
         {
             onTrashSpawner.Invoke();
         }
     }
 
 
-    private void ScoreTextUpdate()
-    {
-        scoreText.text = "score:" + score;
-    }
+
 
     public bool[] GetField(bool includeActivePiece)
     {
@@ -534,7 +562,7 @@ public class Board : MonoBehaviour
 
         return field;
     }
-    
+
     public int GetBoardSize(int axis)
     {
         if (axis == 0)
@@ -612,7 +640,7 @@ public class Board : MonoBehaviour
 
         Set(activePiece);
     }
-    
+
     public void GameReset()
     {
         bag = new Bag();
@@ -623,6 +651,6 @@ public class Board : MonoBehaviour
         SpawnPiece();
     }
 
-    
+
 
 }
