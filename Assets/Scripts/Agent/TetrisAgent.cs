@@ -13,8 +13,10 @@ public class TetrisAgent : Agent
     private float reward;
     private Queue<Movement> movements;
     private const int NUM_TETROMINO_TYPES = 7;
+    private const float DELTA_FITNESS_NORMALIZE = 46.86f;
     private float gameOverReward = -1f;
     private float lineReward = 0.1f;
+    private float prevFitness;
     [SerializeField] private TextMeshProUGUI epUI;
     [SerializeField] private TextMeshProUGUI rewardUI;
 
@@ -45,12 +47,14 @@ public class TetrisAgent : Agent
         movements = new Queue<Movement>();
         ep = 0;
         reward = 0f;
+        prevFitness = 0f;
     }
 
     public override void OnEpisodeBegin()
     {
         ep++;
         reward = 0f;
+        prevFitness = 0f;
     }
 
     public override void OnActionReceived(ActionBuffers actions)
@@ -107,36 +111,36 @@ public class TetrisAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        sensor.AddOneHotObservation((int)board.activePiece.data.tetromino, NUM_TETROMINO_TYPES);
-        sensor.AddObservation(GetStates());
+        sensor.AddOneHotObservation((int)board.activePiece.data.tetromino, NUM_TETROMINO_TYPES); // 7
+        sensor.AddObservation(GetStates()); // 213
     }
 
     private float[] GetStates()
     {
         int width = board.Bounds.width;
         int height = board.Bounds.height;
-        float[] states = new float[width * height + width + 3];
+        float[] states = new float[213];
         bool[] fields = board.GetField(true);
 
-        for(int x = 0; x < width; x++)
+        for(int x = 0; x < 10; x++)
         {
-            for(int y = 0; y < height; y++)
+            for(int y = 0; y < 20; y++)
             {
-                states[x + y * width] = fields[x + y * width]? 1f : 0f;
+                states[x + y * 10] = fields[x + y * 10] ? 1f : 0f;
             }
         }
 
         var (columnHeight, aggregateHeight, completedLines, holes, bumpiness) 
             = Observations.GetCalculatedObservations(fields, width, height);
         
-        for(int i = 0; i < width; i++)
+        for(int i = 0; i < 10; i++)
         {
-            states[height * width + i] = (float)columnHeight[i] / height;
+            states[200 + i] = columnHeight[i] / 20f;
         }
 
-        states[height * width + width] = (float)aggregateHeight / (height * width);
-        states[height * width + width + 1] = (float)holes / (height * width);
-        states[height * width + width + 2] = (float)bumpiness / (height * width);
+        states[210] = aggregateHeight / 200f;
+        states[211] = holes / 200f;
+        states[212] = bumpiness / 200f;
 
         return states;
     }
@@ -150,28 +154,37 @@ public class TetrisAgent : Agent
 
     public void OnPieceLock(int line, int combo, bool isLastMoveRotation, bool isB2B)
     {
-        AgentReward(RewardType.LineClear, line);
+        AgentReward(RewardType.HEURISTIC, line);
     }
 
     public void AgentReward(RewardType type, int line)
     {
-        if(type == RewardType.GameOver)
+        if(type == RewardType.HEURISTIC)
         {
-            AddReward(gameOverReward);
-            reward += gameOverReward;
-        }
-        if(type == RewardType.LineClear)
-        {
-            bool[] fields = board.GetField(true);
-            int width = board.Bounds.width;
-            int height = board.Bounds.height;
-            var (columnHeight, aggregateHeight, completedLines, holes, bumpiness) 
-                = Observations.GetCalculatedObservations(fields, width, height);
-            
-            float total = -0.51f * aggregateHeight + 0.76f * line - 0.36f * holes - 0.18f * bumpiness;
-            total /= width * height * 4;
-            AddReward(total);
-            reward += total;
+            AddReward(DeltaFitness(line));
         }
     }
+
+    private float DeltaFitness(int line)
+    {
+        float fitness = Fitness(line);
+        float res = fitness - prevFitness;
+        prevFitness = fitness;
+        res /= DELTA_FITNESS_NORMALIZE;
+        return res;
+    }
+
+    private float Fitness(int line)
+    {
+        bool[] fields = board.GetField(true);
+        int width = board.Bounds.width;
+        int height = board.Bounds.height;
+        var (columnHeight, aggregateHeight, completedLines, holes, bumpiness) 
+            = Observations.GetCalculatedObservations(fields, width, height);
+        
+        float fitness = -0.51f * aggregateHeight + 0.76f * line - 0.36f * holes - 0.18f * bumpiness;
+        return fitness;
+    }
+
+
 }
