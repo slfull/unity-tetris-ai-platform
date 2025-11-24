@@ -143,17 +143,14 @@ public class TetrisAgent : Agent
 
     public void OnGameOver()
     {
-        AgentReward(RewardType.GameOver, 0);
+        //AgentReward(RewardType.GameOver, 0);
         //Debug.Log("GameOver" + ep);
         EndEpisode();
     }
 
     public void OnPieceLock(int line, int combo, bool isLastMoveRotation, bool isB2B)
     {
-        if(line > 0)
-        {
-            AgentReward(RewardType.LineClear, line);
-        }
+        AgentReward(RewardType.LineClear, line);
     }
 
     public void AgentReward(RewardType type, int line)
@@ -165,8 +162,16 @@ public class TetrisAgent : Agent
         }
         if(type == RewardType.LineClear)
         {
-            AddReward(line * lineReward);
-            reward += line * lineReward;
+            bool[] fields = board.GetField(true);
+            int width = board.Bounds.width;
+            int height = board.Bounds.height;
+            var (columnHeight, aggregateHeight, completedLines, holes, bumpiness) 
+                = Observations.GetCalculatedObservations(fields, width, height);
+            
+            float total = -0.51f * aggregateHeight + 0.76f * line - 0.36f * holes - 0.18f * bumpiness;
+            total /= width * height * 4;
+            AddReward(total);
+            reward += total;
         }
     }
 }
