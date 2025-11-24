@@ -5,7 +5,6 @@ using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using TMPro;
-using Unity.MLAgents.Integrations.Match3;
 public class TetrisAgent : Agent
 {
     private Board board;
@@ -17,6 +16,7 @@ public class TetrisAgent : Agent
     private float gameOverReward = -1f;
     private float lineReward = 0.1f;
     private float prevFitness;
+    private int lines;
     [SerializeField] private TextMeshProUGUI epUI;
     [SerializeField] private TextMeshProUGUI rewardUI;
 
@@ -44,6 +44,7 @@ public class TetrisAgent : Agent
         board = GetComponent<Board>();
         board.onGameOver += OnGameOver;
         board.onPieceLock += OnPieceLock;
+        board.onSetNextPiece += OnSetNextPiece;
         movements = new Queue<Movement>();
         ep = 0;
         reward = 0f;
@@ -55,6 +56,7 @@ public class TetrisAgent : Agent
         ep++;
         reward = 0f;
         prevFitness = 0f;
+        lines = 0;
     }
 
     public override void OnActionReceived(ActionBuffers actions)
@@ -154,7 +156,11 @@ public class TetrisAgent : Agent
 
     public void OnPieceLock(int line, int combo, bool isLastMoveRotation, bool isB2B)
     {
-        AgentReward(RewardType.HEURISTIC, line);
+        lines = line;
+    }
+    public void OnSetNextPiece()
+    {
+        AgentReward(RewardType.HEURISTIC, lines);
     }
 
     public void AgentReward(RewardType type, int line)
