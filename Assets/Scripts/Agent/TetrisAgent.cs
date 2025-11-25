@@ -166,7 +166,7 @@ public class TetrisAgent : Agent
 
     public void OnGameOver()
     {
-        AgentReward(RewardType.SCORE, -4);
+        AgentReward(RewardType.GAMVOVER, -4);
         //Debug.Log("GameOver" + ep);
         EndEpisode();
     }
@@ -207,6 +207,7 @@ public class TetrisAgent : Agent
             float reward = DeltaFitness(line);
             averageDeltaFitness = (reward + averageDeltaFitness * (pieceCount - 1)) / pieceCount;
             reward /= DELTA_FITNESS_NORMALIZE;
+            reward += 0.055f;
             reward *= heuristicWeight;
             AddReward(reward);
             this.reward += reward;
@@ -214,11 +215,19 @@ public class TetrisAgent : Agent
 
         if(type == RewardType.SCORE)
         {
-            float reward = line * Math.Abs(line);
+            float reward = line * line;
             reward /= MAX_SCORE;
             reward *= 1f - heuristicWeight;
             AddReward(reward);
             this.reward += reward;
+        }
+
+        if(type == RewardType.GAMVOVER)
+        {
+            if(heuristicWeight == 0.1f)
+            {
+                AddReward(-1f);
+            }
         }
     }
 

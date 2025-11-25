@@ -1,4 +1,4 @@
 public enum RewardType
 {
-    HEURISTIC, SCORE
+    HEURISTIC, SCORE, GAMVOVER
 }
