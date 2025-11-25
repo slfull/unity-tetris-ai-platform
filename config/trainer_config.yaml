@@ -21,3 +21,18 @@ behaviors:
     max_steps: 10000000
     time_horizon: 64
     summary_freq: 10000
+
+environment_parameters:
+  heuristic_weight:
+    curriculum:
+      - name: Lesson0 
+        completion_criteria:
+          measure: reward
+          behavior: Board
+          signal_smoothing: true
+          min_lesson_length: 100
+          threshold: 0.5
+        value: 0.9
+
+      - name: Lesson1
+        value: 0.1

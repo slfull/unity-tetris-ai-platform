@@ -13,12 +13,20 @@ public class TetrisAgent : Agent
     private Queue<Movement> movements;
     private const int NUM_TETROMINO_TYPES = 7;
     private const float DELTA_FITNESS_NORMALIZE = 46.86f;
+    private const float MAX_SCORE = 16;
     private float gameOverReward = -1f;
     private float lineReward = 0.1f;
     private float prevFitness;
     private int lines;
+    private int[] lineClear = new int[4];
+    private int pieceCount;
+    private float averageDeltaFitness;
+    private float heuristicWeight = 0.9f;
     [SerializeField] private TextMeshProUGUI epUI;
     [SerializeField] private TextMeshProUGUI rewardUI;
+    [SerializeField] private TextMeshProUGUI[] lineClearUI = new TextMeshProUGUI[4];
+    [SerializeField] private TextMeshProUGUI pieceCountUI;
+    [SerializeField] private TextMeshProUGUI averageDeltaFitnessUI;
 
     private void Start()
     {
@@ -49,6 +57,7 @@ public class TetrisAgent : Agent
         ep = 0;
         reward = 0f;
         prevFitness = 0f;
+        lineClear = new int[4];
     }
 
     public override void OnEpisodeBegin()
@@ -57,6 +66,14 @@ public class TetrisAgent : Agent
         reward = 0f;
         prevFitness = 0f;
         lines = 0;
+        for(int i = 0; i < 4; i++)
+        {
+            lineClear[i] = 0;
+        }
+        averageDeltaFitness = 0f;
+        pieceCount = 0;
+        GameDataUIUpdate();
+        heuristicWeight = Academy.Instance.EnvironmentParameters.GetWithDefault("heuristic_weight", 0.9f);
     }
 
     public override void OnActionReceived(ActionBuffers actions)
@@ -149,7 +166,7 @@ public class TetrisAgent : Agent
 
     public void OnGameOver()
     {
-        //AgentReward(RewardType.GameOver, 0);
+        AgentReward(RewardType.SCORE, -4);
         //Debug.Log("GameOver" + ep);
         EndEpisode();
     }
@@ -157,17 +174,51 @@ public class TetrisAgent : Agent
     public void OnPieceLock(int line, int combo, bool isLastMoveRotation, bool isB2B)
     {
         lines = line;
+        pieceCount++;
+        if(line > 1)
+        {
+            lineClear[line - 1]++;
+        }
+    }
+
+    private void GameDataUIUpdate()
+    {
+        if(pieceCountUI == null)
+        {
+            return;
+        }
+        pieceCountUI.text = $"Piece Count:{pieceCount}";
+        for(int line = 0; line < lineClearUI.Length; line++)
+        {
+            lineClearUI[line].text = $"Line({line + 1}):{lineClear[line]}";
+        }
     }
     public void OnSetNextPiece()
     {
         AgentReward(RewardType.HEURISTIC, lines);
+        AgentReward(RewardType.SCORE, lines);
+        GameDataUIUpdate();
     }
 
     public void AgentReward(RewardType type, int line)
     {
         if(type == RewardType.HEURISTIC)
         {
-            AddReward(DeltaFitness(line));
+            float reward = DeltaFitness(line);
+            averageDeltaFitness = (reward + averageDeltaFitness * (pieceCount - 1)) / pieceCount;
+            reward /= DELTA_FITNESS_NORMALIZE;
+            reward *= heuristicWeight;
+            AddReward(reward);
+            this.reward += reward;
+        }
+
+        if(type == RewardType.SCORE)
+        {
+            float reward = line * Math.Abs(line);
+            reward /= MAX_SCORE;
+            reward *= 1f - heuristicWeight;
+            AddReward(reward);
+            this.reward += reward;
         }
     }
 
@@ -176,7 +227,6 @@ public class TetrisAgent : Agent
         float fitness = Fitness(line);
         float res = fitness - prevFitness;
         prevFitness = fitness;
-        res /= DELTA_FITNESS_NORMALIZE;
         return res;
     }
 
@@ -191,6 +241,4 @@ public class TetrisAgent : Agent
         float fitness = -0.51f * aggregateHeight + 0.76f * line - 0.36f * holes - 0.18f * bumpiness;
         return fitness;
     }
-
-
 }

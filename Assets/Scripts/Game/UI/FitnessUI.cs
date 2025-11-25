@@ -8,10 +8,12 @@ public class FitnessUI : MonoBehaviour
 {
     private Board board;
     [SerializeField] private TextMeshProUGUI fitnessUI;
+    [SerializeField] private TextMeshProUGUI rewardUI;
     private int pieceCount;
     private float prevFitness;
     private float averageDeltaFitness;
     private int lines;
+    private float reward;
 
     private void Start()
     {
@@ -20,6 +22,7 @@ public class FitnessUI : MonoBehaviour
         prevFitness = 0f;
         lines = 0;
         averageDeltaFitness = 0f;
+        reward = 0f;
         board.onPieceLock += OnPieceLock;
         board.onSetNextPiece += OnSetNextPiece;
         fitnessUI.text = $"average delta fitness: {averageDeltaFitness}";
@@ -32,7 +35,10 @@ public class FitnessUI : MonoBehaviour
 
     private void OnSetNextPiece()
     {
-        uiUpdate(DeltaFitness(lines));
+        float deltaFitness = DeltaFitness(lines);
+        reward += deltaFitness / 46.86f * 0.9f;
+        reward += lines * lines / 16f * 0.1f;
+        uiUpdate(deltaFitness);
         pieceCount++;
     }
 
@@ -42,6 +48,13 @@ public class FitnessUI : MonoBehaviour
         averageDeltaFitness += deltaFitness;
         averageDeltaFitness /= pieceCount + 1;
         fitnessUI.text = $"average delta fitness: {averageDeltaFitness}";
+
+        if(rewardUI == null)
+        {
+            return;
+        }
+
+        rewardUI.text = $"reward: {reward}";
     }
 
     private float DeltaFitness(int line)
