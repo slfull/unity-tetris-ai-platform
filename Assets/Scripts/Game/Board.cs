@@ -155,30 +155,41 @@ public class Board : MonoBehaviour
         }
     }
 
-    public bool IsValidPosition(Piece piece, Vector3Int position)
+public bool IsValidPosition(Piece piece, Vector3Int position)
+{
+    for (int i = 0; i < piece.cells.Length; i++)
     {
-        RectInt bounds = Bounds;
+        Vector3Int tilePosition = piece.cells[i] + position;
 
-        // The position is only valid if every cell is valid
-        for (int i = 0; i < piece.cells.Length; i++)
+        // Use the new helper function here
+        if (!IsValidTile(tilePosition))
         {
-            Vector3Int tilePosition = piece.cells[i] + position;
-
-            // An out of bounds tile is invalid
-            if (!bounds.Contains((Vector2Int)tilePosition))
-            {
-                return false;
-            }
-
-            // A tile already occupies the position, thus invalid
-            if (tilemap.HasTile(tilePosition))
-            {
-                return false;
-            }
+            return false;
         }
-
-        return true;
     }
+
+    return true;
+}
+
+public bool IsValidTile(Vector3Int tilePosition)
+{
+    RectInt bounds = Bounds;
+
+    // 1. An out of bounds tile is invalid
+    // Note: We cast to Vector2Int because RectInt.Contains requires it
+    if (!bounds.Contains((Vector2Int)tilePosition))
+    {
+        return false;
+    }
+
+    // 2. A tile already occupies the position, thus invalid
+    if (tilemap.HasTile(tilePosition))
+    {
+        return false;
+    }
+
+    return true;
+}
 
     public void ClearLines()
     {
@@ -221,14 +232,14 @@ public class Board : MonoBehaviour
         {
             score += linesCleared;
         }
-        //All-Spin, this may cause extra trash send due to poor logic
-        if (activePiece.isLastMoveRotation)
+        //Full Spin
+        if (activePiece.spin == Spin.Full)
         {
             score += linesCleared;
             if ((int)activePiece.data.tetromino == 5)
             {
-                if (linesCleared == 3){clearType = (int)ClearType.TSpinTriple;}
-                if (linesCleared == 2){clearType = (int)ClearType.TSpinDouble;}
+                if (linesCleared == 3) { clearType = (int)ClearType.TSpinTriple; }
+                if (linesCleared == 2) { clearType = (int)ClearType.TSpinDouble; }
             }
         }
         else

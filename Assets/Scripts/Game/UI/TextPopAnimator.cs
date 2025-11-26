@@ -4,11 +4,13 @@ using System.Collections;
 
 [RequireComponent(typeof(CanvasGroup))]
 [RequireComponent(typeof(TextMeshProUGUI))]
+
+//written by LLM, not proud of it, prob change later
 public class TextPopAnimator : MonoBehaviour
 {
     [Header("Animation Settings")]
     public float popDuration = 0.3f;
-    public float stayDuration = 1.0f;
+    public float stayDuration = 2.0f;
     public float fadeDuration = 0.5f;
     public Vector3 targetScale = new Vector3(1.2f, 1.2f, 1f);
 

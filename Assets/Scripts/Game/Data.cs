@@ -40,6 +40,12 @@ public static class Data
         { new Vector2Int(0, 0), new Vector2Int( 1, 0), new Vector2Int( 1, 1), new Vector2Int(0,-2), new Vector2Int( 1,-2) },
     };
 
+    public static readonly Vector2Int[,] MiniCornerOffsets = new Vector2Int[,] {
+    { new Vector2Int(-1, 1), new Vector2Int( 1, 1) }, 
+    { new Vector2Int( 1, 1), new Vector2Int( 1,-1) }, 
+    { new Vector2Int( 1,-1), new Vector2Int(-1,-1) }, 
+    { new Vector2Int(-1,-1), new Vector2Int(-1, 1) }  
+    };
     public static readonly Dictionary<Tetromino, Vector2Int[,]> WallKicks = new Dictionary<Tetromino, Vector2Int[,]>()
     {
         { Tetromino.I, WallKicksI },

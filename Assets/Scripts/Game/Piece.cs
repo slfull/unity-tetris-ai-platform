@@ -10,6 +10,8 @@ public class Piece : MonoBehaviour
     public Vector3Int[] cellsPosition { get; private set; }
     public int rotationIndex;
     public bool isLastMoveRotation { get; private set; }
+
+    public Spin spin = Spin.None;
     public float stepDelay = 1f;
     public float moveDelay = 0.03f;
     public float lockDelay = 0.5f;
@@ -49,7 +51,7 @@ public class Piece : MonoBehaviour
         {
             cellsPosition = new Vector3Int[data.cells.Length];
         }
-        for(int i = 0; i < cells.Length; i++)
+        for (int i = 0; i < cells.Length; i++)
         {
             cellsPosition[i] = cells[i] + position;
         }
@@ -58,7 +60,7 @@ public class Piece : MonoBehaviour
     private void Update()
     {
         if (agentExists == false) { HandleUpdateMove(-1); }
-        for(int i = 0; i < cells.Length; i++)
+        for (int i = 0; i < cells.Length; i++)
         {
             cellsPosition[i] = cells[i] + position;
         }
@@ -124,6 +126,7 @@ public class Piece : MonoBehaviour
         board.Set(this);
         board.ClearLines();
         board.SpawnPiece();
+        Debug.Log(spin);
     }
 
     public bool Move(Vector2Int translation)
@@ -161,9 +164,10 @@ public class Piece : MonoBehaviour
         {
             rotationIndex = originalRotation;
             ApplyRotationMatrix(-direction);
+            spin = Spin.None;
         }
 
-        if(rotationIndex != originalRotation)
+        if (rotationIndex != originalRotation)
         {
             isLastMoveRotation = true;
         }
@@ -219,7 +223,7 @@ public class Piece : MonoBehaviour
 
             if (Move(translation))
             {
-                //Debug.Log(wallKickIndex);
+                spin = CheckTSpin(rotationIndex, i, position);
                 return true;
             }
         }
@@ -250,4 +254,59 @@ public class Piece : MonoBehaviour
             return min + (input - min) % (max - min);
         }
     }
+    private Spin CheckTSpin(int rotationIndex, int kickIndex, Vector3Int currentPos)
+    {
+        if (data.tetromino != Tetromino.T)
+        {
+            return Spin.None;
+        }
+
+        Vector2Int[] corners = new Vector2Int[] {
+        new Vector2Int(-1, -1),
+        new Vector2Int( 1, -1),
+        new Vector2Int(-1,  1),
+        new Vector2Int( 1,  1)
+        };
+
+        int occupiedCorners = 0;
+
+        foreach (var offset in corners)
+        {
+            Vector3Int cornerPos = currentPos + (Vector3Int)offset;
+
+            if (!board.IsValidTile(cornerPos))
+            {
+                occupiedCorners++;
+            }
+        }
+
+        if (occupiedCorners < 3)
+        {
+            return Spin.None;
+        }
+
+        int occupiedMiniCorners = 0;
+
+        for (int i = 0; i < data.miniCornerOffsets.GetLength(1); i++)
+        {
+            Vector2Int offset = data.miniCornerOffsets[rotationIndex, i];
+            Vector3Int cornerPos = currentPos + (Vector3Int)offset;
+
+            if (!board.IsValidTile(cornerPos))
+            {
+                occupiedMiniCorners++;
+            }
+        }
+
+        if (kickIndex == 4 || occupiedMiniCorners == 2)
+        {
+            return Spin.Full;
+        }
+        else
+        {
+            return Spin.Mini;
+        }
+    }
+
+
 }
