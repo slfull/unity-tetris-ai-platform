@@ -30,6 +30,21 @@ public class BoardUI : MonoBehaviour
         {
             scoreString = "Score: " + score.ToString();
             scoreText.Show(scoreString);
+            string cleartypeStringComp = "";
+        switch (cleartype)
+        {
+            case 1: cleartypeStringComp = "Single"; break;
+            case 2: cleartypeStringComp = "Double"; break;
+            case 3: cleartypeStringComp = "Triple"; break;
+            case 4: cleartypeStringComp = "Tetris"; break;
+            case 5: cleartypeStringComp = "TSpinDouble"; break;
+            case 6: cleartypeStringComp = "TSpinTriple"; break;
+            default: break;
+        }
+
+            cleartypeString = cleartypeStringComp;
+            cleartypeText.Show(cleartypeString);
+        
         }
 
         if (comboString != combo.ToString() + "X Combo ")
@@ -47,22 +62,7 @@ public class BoardUI : MonoBehaviour
 
 
 
-        string cleartypeStringComp = "";
-        switch (cleartype)
-        {
-            case 1: cleartypeStringComp = "Single"; break;
-            case 2: cleartypeStringComp = "Double"; break;
-            case 3: cleartypeStringComp = "Triple"; break;
-            case 4: cleartypeStringComp = "Tetris"; break;
-            case 5: cleartypeStringComp = "TSpinDouble"; break;
-            case 6: cleartypeStringComp = "TSpinTriple"; break;
-            default: break;
-        }
-        if (cleartypeString != cleartypeStringComp)
-        {
-            cleartypeString = cleartypeStringComp;
-            cleartypeText.Show(cleartypeString);
-        }
+        
 
     }
 }
