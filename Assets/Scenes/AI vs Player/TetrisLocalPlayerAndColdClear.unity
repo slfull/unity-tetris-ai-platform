@@ -1250,29 +1250,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5432692195171681812, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
   m_PrefabInstance: {fileID: 1157774385}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1079253974
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1079253969}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54c9a9c62cd79c645b10ac614b55180b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveLeftInput: 106
-  moveRightInput: 108
-  moveDownInput: 107
-  hardDropInput: 105
-  holdInput: 333
-  clockwiseInput: 330
-  counterClockwiseInput: 332
-  dpadX: 0
-  dpadY: 0
-  prevDpadX: 0
-  prevDpadY: 0
 --- !u!114 &1079253979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1559,9 +1536,6 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5432692195171681812, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1079253974}
     - targetCorrespondingSourceObject: {fileID: 5432692195171681812, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1079253979}
