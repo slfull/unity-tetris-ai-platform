@@ -942,6 +942,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1278343923391222154, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
+      propertyPath: clearBoard
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1278343923391222154, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
       propertyPath: activePiece
       value: 
       objectReference: {fileID: 2105800526}
@@ -1426,6 +1430,10 @@ PrefabInstance:
     - target: {fileID: 1278343923391222154, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
       propertyPath: scoreText
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1278343923391222154, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
+      propertyPath: clearBoard
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1278343923391222154, guid: 4bf8ac37016bb0241958f705d6d3c411, type: 3}
       propertyPath: activePiece

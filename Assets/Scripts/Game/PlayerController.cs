@@ -11,18 +11,20 @@ public class PlayerController : MonoBehaviour
     private InputAction p1HardDrop;
     private InputAction p1Hold;
     private InputAction p1Rotate;
+    private InputAction p1Drop;
     private InputAction p2Move;
     private InputAction p2HardDrop;
     private InputAction p2Hold;
     private InputAction p2Rotate;
+    private InputAction p2Drop;
     private Vector2 p1PrevFrameMove;
     private float p1PrevRotate;
     private Vector2 p2PrevFrameMove;
     private float p2PrevRotate;
     private float p1MovePressTime;
     private float p2MovePressTime;
-    [SerializeField] private float holdMoveTime = 0.5f;
-    [SerializeField] private float holdMoveStepTime = 0.1f;
+    private float holdMoveTime = 0.3f;
+    private float holdMoveStepTime = 0.05f;
 
     private void Initialize()
     {
@@ -31,10 +33,12 @@ public class PlayerController : MonoBehaviour
         p1HardDrop = playerInput.FindAction("P1HardDrop");
         p1Hold = playerInput.FindAction("P1Hold");
         p1Rotate = playerInput.FindAction("P1Rotate");
+        p1Drop = playerInput.FindAction("P1Drop");
         p2Move = playerInput.FindAction("P2Move");
         p2HardDrop = playerInput.FindAction("P2HardDrop");
         p2Hold = playerInput.FindAction("P2Hold");
         p2Rotate = playerInput.FindAction("P2Rotate");
+        p2Drop = playerInput.FindAction("P2Drop");
         p1PrevFrameMove = new Vector2();
         p1PrevRotate = 0;
         p2PrevFrameMove = new Vector2();
@@ -77,6 +81,11 @@ public class PlayerController : MonoBehaviour
             HardDrop(player1);
         }
 
+        if(p1Drop.triggered)
+        {
+            player1.PieceMove(Movement.DROP);
+        }
+
         if (p1Hold.triggered)
         {
             Hold(player1);
@@ -114,6 +123,10 @@ public class PlayerController : MonoBehaviour
         if (p2HardDrop.triggered)
         {
             HardDrop(player2);
+        }
+        if (p2Drop.triggered)
+        {
+            player2.PieceMove(Movement.DROP);
         }
 
         if (p2Hold.triggered)

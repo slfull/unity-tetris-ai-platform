@@ -76,6 +76,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "P1Drop",
+                    "type": "Button",
+                    "id": "34fd9d9b-fdb3-494b-b539-bc9c6c1ea7e3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "P2Drop",
+                    "type": "Button",
+                    "id": "4bda79ea-51b8-4089-8e44-4b74065082d9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -298,6 +316,28 @@
                     "action": "P2Rotate",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "88ff2d85-81b0-4357-a69d-8dbe3c743189",
+                    "path": "<Keyboard>/capsLock",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "P1Drop",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "497ccaff-38cc-422a-a65a-fbed49fa7b6f",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "P2Drop",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },

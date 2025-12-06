@@ -98,6 +98,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""P1Drop"",
+                    ""type"": ""Button"",
+                    ""id"": ""34fd9d9b-fdb3-494b-b539-bc9c6c1ea7e3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""P2Drop"",
+                    ""type"": ""Button"",
+                    ""id"": ""4bda79ea-51b8-4089-8e44-4b74065082d9"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -320,6 +338,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""P2Rotate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""88ff2d85-81b0-4357-a69d-8dbe3c743189"",
+                    ""path"": ""<Keyboard>/capsLock"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""P1Drop"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""497ccaff-38cc-422a-a65a-fbed49fa7b6f"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""P2Drop"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -636,6 +676,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_P2HardDrop = m_Player.FindAction("P2HardDrop", throwIfNotFound: true);
         m_Player_P2Hold = m_Player.FindAction("P2Hold", throwIfNotFound: true);
         m_Player_P2Rotate = m_Player.FindAction("P2Rotate", throwIfNotFound: true);
+        m_Player_P1Drop = m_Player.FindAction("P1Drop", throwIfNotFound: true);
+        m_Player_P2Drop = m_Player.FindAction("P2Drop", throwIfNotFound: true);
         // Rebind
         m_Rebind = asset.FindActionMap("Rebind", throwIfNotFound: true);
         m_Rebind_P1Move = m_Rebind.FindAction("P1Move", throwIfNotFound: true);
@@ -715,6 +757,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_P2HardDrop;
     private readonly InputAction m_Player_P2Hold;
     private readonly InputAction m_Player_P2Rotate;
+    private readonly InputAction m_Player_P1Drop;
+    private readonly InputAction m_Player_P2Drop;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -727,6 +771,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @P2HardDrop => m_Wrapper.m_Player_P2HardDrop;
         public InputAction @P2Hold => m_Wrapper.m_Player_P2Hold;
         public InputAction @P2Rotate => m_Wrapper.m_Player_P2Rotate;
+        public InputAction @P1Drop => m_Wrapper.m_Player_P1Drop;
+        public InputAction @P2Drop => m_Wrapper.m_Player_P2Drop;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -760,6 +806,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @P2Rotate.started += instance.OnP2Rotate;
             @P2Rotate.performed += instance.OnP2Rotate;
             @P2Rotate.canceled += instance.OnP2Rotate;
+            @P1Drop.started += instance.OnP1Drop;
+            @P1Drop.performed += instance.OnP1Drop;
+            @P1Drop.canceled += instance.OnP1Drop;
+            @P2Drop.started += instance.OnP2Drop;
+            @P2Drop.performed += instance.OnP2Drop;
+            @P2Drop.canceled += instance.OnP2Drop;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -788,6 +840,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @P2Rotate.started -= instance.OnP2Rotate;
             @P2Rotate.performed -= instance.OnP2Rotate;
             @P2Rotate.canceled -= instance.OnP2Rotate;
+            @P1Drop.started -= instance.OnP1Drop;
+            @P1Drop.performed -= instance.OnP1Drop;
+            @P1Drop.canceled -= instance.OnP1Drop;
+            @P2Drop.started -= instance.OnP2Drop;
+            @P2Drop.performed -= instance.OnP2Drop;
+            @P2Drop.canceled -= instance.OnP2Drop;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -917,6 +975,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnP2HardDrop(InputAction.CallbackContext context);
         void OnP2Hold(InputAction.CallbackContext context);
         void OnP2Rotate(InputAction.CallbackContext context);
+        void OnP1Drop(InputAction.CallbackContext context);
+        void OnP2Drop(InputAction.CallbackContext context);
     }
     public interface IRebindActions
     {
